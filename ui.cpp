@@ -155,15 +155,13 @@ void UI::testing_wd(){
 void UI::zoom_in(){
 	Window* window = _mundo->get_window();
 	window->zoom_in(30);
-	Ponto* p = new Ponto(new Coordenadas(200,200), "kappa");
-	draw(p);
+	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 }
 
 void UI::zoom_out(){
 	Window* window = _mundo->get_window();
 	window->zoom_out(30);
-	Ponto* p = new Ponto(new Coordenadas(200,200), "kappa");
-	draw(p);
+	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 }
 void UI::pintar_fundo(double red, double green, double blue, double alpha){
 	Cor* c = new Cor(red,green,blue,alpha);
