@@ -12,9 +12,9 @@ public:
     Mundo(Window* window);
     ~Mundo();
     void add_object(Objeto* obj);
-    void remover_objeto(std::string nome);
+    void remove_object(std::string nome);
     void move_window(double x1_offset, double y1_offset, double x2_offset, double y2_offset);
-    std::vector<Objeto*> get_objetos();
+    std::vector<Objeto*> get_objects();
     Window* get_window();
 private:
 	Window* _window;
