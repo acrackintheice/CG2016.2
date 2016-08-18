@@ -2,6 +2,10 @@
 #define UI_HPP
 
 #include <gtk/gtk.h>
+#include <iostream>
+#include <string.h>
+#include "transformations.cpp"
+#include "ponto.hpp"
 #include "objeto.hpp"
 #include "cor.hpp"
 #include "mundo.hpp"

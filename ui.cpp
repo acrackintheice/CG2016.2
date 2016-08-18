@@ -1,9 +1,4 @@
 #include "ui.hpp"
-#include <iostream>
-#include <string.h>
-#include "transformations.cpp"
-#include "ddata.hpp"
-#include "ponto.hpp"
 
 using namespace std;
 
