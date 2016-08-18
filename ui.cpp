@@ -33,16 +33,16 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data)
 		/* Set the line cap, otherwise points dont show*/
 		cairo_set_line_cap  (cr, CAIRO_LINE_CAP_ROUND); 
 		/*  Starting the drawing process, drawing the first point	*/
-		vector<Coordenadas*>::iterator it = pontos.begin();
-		Coordenadas* xy = Transformations::viewport(*it, window_min, window_max, viewport_min, viewport_max);
+		vector<Coordenadas*>::iterator it2 = pontos.begin();
+		Coordenadas* xy = Transformations::viewport(*it2, window_min, window_max, viewport_min, viewport_max);
 		/* Setting the starting point */
 		cairo_move_to(cr, xy->get_x(), xy->get_y());
 		/* Drawing the starting point in case there are no others */
 		cairo_line_to(cr, xy->get_x(), xy->get_y());
-		it++;
+		it2++;
 		/* Drawing all other points */
-		for(it ; it != pontos.end(); it++){
-			xy = Transformations::viewport(*it, window_min, window_max, viewport_min, viewport_max);
+		for(it2 ; it2 != pontos.end(); it2++){
+			xy = Transformations::viewport(*it2, window_min, window_max, viewport_min, viewport_max);
 			cairo_line_to(cr, xy->get_x(), xy->get_y());
 		}
 		/* The stroke function actually draws the object */
@@ -152,10 +152,13 @@ void UI::draw(){
 }
 void UI::remove_object(){
 	GtkListBoxRow* list_row = gtk_list_box_get_selected_row ((GtkListBox*) _object_list);
-	string name = get_text_of_textview(gtk_bin_get_child(GTK_BIN(list_row)));
-	gtk_container_remove ((GtkContainer*) _object_list,(GtkWidget*)list_row);
-	_mundo->remove_object(name);
-	gtk_widget_queue_draw ((GtkWidget*) _canvas);
+	if(list_row != NULL){
+		string name = get_text_of_textview(gtk_bin_get_child(GTK_BIN(list_row)));
+		gtk_container_remove ((GtkContainer*) _object_list,(GtkWidget*)list_row);
+		_mundo->remove_object(name);
+		gtk_widget_queue_draw ((GtkWidget*) _canvas);
+	}
+	
 }
 void UI::move_window(double x1_offset, double y1_offset, double x2_offset, double y2_offset){
 	Window* window = _mundo->get_window();
