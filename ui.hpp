@@ -29,6 +29,8 @@ public:
 	void remove_object();
 	void zoom_in();
 	void zoom_out();
+	void translate();
+	void scale();
 private:
 	const gchar* get_current_page_label(GtkNotebook* notebook);
 	char* get_text_of_textview(GtkWidget *text_view);
@@ -36,6 +38,9 @@ private:
 	bool input_is_valid();
 	void reset_polygon_points();
 	void add_name_to_list(const gchar* name);
+	void remove_name_from_list(const gchar* name);
+	Objeto* get_selected_object();
+	std::string get_selected_object_name();
 	GtkBuilder* _builder;
 	// Main window widgets
 	GObject* _main_window;
@@ -47,6 +52,12 @@ private:
 	GObject* _button_right;
 	GObject* _button_zoom_in;
 	GObject* _button_zoom_out;
+	GObject* _button_translate;
+	GObject* _text_entry_dx;
+	GObject* _text_entry_dy;
+	GObject* _button_scale;
+	GObject* _text_entry_sx;
+	GObject* _text_entry_sy;
 	GObject* _dialog_add_object;
 	GObject* _canvas;
 	GObject* _object_list;

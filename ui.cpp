@@ -17,21 +17,20 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data)
 	/* Filling the background */
 	cairo_set_source_rgba(cr, 1, 1, 1, 1);
 	cairo_paint(cr);
+
+	/* Set the line width */
+	cairo_set_line_width(cr,3);
+	/* Set the line color */
+	cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+	/* Set the line cap, otherwise points dont show*/
+	cairo_set_line_cap  (cr, CAIRO_LINE_CAP_ROUND); 
 	/* Drawing objects */
 	vector<Objeto*> objects = mundo->get_objects();
-
-	/* For loop the draw each individual object*/
 	vector<Objeto*>::iterator it;
-    for(it = objects.begin(); it != objects.end(); it++){
-        Objeto* obj = (*it);
+	for(it = objects.begin(); it != objects.end(); it++){
+		Objeto* obj = (*it);
         /* Getting the points from the object*/
-        vector<Coordenadas*> pontos = obj->get_pontos();
-        /* Set the line color */
-		cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
-		/* Set the line width */
-		cairo_set_line_width(cr,3);
-		/* Set the line cap, otherwise points dont show*/
-		cairo_set_line_cap  (cr, CAIRO_LINE_CAP_ROUND); 
+		vector<Coordenadas*> pontos = obj->get_pontos();
 		/*  Starting the drawing process, drawing the first point	*/
 		vector<Coordenadas*>::iterator it2 = pontos.begin();
 		Coordenadas* xy = Transformations::viewport(*it2, window_min, window_max, viewport_min, viewport_max);
@@ -47,7 +46,13 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data)
 		}
 		/* The stroke function actually draws the object */
 		cairo_stroke(cr);
-    }
+		/* Drawing a circle cause of VPL*/
+		cairo_arc (cr,
+			xy->get_x(), xy->get_y(),
+			2 / 2.0,
+			0, 2 * G_PI);
+		cairo_fill (cr);
+	}
 	return FALSE;
 }
 static void show_add_object_dialog_callback (GtkWidget *widget, gpointer data){
@@ -83,12 +88,19 @@ static void zoom_in_callback (GtkWidget *widget, gpointer data){
 static void zoom_out_callback (GtkWidget *widget, gpointer data){
 	static_cast<UI*>(data)->zoom_out();
 }
+static void translate_callback (GtkWidget *widget, gpointer data){
+	static_cast<UI*>(data)->translate();
+}
+static void scale_callback (GtkWidget *widget, gpointer data){
+	static_cast<UI*>(data)->scale();
+}
 /* Member Functions */
 UI::UI(int argc, char *argv[], Mundo* mundo){
 	_mundo = mundo;
 	/* This intializes something, no idea what*/
 	gtk_init (&argc, &argv);
   	/* Constructing a GtkBuilder instance */
+
 	_builder = gtk_builder_new();
 	/* Loading the UI from a XML description */
 	gtk_builder_add_from_file (_builder, "simple.glade", NULL);
@@ -102,6 +114,12 @@ UI::UI(int argc, char *argv[], Mundo* mundo){
 	_button_right 		  = gtk_builder_get_object (_builder, "button_right");
 	_button_zoom_in 	  = gtk_builder_get_object (_builder, "button_zoom_in");
 	_button_zoom_out 	  = gtk_builder_get_object (_builder, "button_zoom_out");
+	_button_translate	  = gtk_builder_get_object (_builder, "button_translate");
+	_text_entry_dx		  = gtk_builder_get_object (_builder, "text_entry_dx");
+	_text_entry_dy        = gtk_builder_get_object (_builder, "text_entry_dy");
+	_button_scale	  	  = gtk_builder_get_object (_builder, "button_scale");
+	_text_entry_sx		  = gtk_builder_get_object (_builder, "text_entry_sx");
+	_text_entry_sy        = gtk_builder_get_object (_builder, "text_entry_sy");
 	_canvas 			  = gtk_builder_get_object (_builder, "canvas");
 	_object_list		  = gtk_builder_get_object (_builder, "object_list");
 	/* Add object dialog widgets*/
@@ -133,10 +151,12 @@ UI::UI(int argc, char *argv[], Mundo* mundo){
 	g_signal_connect (_button_right, 		  "clicked", G_CALLBACK (move_right_callback), 				this);
 	g_signal_connect (_button_zoom_in, 		  "clicked", G_CALLBACK (zoom_in_callback), 				this);
 	g_signal_connect (_button_zoom_out, 	  "clicked", G_CALLBACK (zoom_out_callback), 				this);
+	g_signal_connect (_button_translate, 	  "clicked", G_CALLBACK (translate_callback),			    this);
+	g_signal_connect (_button_scale,	 	  "clicked", G_CALLBACK (scale_callback),				    this);
 	/* Add object dialog widget signals */
-	g_signal_connect (_button_add, 	  				"clicked", G_CALLBACK (add_object_from_dialog_callback), 	this);
-	g_signal_connect (_button_cancel, 				"clicked", G_CALLBACK (hide_add_object_dialog_callback),  	this);
-	g_signal_connect (_button_add_point_to_polygon, "clicked", G_CALLBACK (add_point_to_polygon_callback),  	this);
+	g_signal_connect (_button_add, 	  				"clicked", 		G_CALLBACK (add_object_from_dialog_callback), 	this);
+	g_signal_connect (_button_cancel, 				"clicked", 		G_CALLBACK (hide_add_object_dialog_callback),  	this);
+	g_signal_connect (_button_add_point_to_polygon, "clicked", 		G_CALLBACK (add_point_to_polygon_callback)	,  	this);
 	/* Draing the empty world*/
 	draw();
 	/* Showing the main window*/
@@ -149,16 +169,13 @@ UI::~UI(){}
 
 void UI::draw(){
 	g_signal_connect (_canvas, "draw", G_CALLBACK (draw_object), _mundo);
+	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 }
 void UI::remove_object(){
-	GtkListBoxRow* list_row = gtk_list_box_get_selected_row ((GtkListBox*) _object_list);
-	if(list_row != NULL){
-		string name = get_text_of_textview(gtk_bin_get_child(GTK_BIN(list_row)));
-		gtk_container_remove ((GtkContainer*) _object_list,(GtkWidget*)list_row);
-		_mundo->remove_object(name);
-		gtk_widget_queue_draw ((GtkWidget*) _canvas);
-	}
-	
+	string name = get_selected_object_name();
+	_mundo->remove_object(name);
+	remove_name_from_list(name.c_str());
+	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 }
 void UI::move_window(double x1_offset, double y1_offset, double x2_offset, double y2_offset){
 	Window* window = _mundo->get_window();
@@ -175,6 +192,29 @@ void UI::zoom_out(){
 	window->zoom_out(30);
 	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 }
+
+void UI::scale(){
+	double sx = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_sx), NULL);
+	double sy = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_sy), NULL);
+	Objeto* obj = get_selected_object();
+	if(obj != NULL)
+	{
+		obj->scale(sx, sy);
+		gtk_widget_queue_draw ((GtkWidget*) _canvas);
+	}
+}
+
+void UI::translate(){
+	double dx = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_dx), NULL);
+	double dy = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_dy), NULL);
+	Objeto* obj = get_selected_object();
+	if(obj != NULL)
+	{
+		obj->translate(dx, dy);
+		gtk_widget_queue_draw ((GtkWidget*) _canvas);
+	}
+}
+
 void UI::show_add_object_dialog(){
 	gtk_widget_show (GTK_WIDGET(_dialog_add_object));
 }
@@ -191,34 +231,31 @@ void UI::add_point_to_polygon(){
 	delete[] size_text;
 }
 char* UI::get_text_of_textview(GtkWidget *text_view) {
-    GtkTextIter start, end;
-    GtkTextBuffer *buffer = gtk_text_view_get_buffer((GtkTextView *)text_view);
-    gchar* text;
-    gtk_text_buffer_get_bounds(buffer, &start, &end);
-    text = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
-    return text;
+	GtkTextIter start, end;
+	GtkTextBuffer *buffer = gtk_text_view_get_buffer((GtkTextView *)text_view);
+	gchar* text;
+	gtk_text_buffer_get_bounds(buffer, &start, &end);
+	text = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
+	return text;
 }
 void UI::set_text_of_textview(GtkWidget *text_view, gchar* text) {
-    GtkTextBuffer *buffer = gtk_text_view_get_buffer((GtkTextView *)text_view);
-    gtk_text_buffer_set_text (buffer, text, strlen(text));
+	GtkTextBuffer *buffer = gtk_text_view_get_buffer((GtkTextView *)text_view);
+	gtk_text_buffer_set_text (buffer, text, strlen(text));
 }
+
+void UI::remove_name_from_list(const gchar* name){
+	GtkListBoxRow* list_row = gtk_list_box_get_selected_row ((GtkListBox*) _object_list);
+	gtk_container_remove ((GtkContainer*) _object_list,(GtkWidget*)list_row);
+	gtk_widget_show_all (GTK_WIDGET(_object_list));
+}
+
 void UI::add_name_to_list(const gchar* name){
 	GtkTextBuffer *buffer = gtk_text_buffer_new (NULL);
 	gtk_text_buffer_set_text (buffer, name, strlen(name));
 	GtkWidget * text_view = gtk_text_view_new_with_buffer (buffer);
+	gtk_text_view_set_editable ((GtkTextView*) text_view, false);
+	gtk_text_view_set_cursor_visible ((GtkTextView*) text_view, false);
 	gtk_list_box_insert ((GtkListBox*)_object_list, text_view, 1);
-	/* 
-	Gonna leave this stuff here because there are some good things here
-	
-	if((GtkWidget*)gtk_list_box_get_row_at_index((GtkListBox*)_object_list, 0) != NULL){
-	GtkListBoxRow* list_row = gtk_list_box_get_row_at_index((GtkListBox*)_object_list, 0);
-	cout << get_text_of_textview(gtk_bin_get_child(GTK_BIN(list_row))) << endl;
-	cout << gtk_list_box_row_get_index (gtk_list_box_get_row_at_index((GtkListBox*)_object_list, 0)) << endl;
-	}
-	else{
-		cout << "it was null" << endl;
-	}
-	*/
 	gtk_widget_show_all (GTK_WIDGET(_object_list));
 }
 
@@ -236,7 +273,9 @@ void UI::add_object_from_dialog(){
 			draw();
 			gtk_widget_hide (GTK_WIDGET(_dialog_add_object));
 		}
-		else{}
+		else{
+				// TODO
+		}
 	}
 	else if(strcmp(page_name, "Line")==0){
 		gdouble x1 = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_line_x1), NULL);
@@ -250,7 +289,9 @@ void UI::add_object_from_dialog(){
 			draw();
 			gtk_widget_hide (GTK_WIDGET(_dialog_add_object));
 		}
-		else{}
+		else{
+				//TODO
+		}
 	}
 	else if(strcmp(page_name, "Polygon")==0){
 		if(input_is_valid()){
@@ -261,9 +302,11 @@ void UI::add_object_from_dialog(){
 			draw();
 			gtk_widget_hide (GTK_WIDGET(_dialog_add_object));
 		}
-		else{}
+		else{
+					//TODO
+		}
 	}
-	
+
 }
 void UI::reset_polygon_points(){
 	polygon_points.clear();
@@ -273,6 +316,18 @@ bool UI::input_is_valid(){
 	return true;
 }
 
+string UI::get_selected_object_name(){
+	string name = "";
+	GtkListBoxRow* list_row = gtk_list_box_get_selected_row ((GtkListBox*) _object_list);
+	if(list_row != NULL){
+		name = get_text_of_textview(gtk_bin_get_child(GTK_BIN(list_row)));
+	}
+	return name;
+}
+
+Objeto* UI::get_selected_object(){
+	return _mundo->get_object( get_selected_object_name() );
+}
 const gchar* UI::get_current_page_label(GtkNotebook* notebook){
 	const gchar* label = gtk_label_get_text( (GtkLabel*)gtk_notebook_get_tab_label(notebook, gtk_notebook_get_nth_page (notebook, gtk_notebook_get_current_page(notebook))));
 	return label;

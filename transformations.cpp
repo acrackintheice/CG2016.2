@@ -1,9 +1,12 @@
 #include "coordenadas.hpp"
+#include "objeto.hpp"
+#include "matriz1x3.hpp"
+#include "matriz3x3.hpp"
 
 class Transformations{
 
-	public:
-		static Coordenadas* viewport(Coordenadas* cw,Coordenadas* window_min, Coordenadas* window_max,Coordenadas* vp_min, Coordenadas* vp_max)
+public:
+	static Coordenadas* viewport(Coordenadas* cw,Coordenadas* window_min, Coordenadas* window_max,Coordenadas* vp_min, Coordenadas* vp_max)
 	{
 		double xw     = cw->get_x();
 		double xwmin  = window_min->get_x();
@@ -22,6 +25,8 @@ class Transformations{
 
 		return new Coordenadas(xvp, yvp);
 	}
+
 };
+
 
 
