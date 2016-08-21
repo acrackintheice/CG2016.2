@@ -1,14 +1,15 @@
 #include <gtk/gtk.h>
-#include "ponto.hpp"
-#include "reta.hpp"
-#include "objeto.hpp"
-#include "coordenadas.hpp"
+#include "point.hpp"
+#include "line.hpp"
+#include "object.hpp"
+#include "coordinates.hpp"
 #include "wireframe.hpp"
 #include "ui.hpp"
-#include "mundo.hpp"
+#include "world.hpp"
 #include "window.hpp"
 #include <vector>
 #include <iostream>
+
 using namespace std;
 
 /*
@@ -20,18 +21,31 @@ gcc `pkg-config --cflags gtk+-3.0 gtkmm-3.0`-o simple main.cpp reta.hpp reta.cpp
 */
 
 int main (int argc, char *argv[]){
-  Window* window = new Window(new Coordenadas(0,0), new Coordenadas(500,500));
-  Mundo* mundo = new Mundo(window);
-  UI* ui = new UI(argc, argv, mundo);
-  Reta* r = new Reta(new Coordenadas(0,0), new Coordenadas(20,20), "kappaLine");
-  Reta* r2 = new Reta(new Coordenadas(200,100), new Coordenadas(60,75), "kappaLine2");
-  vector<Coordenadas*> pontosW1;
-  pontosW1.push_back(new Coordenadas(50,400));
-  pontosW1.push_back(new Coordenadas(50,300));
-  pontosW1.push_back(new Coordenadas(300,300));
-  pontosW1.push_back(new Coordenadas(300,400));
-  Wireframe* w = new Wireframe( pontosW1, "wireframe1");
-  Ponto* p = new Ponto(new Coordenadas(400,400),"p1");
+  Window* window = new Window(Coordinates(0,0), Coordinates(350,350));
+  World* world   = new World(window);
+  
+  vector<Coordinates> square_points;
+  square_points.push_back(Coordinates(32,32));
+  square_points.push_back(Coordinates(32,322));
+  square_points.push_back(Coordinates(322,322));
+  square_points.push_back(Coordinates(322,32));
+  Polygon* pol = new Polygon(square_points, "Square");
+  Point* p = new Point(Coordinates(10,10), "Point");
+  Line* r =  new Line(Coordinates(10, 150), Coordinates(10,450), "Line");
+
+/*
+  vector<Coordinates> ponto_wireframe;
+  ponto_wireframe.push_back(Coordinates(32,32));
+  ponto_wireframe.push_back(Coordinates(32,322));
+  ponto_wireframe.push_back(Coordinates(322,322));
+  ponto_wireframe.push_back(Coordinates(322,32));
+*/
+
+  world->add_object(pol);
+  world->add_object(p);
+  world->add_object(r);
+
+  UI ui = UI(argc, argv, world);
 
   return 0;
 }

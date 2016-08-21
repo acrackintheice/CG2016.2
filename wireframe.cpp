@@ -2,8 +2,8 @@
 
 using namespace std;
 
-Wireframe::Wireframe(vector<Coordenadas*> pontos, string name){
-   _pontos = pontos;
+Wireframe::Wireframe(vector<Coordinates> points, string name){
+   _points = points;
    _name = name;
 }
 Wireframe::~Wireframe(){

@@ -1,15 +1,15 @@
 #ifndef WIREFRAME_HPP
 #define WIREFRAME_HPP
 
-#include "coordenadas.hpp"
-#include "objeto.hpp"
+#include "coordinates.hpp"
+#include "object.hpp"
 #include <vector>
 #include <string>
 
-class Wireframe : public Objeto
+class Wireframe : public Object
 {
 public:
-    Wireframe(std::vector<Coordenadas*> pontos, std::string name);
+    Wireframe(std::vector<Coordinates> pontos, std::string name);
     ~Wireframe();
 };
 

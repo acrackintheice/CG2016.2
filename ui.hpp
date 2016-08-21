@@ -5,22 +5,21 @@
 #include <iostream>
 #include <string.h>
 #include "transformations.cpp"
-#include "ponto.hpp"
-#include "objeto.hpp"
-#include "cor.hpp"
-#include "mundo.hpp"
-#include "ponto.hpp"
-#include "reta.hpp"
+#include "point.hpp"
+#include "object.hpp"
+#include "color.hpp"
+#include "world.hpp"
+#include "line.hpp"
 #include "wireframe.hpp"
-#include "coordenadas.hpp"
+#include "coordinates.hpp"
+#include "polygon.hpp"
 
 class UI 
 {
 public:
-	UI(int argc, char *argv[], Mundo* mundo);
+	UI(int argc, char *argv[], World* world);
 	~UI();
 	void draw();
-	void real_draw(Objeto* obj, cairo_t *cr, GtkWidget *widget);
 	void add_object_from_dialog();
 	void show_add_object_dialog();
 	void hide_add_object_dialog();
@@ -31,6 +30,7 @@ public:
 	void zoom_out();
 	void translate();
 	void scale();
+	void rotate();
 private:
 	const gchar* get_current_page_label(GtkNotebook* notebook);
 	char* get_text_of_textview(GtkWidget *text_view);
@@ -39,8 +39,12 @@ private:
 	void reset_polygon_points();
 	void add_name_to_list(const gchar* name);
 	void remove_name_from_list(const gchar* name);
-	Objeto* get_selected_object();
+	void update_text_view_window();
+	Coordinates get_rotation_point();
+	Object* get_selected_object();
 	std::string get_selected_object_name();
+	
+
 	GtkBuilder* _builder;
 	// Main window widgets
 	GObject* _main_window;
@@ -61,6 +65,14 @@ private:
 	GObject* _dialog_add_object;
 	GObject* _canvas;
 	GObject* _object_list;
+	GObject* _text_view_window;
+	GObject* _text_entry_angle;
+	GObject* _radio_button_center;
+	GObject* _radio_button_origin;
+	GObject* _radio_button_arbitrary_point;
+	GObject* _text_entry_rotation_point_x;
+	GObject* _text_entry_rotation_point_y;
+	GObject* _button_rotate;
 	// Add object dialog widgets
 	GObject* _button_add;
 	GObject* _button_cancel;
@@ -76,11 +88,12 @@ private:
 	GObject* _text_entry_polygon_y;
 	GObject* _button_add_point_to_polygon;
 	GObject* _textview_number_of_points;
-
+	GObject* _radio_button_polygon;
+	GObject* _radio_button_wireframe;
 
 	// Non-widget attributes
-	Mundo* _mundo;
-	std::vector<Coordenadas*> polygon_points;
+	World* _world;
+	std::vector<Coordinates> _polygon_points;
 
 };
 
