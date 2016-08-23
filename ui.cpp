@@ -224,22 +224,28 @@ void UI::scale(){
 	double sx = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_sx), NULL);
 	double sy = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_sy), NULL);
 	Object* obj = get_selected_object();
-	obj->scale(sx, sy);
-	gtk_widget_queue_draw ((GtkWidget*) _canvas);
+	if(obj != NULL){
+		obj->scale(sx, sy);
+		gtk_widget_queue_draw ((GtkWidget*) _canvas);
+	}
 }
 void UI::translate(){
 	double dx = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_dx), NULL);
 	double dy = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_dy), NULL);
 	Object* obj = get_selected_object();
-	obj->translate(dx, dy);
-	gtk_widget_queue_draw ((GtkWidget*) _canvas);
+	if(obj != NULL){
+		obj->translate(dx, dy);
+		gtk_widget_queue_draw ((GtkWidget*) _canvas);
+	}
 }
 void UI::rotate(){
 	double angle = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_angle), NULL);
 	Object* obj = get_selected_object();
 	Coordinates ponto = get_rotation_point();
-	obj->rotate(angle, ponto);
-	gtk_widget_queue_draw ((GtkWidget*) _canvas);
+	if(obj != NULL){
+		obj->rotate(angle, ponto);
+		gtk_widget_queue_draw ((GtkWidget*) _canvas);
+	}
 }
 Coordinates UI::get_rotation_point(){
 	if(gtk_toggle_button_get_active ((GtkToggleButton*) _radio_button_origin)){
@@ -281,8 +287,10 @@ void UI::set_text_of_textview(GtkWidget *text_view, gchar* text) {
 }
 void UI::remove_name_from_list(const gchar* name){
 	GtkListBoxRow* list_row = gtk_list_box_get_selected_row ((GtkListBox*) _object_list);
-	gtk_container_remove ((GtkContainer*) _object_list,(GtkWidget*)list_row);
-	gtk_widget_show_all (GTK_WIDGET(_object_list));
+	if((GtkWidget*)list_row != NULL){
+		gtk_container_remove ((GtkContainer*) _object_list, (GtkWidget*)list_row);
+		gtk_widget_show_all (GTK_WIDGET(_object_list));
+	}
 }
 void UI::add_name_to_list(const gchar* name){
 	GtkTextBuffer *buffer = gtk_text_buffer_new (NULL);
