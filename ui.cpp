@@ -241,8 +241,8 @@ void UI::translate(){
 void UI::rotate(){
 	double angle = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_angle), NULL);
 	Object* obj = get_selected_object();
-	Coordinates ponto = get_rotation_point();
 	if(obj != NULL){
+	    Coordinates ponto = get_rotation_point();
 		obj->rotate(angle, ponto);
 		gtk_widget_queue_draw ((GtkWidget*) _canvas);
 	}
@@ -293,12 +293,9 @@ void UI::remove_name_from_list(const gchar* name){
 	}
 }
 void UI::add_name_to_list(const gchar* name){
-	GtkTextBuffer *buffer = gtk_text_buffer_new (NULL);
-	gtk_text_buffer_set_text (buffer, name, strlen(name));
-	GtkWidget * text_view = gtk_text_view_new_with_buffer (buffer);
-	gtk_text_view_set_editable ((GtkTextView*) text_view, false);
-	gtk_text_view_set_cursor_visible ((GtkTextView*) text_view, false);
-	gtk_list_box_insert ((GtkListBox*)_object_list, text_view, 1);
+	GtkWidget *label = gtk_label_new(name);
+	//gtk_label_set_selectable (GTK_LABEL(label), TRUE);
+	gtk_list_box_insert ((GtkListBox*)_object_list, label, 1);
 	gtk_widget_show_all (GTK_WIDGET(_object_list));
 }
 void UI::add_object_from_dialog(){
@@ -366,7 +363,7 @@ string UI::get_selected_object_name(){
 	string name = "";
 	GtkListBoxRow* list_row = gtk_list_box_get_selected_row ((GtkListBox*) _object_list);
 	if(list_row != NULL){
-		name = get_text_of_textview(gtk_bin_get_child(GTK_BIN(list_row)));
+		name = gtk_label_get_text (GTK_LABEL(gtk_bin_get_child(GTK_BIN(list_row))));
 	}
 	return name;
 }
