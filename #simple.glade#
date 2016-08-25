@@ -2,6 +2,7 @@
 <!-- Generated with glade 3.18.3 -->
 <interface>
   <requires lib="gtk+" version="3.10"/>
+  <object class="GtkListStore" id="liststore1"/>
   <object class="GtkWindow" id="main_window">
     <property name="name">main_window</property>
     <property name="can_focus">False</property>
@@ -259,7 +260,6 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="label" translatable="yes">Object List</property>
-                                        <property name="selectable">True</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -282,6 +282,20 @@
                                                 <property name="name">object_list</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
+                                                <child>
+                                                  <object class="GtkListBoxRow" id="listboxrow1">
+                                                    <property name="width_request">100</property>
+                                                    <property name="height_request">80</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <child>
+                                                      <object class="GtkTextView" id="textview1">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">True</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                </child>
                                               </object>
                                             </child>
                                           </object>
