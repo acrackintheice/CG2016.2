@@ -12,8 +12,8 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data)
 	Coordinates viewport_min = Coordinates(0,0);
 	Coordinates viewport_max = Coordinates(vp_width, vp_height);
 	/* Getting the window coordinates */
-	Coordinates window_min = window->get_min();
-	Coordinates window_max = window->get_max();
+	Coordinates window_min =  Coordinates(-1,-1);//window->get_min();
+	Coordinates window_max =  Coordinates(1,1);//window->get_max();
 	/* Filling the background */
 	cairo_set_source_rgba(cr, 1, 1, 1, 1);
 	cairo_paint(cr);
@@ -24,6 +24,7 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data)
 	/* Set the line cap, otherwise points dont show*/
 	cairo_set_line_cap  (cr, CAIRO_LINE_CAP_ROUND); 
 	/* Drawing objects */
+	world->scn_upate();
 	vector<Object*> objects = world->get_objects();
 	vector<Object*>::iterator it;
 	for(it = objects.begin(); it != objects.end(); it++){
@@ -70,16 +71,16 @@ static void remove_object_callback (GtkWidget *widget, gpointer data){
 	static_cast<UI*>(data)->remove_object();
 }
 static void move_up_callback (GtkWidget *widget, gpointer data){
-	static_cast<UI*>(data)->move_window(0,25,0,25);
+	static_cast<UI*>(data)->move_window(0,25);
 }
 static void move_left_callback (GtkWidget *widget, gpointer data){
-	static_cast<UI*>(data)->move_window(-25,0,-25,0);
+	static_cast<UI*>(data)->move_window(-25,0);
 }
 static void move_down_callback (GtkWidget *widget, gpointer data){
-	static_cast<UI*>(data)->move_window(0,-25,0,-25);
+	static_cast<UI*>(data)->move_window(0,-25);
 }
 static void move_right_callback (GtkWidget *widget, gpointer data){
-	static_cast<UI*>(data)->move_window(25,0,25,0);
+	static_cast<UI*>(data)->move_window(25,0);
 }
 static void zoom_in_callback (GtkWidget *widget, gpointer data){
 	static_cast<UI*>(data)->zoom_in();
@@ -95,6 +96,12 @@ static void scale_callback (GtkWidget *widget, gpointer data){
 }
 static void rotate_callback (GtkWidget *widget, gpointer data){
 	static_cast<UI*>(data)->rotate();
+}
+static void rotate_window_callback (GtkWidget *widget, gpointer data){
+	static_cast<UI*>(data)->rotate_window();
+}
+static void resize_callback (GtkWidget *widget, gpointer data){
+	static_cast<UI*>(data)->update_text_view_window();
 }
 /* Member Functions */
 UI::UI(int argc, char *argv[], World* world) : _world(world)
@@ -131,6 +138,8 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 	_text_entry_rotation_point_x 	= gtk_builder_get_object (_builder, "text_entry_rotation_point_x");
 	_text_entry_rotation_point_y 	= gtk_builder_get_object (_builder, "text_entry_rotation_point_y");
 	_button_rotate 					= gtk_builder_get_object (_builder, "button_rotate");
+	_button_rotate_window 			= gtk_builder_get_object (_builder, "button_rotate_window");
+	_text_entry_angle_window 		= gtk_builder_get_object (_builder, "text_entry_angle_window");
 	/* Add object dialog widgets*/
 	_dialog_add_object    			= gtk_builder_get_object (_builder, "dialog_add_object");
 	_button_add	  		  			= gtk_builder_get_object (_builder, "button_add"); 
@@ -150,25 +159,26 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 	_radio_button_polygon			= gtk_builder_get_object (_builder, "radio_button_polygon");
 	_radio_button_wireframe 		= gtk_builder_get_object (_builder, "radio_button_wireframe");
 	// Signals
-	g_signal_connect (_main_window, 		  "destroy", G_CALLBACK (gtk_main_quit), 					NULL);
-	g_signal_connect (_button_add_object, 	  "clicked", G_CALLBACK (show_add_object_dialog_callback), 	this);
-	g_signal_connect (_button_remove_object,  "clicked", G_CALLBACK (remove_object_callback), 			this);
-	g_signal_connect (_button_up, 			  "clicked", G_CALLBACK (move_up_callback), 				this);
-	g_signal_connect (_button_left, 		  "clicked", G_CALLBACK (move_left_callback), 				this);
-	g_signal_connect (_button_down, 		  "clicked", G_CALLBACK (move_down_callback), 				this);
-	g_signal_connect (_button_right, 		  "clicked", G_CALLBACK (move_right_callback), 				this);
-	g_signal_connect (_button_zoom_in, 		  "clicked", G_CALLBACK (zoom_in_callback), 				this);
-	g_signal_connect (_button_zoom_out, 	  "clicked", G_CALLBACK (zoom_out_callback), 				this);
-	g_signal_connect (_button_translate, 	  "clicked", G_CALLBACK (translate_callback),			    this);
-	g_signal_connect (_button_scale,	 	  "clicked", G_CALLBACK (scale_callback),				    this);
-	g_signal_connect (_button_rotate,	 	  "clicked", G_CALLBACK (rotate_callback),				    this);
+	g_signal_connect (_main_window, 		  "destroy", 		G_CALLBACK (gtk_main_quit), 					NULL);
+	g_signal_connect (_main_window,			  "check-resize",  	G_CALLBACK (resize_callback),              		this);
+	g_signal_connect (_button_add_object, 	  "clicked", 		G_CALLBACK (show_add_object_dialog_callback), 	this);
+	g_signal_connect (_button_remove_object,  "clicked", 		G_CALLBACK (remove_object_callback), 			this);
+	g_signal_connect (_button_up, 			  "clicked", 		G_CALLBACK (move_up_callback), 					this);
+	g_signal_connect (_button_left, 		  "clicked", 		G_CALLBACK (move_left_callback), 				this);
+	g_signal_connect (_button_down, 		  "clicked", 		G_CALLBACK (move_down_callback), 				this);
+	g_signal_connect (_button_right, 		  "clicked", 		G_CALLBACK (move_right_callback), 				this);
+	g_signal_connect (_button_zoom_in, 		  "clicked", 		G_CALLBACK (zoom_in_callback), 					this);
+	g_signal_connect (_button_zoom_out, 	  "clicked", 		G_CALLBACK (zoom_out_callback), 				this);
+	g_signal_connect (_button_translate, 	  "clicked", 		G_CALLBACK (translate_callback),			    this);
+	g_signal_connect (_button_scale,	 	  "clicked", 		G_CALLBACK (scale_callback),				    this);
+	g_signal_connect (_button_rotate,	 	  "clicked", 		G_CALLBACK (rotate_callback),				    this);
+	g_signal_connect (_button_rotate_window,  "clicked", 		G_CALLBACK (rotate_window_callback),			this);
 	/* Add object dialog widget signals */
 	g_signal_connect (_button_add, 	  				"clicked", 		G_CALLBACK (add_object_from_dialog_callback), 	this);
 	g_signal_connect (_button_cancel, 				"clicked", 		G_CALLBACK (hide_add_object_dialog_callback),  	this);
 	g_signal_connect (_button_add_point_to_polygon, "clicked", 		G_CALLBACK (add_point_to_polygon_callback)	,  	this);
 	/* Draing the empty world*/
 	draw();
-	update_text_view_window();
 	/* Adding the test objects to the list */
 	vector<Object*> objects = _world->get_objects();
 	vector<Object*>::iterator it;
@@ -178,6 +188,7 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 	}
 	/* Showing the main window*/
 	gtk_widget_show ( GTK_WIDGET(_main_window) );
+	update_text_view_window();
 	/* Entering loop mode*/
 	gtk_main ();
 }
@@ -189,8 +200,14 @@ void UI::update_text_view_window(){
 	int y1 = window->get_min().get_y();
 	int x2 = window->get_max().get_x();
 	int y2 = window->get_max().get_y();
-	string text = "(" + to_string(x1) + "," + to_string(y2) + ")" + ",(" + to_string(x2) + "," + to_string(y2) + ")"; 
+
+	int vp_width  = gtk_widget_get_allocated_width  (GTK_WIDGET(_canvas));
+	int vp_height = gtk_widget_get_allocated_height (GTK_WIDGET(_canvas)); 
+
+	string text = "WINDOW : (" + to_string(x1) + "," + to_string(y2) + ")" + ",(" + to_string(x2) + "," + to_string(y2) + ")"; 
+	text = text + "   +-+-+  VP : ("+ to_string(vp_width) + ", " + to_string(vp_height) + " )";
 	set_text_of_textview((GtkWidget*)_text_view_window, (char*)text.c_str());
+	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 }
 void UI::draw(){
 	g_signal_connect (_canvas, "draw", G_CALLBACK (draw_object), _world);
@@ -202,21 +219,21 @@ void UI::remove_object(){
 	remove_name_from_list(name.c_str());
 	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 }
-void UI::move_window(double x1_offset, double y1_offset, double x2_offset, double y2_offset){
+void UI::move_window(double dx, double dy){
 	Window* window = _world->get_window();
-	window->move(x1_offset, y1_offset, x2_offset, y2_offset);
+	window->translate(dx,dy);
 	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 	update_text_view_window();
 }
 void UI::zoom_in(){
 	Window* window = _world->get_window();
-	window->zoom_in(30);
+	window->scale(0.9, 0.9);
 	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 	update_text_view_window();
 }
 void UI::zoom_out(){
 	Window* window = _world->get_window();
-	window->zoom_out(30);
+	window->scale(1.1, 1.1);
 	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 	update_text_view_window();
 }
@@ -238,11 +255,21 @@ void UI::translate(){
 		gtk_widget_queue_draw ((GtkWidget*) _canvas);
 	}
 }
+void UI::rotate_window(){
+	double angle = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_angle_window), NULL);
+	Object* obj = _world->get_window();
+	if(obj != NULL){
+		Coordinates ponto = obj->get_geometric_center();
+		obj->rotate(angle, ponto);
+		gtk_widget_queue_draw ((GtkWidget*) _canvas);
+	}
+	update_text_view_window();
+}
 void UI::rotate(){
 	double angle = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_angle), NULL);
 	Object* obj = get_selected_object();
 	if(obj != NULL){
-	    Coordinates ponto = get_rotation_point();
+		Coordinates ponto = get_rotation_point();
 		obj->rotate(angle, ponto);
 		gtk_widget_queue_draw ((GtkWidget*) _canvas);
 	}
@@ -294,7 +321,6 @@ void UI::remove_name_from_list(const gchar* name){
 }
 void UI::add_name_to_list(const gchar* name){
 	GtkWidget *label = gtk_label_new(name);
-	//gtk_label_set_selectable (GTK_LABEL(label), TRUE);
 	gtk_list_box_insert ((GtkListBox*)_object_list, label, 1);
 	gtk_widget_show_all (GTK_WIDGET(_object_list));
 }

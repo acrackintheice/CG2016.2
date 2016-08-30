@@ -17,14 +17,15 @@ public:
     void translate(double sx, double sy);
 	void scale(double sx, double sy);
 	void rotate(double angle, Coordinates point);
+    void update_scn_points(Matriz3x3 scn_matrix);
 	void print();
     virtual ~Object();
-    
 protected:
-	void transform(Matriz3x3 transformation);
+	void virtual transform(Matriz3x3 transformation);
 	
     std::string _name;
     std::vector<Coordinates> _points;
+    std::vector<Coordinates> _scn_points;
 };
 
 #endif // OBJECT_HPP

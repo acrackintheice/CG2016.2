@@ -24,13 +24,16 @@ public:
 	void show_add_object_dialog();
 	void hide_add_object_dialog();
 	void add_point_to_polygon();
-	void move_window(double x1_offset, double y1_offset, double x2_offset, double y2_offset);
+	void move_window(double dx, double dy);
 	void remove_object();
 	void zoom_in();
 	void zoom_out();
 	void translate();
 	void scale();
 	void rotate();
+	void rotate_window();
+	void window_resize_updates();
+	void update_text_view_window();
 private:
 	const gchar* get_current_page_label(GtkNotebook* notebook);
 	char* get_text_of_textview(GtkWidget *text_view);
@@ -39,7 +42,6 @@ private:
 	void reset_polygon_points();
 	void add_name_to_list(const gchar* name);
 	void remove_name_from_list(const gchar* name);
-	void update_text_view_window();
 	Coordinates get_rotation_point();
 	Object* get_selected_object();
 	std::string get_selected_object_name();
@@ -73,6 +75,8 @@ private:
 	GObject* _text_entry_rotation_point_x;
 	GObject* _text_entry_rotation_point_y;
 	GObject* _button_rotate;
+	GObject* _button_rotate_window;
+	GObject* _text_entry_angle_window;
 	// Add object dialog widgets
 	GObject* _button_add;
 	GObject* _button_cancel;
