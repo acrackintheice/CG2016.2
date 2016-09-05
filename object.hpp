@@ -18,6 +18,7 @@ public:
 	void scale(double sx, double sy);
 	void rotate(double angle, Coordinates point);
     void update_scn_points(Matriz3x3 scn_matrix);
+    void virtual clip();
 	void print();
     virtual ~Object();
 protected:

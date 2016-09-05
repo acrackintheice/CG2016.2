@@ -21,6 +21,7 @@ public:
     Window* get_window();
     double angle_between_vectors(Coordinates vector_1,Coordinates vector_2);
     void scn_upate();
+    void clip();
 private:
 
 	Window* _window;

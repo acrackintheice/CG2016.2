@@ -6,11 +6,13 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data)
 {
 	World* world = static_cast<World*>(data);
 	Window* window = world->get_window();
+
 	/* Getting the viewport coordinates*/
 	double vp_width = (double) (gtk_widget_get_allocated_width  (widget));
 	double vp_height = (double) (gtk_widget_get_allocated_height (widget));
-	Coordinates viewport_min = Coordinates(0,0);
-	Coordinates viewport_max = Coordinates(vp_width, vp_height);
+	Coordinates viewport_min = Coordinates(10,10);
+	Coordinates viewport_max = Coordinates(vp_width-10, vp_height-10);
+
 	/* Getting the window coordinates */
 	Coordinates window_min =  Coordinates(-1,-1);//window->get_min();
 	Coordinates window_max =  Coordinates(1,1);//window->get_max();
@@ -18,30 +20,43 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data)
 	cairo_set_source_rgba(cr, 1, 1, 1, 1);
 	cairo_paint(cr);
 	/* Set the line width */
-	cairo_set_line_width(cr,3);
+	cairo_set_line_width(cr,2);
 	/* Set the line color */
 	cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
 	/* Set the line cap, otherwise points dont show*/
 	cairo_set_line_cap  (cr, CAIRO_LINE_CAP_ROUND); 
 	/* Drawing objects */
+	cout << "kappa" << endl;
 	world->scn_upate();
+	world->clip();
+	/* Drawing every object*/
 	vector<Object*> objects = world->get_objects();
+	cout << "Size  : " << objects.size() << endl;
 	vector<Object*>::iterator it;
 	for(it = objects.begin(); it != objects.end(); it++){
 		Object* obj = (*it);
+		cout << obj->get_name() << endl;
+		cout << obj->get_points()[0].get_x() <<", "<< obj->get_points()[0].get_y() << endl;
         /* Getting the points from the object*/
 		vector<Coordinates> points = obj->get_drawing_points();
 		vector<Coordinates>::iterator it_points = points.begin();
-		/* Selecting the point the first*/
-		Coordinates w_point = *it_points;
-		/* Drawing the first point */
-		Coordinates vp_point = Transformations::viewport(w_point, window_min, window_max, viewport_min, viewport_max);
-		cairo_move_to(cr, vp_point.get_x(), vp_point.get_y());
-		cairo_line_to(cr, vp_point.get_x(), vp_point.get_y());
-		/* Drawing all other points */
-		for(it_points++; it_points != points.end(); it_points++){
-			w_point = *it_points;
-			vp_point = Transformations::viewport(w_point, window_min, window_max, viewport_min, viewport_max);
+		/* Flagging that the next point is the first */
+		bool first_point = true;
+		/* Drawing every point*/
+		for(it_points; it_points != points.end(); it_points++){
+			Coordinates w_point = *it_points;
+			Coordinates vp_point = Transformations::viewport(w_point, window_min, window_max, viewport_min, viewport_max);
+			/* If it is the first point we need to move the pen to the canvas */
+			if (first_point)
+			{
+				cairo_move_to(cr, vp_point.get_x(), vp_point.get_y());
+				/* Flagging that the next points are not the first anymore*/
+				first_point = false;
+			}
+			/* 
+			When it is not the first point we already have the pen on the canvas,  
+			so we only need to keep drawing it 
+			*/
 			cairo_line_to(cr, vp_point.get_x(), vp_point.get_y());
 		}
 		/* The stroke function actually draws the object */
@@ -53,6 +68,9 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data)
 		//	0, 2 * G_PI);
 		//cairo_fill (cr);
 	}
+	cairo_move_to(cr, 50, 50);
+	cairo_line_to(cr, -50, 50);
+	cairo_stroke(cr);
 	return FALSE;
 }
 static void show_add_object_dialog_callback (GtkWidget *widget, gpointer data){
@@ -177,16 +195,16 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 	g_signal_connect (_button_add, 	  				"clicked", 		G_CALLBACK (add_object_from_dialog_callback), 	this);
 	g_signal_connect (_button_cancel, 				"clicked", 		G_CALLBACK (hide_add_object_dialog_callback),  	this);
 	g_signal_connect (_button_add_point_to_polygon, "clicked", 		G_CALLBACK (add_point_to_polygon_callback)	,  	this);
-	/* Draing the empty world*/
-	draw();
 	/* Adding the test objects to the list */
 	vector<Object*> objects = _world->get_objects();
 	vector<Object*>::iterator it;
 	for(it = objects.begin(); it != objects.end(); it++){
-		Object* o = (*it);
-		add_name_to_list(o->get_name().c_str());
+		Object* obj = (*it);
+		if(obj->get_name() != "Window")
+			add_name_to_list(obj->get_name().c_str());
 	}
-	/* Showing the main window*/
+	/* Draing the world*/
+	draw();
 	gtk_widget_show ( GTK_WIDGET(_main_window) );
 	update_text_view_window();
 	/* Entering loop mode*/
@@ -204,7 +222,7 @@ void UI::update_text_view_window(){
 	int vp_width  = gtk_widget_get_allocated_width  (GTK_WIDGET(_canvas));
 	int vp_height = gtk_widget_get_allocated_height (GTK_WIDGET(_canvas)); 
 
-	string text = "WINDOW : (" + to_string(x1) + "," + to_string(y2) + ")" + ",(" + to_string(x2) + "," + to_string(y2) + ")"; 
+	string text = "WINDOW : (" + to_string(x1) + "," + to_string(y1) + ")" + ",(" + to_string(x2) + "," + to_string(y2) + ")"; 
 	text = text + "   +-+-+  VP : ("+ to_string(vp_width) + ", " + to_string(vp_height) + " )";
 	set_text_of_textview((GtkWidget*)_text_view_window, (char*)text.c_str());
 	gtk_widget_queue_draw ((GtkWidget*) _canvas);
@@ -333,6 +351,9 @@ void UI::add_object_from_dialog(){
 		gdouble y = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_point_y), NULL);
 		if(input_is_valid()){
 			Point* p = new Point(Coordinates(x,y), name);
+			cout << p->get_points()[0].get_x() << endl;
+			cout << p->get_points()[0].get_y() << endl;
+
 			_world->add_object(p);
 			add_name_to_list(name);
 			draw();

@@ -6,7 +6,7 @@ using namespace std;
 
 World::World(Window* window) : _window(window)
 {
-
+    add_object(window);
 }
 World::~World(){
     vector<Object*>::iterator it;
@@ -38,18 +38,27 @@ void World::move_window(double x1_offset, double y1_offset, double x2_offset, do
     _window->move(x1_offset, x2_offset, y1_offset, y2_offset);
 }
 void World::remove_object(string name){
-    vector<Object*>::iterator it;
-    for(it = _objects.begin(); it != _objects.end(); it++){
-        Object* obj = (*it);
-        if (obj->get_name() == name){
-            _objects.erase(it);
-            delete obj;
-            break;
+    if(name != "Window"){
+        vector<Object*>::iterator it;
+        for(it = _objects.begin(); it != _objects.end(); it++){
+            Object* obj = (*it);
+            if (obj->get_name() == name){
+                _objects.erase(it);
+                delete obj;
+                break;
+            }
         }
     }
 }
 Window* World::get_window(){
     return _window;
+}
+void World::clip(){
+    vector<Object*>::iterator it;
+    for(it = _objects.begin(); it != _objects.end(); it++){
+        Object* obj = (*it);
+        obj-> clip();
+    }
 }
 void World::scn_upate(){
     /* Creating a new window cause we don't want to mess with the world window*/

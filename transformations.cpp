@@ -17,8 +17,8 @@ public:
 		double yvpmax = vp_max.get_y();
 		double yvpmin = vp_min.get_y();
 
-		double xvp =      (((xw - xwmin) / (xwmax - xwmin))  * (xvpmax - xvpmin));
-		double yvp =  ((1- ((yw - ywmin) / (ywmax - ywmin))) * (yvpmax - yvpmin));
+		double xvp =      (((xw - xwmin) / (xwmax - xwmin))  * (xvpmax - xvpmin)) + xvpmin;
+		double yvp =  ((1- ((yw - ywmin) / (ywmax - ywmin))) * (yvpmax - yvpmin)) + yvpmin;
 
 		return Coordinates(xvp, yvp);
 	}

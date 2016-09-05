@@ -29,11 +29,12 @@ int main (int argc, char *argv[]){
   square_points.push_back(Coordinates(322,322));
   square_points.push_back(Coordinates(322,32));
   Polygon* pol = new Polygon(square_points, "Square");
-  Point* p = new Point(Coordinates(0,0), "Point");
+  Point* p = new Point(Coordinates(-607,0), "Point");
   Line* r =  new Line(Coordinates(10, 150), Coordinates(10,450), "Line");
   world->add_object(pol);
   world->add_object(p);
   world->add_object(r);
+  world->add_object(window);
   UI ui = UI(argc, argv, world);
   return 0;
 }

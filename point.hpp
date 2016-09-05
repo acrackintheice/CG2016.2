@@ -10,6 +10,7 @@ class Point : public Object
 public:
     Point(Coordinates xy, std::string name);
     ~Point();
+    void clip();
 };
 
 #endif // POINT_HPP
