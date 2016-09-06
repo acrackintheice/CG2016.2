@@ -1,4 +1,5 @@
 #include "window.hpp"
+#include "operations.cpp"
 #include <vector>
 #include <iostream>
 
@@ -13,108 +14,113 @@ Window::Window(Coordinates p1, Coordinates p2, Coordinates vup) : _vup(vup)
 }
 Window::~Window(){
 }
+
+std::vector<Coordinates> Window::get_drawing_points(){
+    std::vector<Coordinates> drawing_points;
+    Coordinates min = _scn_points[0];
+    Coordinates max = _scn_points[1];
+
+    drawing_points.push_back(min);
+    drawing_points.push_back(Coordinates(min.get_x(), max.get_y()));
+    drawing_points.push_back(max);
+    drawing_points.push_back(Coordinates(max.get_x(), min.get_y()));
+    drawing_points.push_back(min);
+    return drawing_points;
+}
 /* 
-    The window's transform function is different from the Object's one because  
-    it also needs to transform the Vup vector
+The window's transform function is different from the Object's one because  
+it also needs to transform the Vup vector
 */
-
-    std::vector<Coordinates> Window::get_drawing_points(){
-        std::vector<Coordinates> drawing_points;
-        Coordinates min = _scn_points[0];
-        Coordinates max = _scn_points[1];
-
-        drawing_points.push_back(min);
-        drawing_points.push_back(Coordinates(min.get_x(), max.get_y()));
-        drawing_points.push_back(max);
-        drawing_points.push_back(Coordinates(max.get_x(), min.get_y()));
-        drawing_points.push_back(min);
-        return drawing_points;
-    }
-    void Window::transform(Matriz3x3 transformation){
+void Window::transform(Matriz3x3 transformation){
     /* Transforming the points */
-        vector<Coordinates>::iterator it;
-        for(it = _points.begin(); it != _points.end(); it++){
-            double l4[] = {0,0,1};
-            Coordinates point = (*it);
-            l4[0] = point.get_x();
-            l4[1] = point.get_y();
-            Matriz1x3 point_matrix = Matriz1x3(l4);
-            Matriz1x3 transformed_point = point_matrix.multiplicarPor3x3(transformation);
-            (*it) = Coordinates(transformed_point.get(0), transformed_point.get(1));
-        }
-    /* Transforming the vup vector*/
+    vector<Coordinates>::iterator it;
+    for(it = _points.begin(); it != _points.end(); it++){
         double l4[] = {0,0,1};
-        Coordinates point = _vup;
+        Coordinates point = (*it);
         l4[0] = point.get_x();
         l4[1] = point.get_y();
         Matriz1x3 point_matrix = Matriz1x3(l4);
         Matriz1x3 transformed_point = point_matrix.multiplicarPor3x3(transformation);
-        _vup = Coordinates(transformed_point.get(0), transformed_point.get(1));
+        (*it) = Coordinates(transformed_point.get(0), transformed_point.get(1));
     }
-    void Window::zoom_in(double value){
+    /* Transforming the vup vector*/
+    double l4[] = {0,0,1};
+    Coordinates point = _vup;
+    l4[0] = point.get_x();
+    l4[1] = point.get_y();
+    Matriz1x3 point_matrix = Matriz1x3(l4);
+    Matriz1x3 transformed_point = point_matrix.multiplicarPor3x3(transformation);
+    _vup = Coordinates(transformed_point.get(0), transformed_point.get(1));
+}
+void Window::zoom_in(double value){
     /* Getting the old points */
-        Coordinates p1 = _points[0];
-        Coordinates p2 = _points[1];
+    Coordinates p1 = _points[0];
+    Coordinates p2 = _points[1];
     /* Creating new x and y values */
-        double new_x1 = p1.get_x()+value;
-        double new_y1 = p1.get_y()+value;
-        double new_x2 = p2.get_x()-value;
-        double new_y2 = p2.get_y()-value;
+    double new_x1 = p1.get_x()+value;
+    double new_y1 = p1.get_y()+value;
+    double new_x2 = p2.get_x()-value;
+    double new_y2 = p2.get_y()-value;
     /* Checking if zooming will not break the window */
-        if(new_x1 < new_x2 && new_y1 < new_y2){
+    if(new_x1 < new_x2 && new_y1 < new_y2){
         /* Creating new points with the added offsets */
-            Coordinates new_p1 = Coordinates(new_x1, new_y1);
-            Coordinates new_p2 = Coordinates(new_x2, new_y2);
+        Coordinates new_p1 = Coordinates(new_x1, new_y1);
+        Coordinates new_p2 = Coordinates(new_x2, new_y2);
         /* Setting the new points as current */
-            _points[0] = new_p1;
-            _points[1] = new_p2;
-        }
-        else{
-        /* If zoom breaks the window we give a message(doesnt happen anymore) */
-            cout << "Limite do Zoom" << endl;
-        }
-    }
-    void Window::zoom_out(double value){
-    /* Getting the old points */
-        Coordinates p1 = _points[0];
-        Coordinates p2 = _points[1];
-    /* Creating new x and y values */
-        double new_x1 = p1.get_x()-value;
-        double new_y1 = p1.get_y()-value;
-        double new_x2 = p2.get_x()+value;
-        double new_y2 = p2.get_y()+value;
-
-    /* Even tough zoom out never breaks the window, i'm testing for the same problem that happened in the zoom in */
-        if(new_x1 < new_x2 && new_y1 < new_y2){
-        /* Creating new points with the added offsets */
-            Coordinates new_p1 = Coordinates(new_x1, new_y1);
-            Coordinates new_p2 = Coordinates(new_x2, new_y2);
-        /* Setting the new points as current */
-            _points[0] = new_p1;
-            _points[1] = new_p2;
-        }
-        else{
-        /* Should never happen */
-            cout << "Zoom limit" << endl;
-        }
-    }
-    void Window::move(double x1_offset, double y1_offset, double x2_offset, double y2_offset){
-    /* Getting the old points */
-        Coordinates p1 = _points[0];
-        Coordinates p2 = _points[1];
-    /* Creating new points with the added offsets */
-        Coordinates new_p1 = Coordinates(p1.get_x()+x1_offset, p1.get_y()+y1_offset);
-        Coordinates new_p2 = Coordinates(p2.get_x()+x2_offset, p2.get_y()+y2_offset);
-    /* Setting the new points as current */
         _points[0] = new_p1;
         _points[1] = new_p2;
     }
-    Coordinates Window::get_min(){
-        return _points[0];
+    else{
+        /* If zoom breaks the window we give a message(doesnt happen anymore) */
+        cout << "Limite do Zoom" << endl;
     }
-    Coordinates Window::get_max(){
-        return _points[1];
+}
+void Window::zoom_out(double value){
+    /* Getting the old points */
+    Coordinates p1 = _points[0];
+    Coordinates p2 = _points[1];
+    /* Creating new x and y values */
+    double new_x1 = p1.get_x()-value;
+    double new_y1 = p1.get_y()-value;
+    double new_x2 = p2.get_x()+value;
+    double new_y2 = p2.get_y()+value;
+
+    /* Even tough zoom out never breaks the window, i'm testing for the same problem that happened in the zoom in */
+    if(new_x1 < new_x2 && new_y1 < new_y2){
+        /* Creating new points with the added offsets */
+        Coordinates new_p1 = Coordinates(new_x1, new_y1);
+        Coordinates new_p2 = Coordinates(new_x2, new_y2);
+        /* Setting the new points as current */
+        _points[0] = new_p1;
+        _points[1] = new_p2;
     }
-    Coordinates Window::get_vup(){
-        return _vup;
+    else{
+        /* Should never happen */
+        cout << "Zoom limit" << endl;
     }
+}
+void Window::move(double dx, double dy){
+    /* Getting the old points */
+    Coordinates p1 = _points[0];
+    Coordinates p2 = _points[1];
+    Coordinates center = get_geometric_center();
+    double angle;
+    /* Need to turn all these operations into a single transformation */
+    /* from here */
+    translate(-center.get_x(),-center.get_y());
+    angle = Operations::angle_between_vectors(Coordinates(0,10), _vup);
+    rotate(-angle * 180.0 / M_PI, Coordinates(0,0));
+    translate(dx, dy);
+    rotate(angle * 180.0 / M_PI, Coordinates(0,0));
+    translate(center.get_x(),center.get_y());
+    /* to here */
+}
+Coordinates Window::get_min(){
+    return _points[0];
+}
+Coordinates Window::get_max(){
+    return _points[1];
+}
+Coordinates Window::get_vup(){
+    return _vup;
+}

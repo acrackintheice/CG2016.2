@@ -26,17 +26,13 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data)
 	/* Set the line cap, otherwise points dont show*/
 	cairo_set_line_cap  (cr, CAIRO_LINE_CAP_ROUND); 
 	/* Drawing objects */
-	cout << "kappa" << endl;
 	world->scn_upate();
 	world->clip();
 	/* Drawing every object*/
 	vector<Object*> objects = world->get_objects();
-	cout << "Size  : " << objects.size() << endl;
 	vector<Object*>::iterator it;
 	for(it = objects.begin(); it != objects.end(); it++){
 		Object* obj = (*it);
-		cout << obj->get_name() << endl;
-		cout << obj->get_points()[0].get_x() <<", "<< obj->get_points()[0].get_y() << endl;
         /* Getting the points from the object*/
 		vector<Coordinates> points = obj->get_drawing_points();
 		vector<Coordinates>::iterator it_points = points.begin();
@@ -68,8 +64,6 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data)
 		//	0, 2 * G_PI);
 		//cairo_fill (cr);
 	}
-	cairo_move_to(cr, 50, 50);
-	cairo_line_to(cr, -50, 50);
 	cairo_stroke(cr);
 	return FALSE;
 }
@@ -239,7 +233,7 @@ void UI::remove_object(){
 }
 void UI::move_window(double dx, double dy){
 	Window* window = _world->get_window();
-	window->translate(dx,dy);
+	window->move(dx,dy);
 	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 	update_text_view_window();
 }
@@ -351,9 +345,6 @@ void UI::add_object_from_dialog(){
 		gdouble y = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_point_y), NULL);
 		if(input_is_valid()){
 			Point* p = new Point(Coordinates(x,y), name);
-			cout << p->get_points()[0].get_x() << endl;
-			cout << p->get_points()[0].get_y() << endl;
-
 			_world->add_object(p);
 			add_name_to_list(name);
 			draw();

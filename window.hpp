@@ -8,7 +8,7 @@ class Window : public Object
 public:
 	Window(Coordinates p1, Coordinates p2, Coordinates vup);
 	~Window();
-	void move(double x1_offset, double y1_offset, double x2_offset, double y2_offset);
+	void move(double dx, double dy);
 	void zoom_in(double value);
 	void zoom_out(double value);
 	void reset();

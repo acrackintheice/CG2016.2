@@ -14,6 +14,6 @@ void Point::clip(){
 	double y = _scn_points[0].get_y();
 
 	if(x < -1 || x > 1 || y < -1 || y > 1){
-		_scn_points.erase(_scn_points.begin());
+		_scn_points.clear();
 	}
 }
