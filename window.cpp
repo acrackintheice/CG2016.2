@@ -100,20 +100,35 @@ void Window::zoom_out(double value){
     }
 }
 void Window::move(double dx, double dy){
-    /* Getting the old points */
-    Coordinates p1 = _points[0];
-    Coordinates p2 = _points[1];
-    Coordinates center = get_geometric_center();
-    double angle;
-    /* Need to turn all these operations into a single transformation */
-    /* from here */
-    translate(-center.get_x(),-center.get_y());
-    angle = Operations::angle_between_vectors(Coordinates(0,10), _vup);
-    rotate(-angle * 180.0 / M_PI, Coordinates(0,0));
-    translate(dx, dy);
-    rotate(angle * 180.0 / M_PI, Coordinates(0,0));
-    translate(center.get_x(),center.get_y());
-    /* to here */
+	//Getting the difference of the view-up of the window and 90ª (view-up of the world)
+    double rad = get_vup_angle() - (M_PI / 2);
+    /*
+    //Naming variables in a character (to use in WolframAlpha):
+    center = get_geometric_center();
+    a = center.get_x();
+    b = center.get_y();
+    c = dx;
+    d = dy;
+    u = rad;
+
+	//Matrices of transformations (1 per line) to move the window:
+    ---------------------------
+    {{1,0,0},{0,1,0},{-a,-b,1}}*
+    {{cos(-u),-sin(-u),0},{sin(-u),cos(-u),0},{0,0,1}}*
+    {{1,0,0},{0,1,0},{c,d,1}}*
+    {{cos(u),-sin(u),0},{sin(u),cos(u),0},{0,0,1}}*
+    {{1,0,0},{0,1,0},{a,b,1}}
+	---------------------------
+    //Use WolframAlpha to obtain the resultant matrix (and a nice vision of the matrices).
+    */
+    double l1[] = {1,0,0};
+    double l2[] = {0,1,0};
+    double l3[] = {
+    		dx*cos(rad) + dy*sin(rad),
+    		dx*-sin(rad) + dy*cos(rad),
+    		1};
+    Matriz3x3 resultant(l1,l2,l3);
+    this->transform(resultant);
 }
 Coordinates Window::get_min(){
     return _points[0];
@@ -123,4 +138,17 @@ Coordinates Window::get_max(){
 }
 Coordinates Window::get_vup(){
     return _vup;
+}
+double Window::get_vup_angle(){
+	//Getting the window's center
+    Coordinates center = get_geometric_center();
+    //Getting the vector that indicates the upward direction of the window
+    Coordinates window_vup = Coordinates(center.get_x()-_vup.get_x(), -(center.get_y()-_vup.get_y()));
+    //Getting the length (magnitude) of the window_vup
+	double length = sqrt(pow(window_vup.get_x(),2)+pow(window_vup.get_y(),2));
+	//Normalizing the window_vup
+	Coordinates normalized_window_vup = Coordinates(window_vup.get_x()/length, window_vup.get_y()/length);
+	//Getting the angle of the window in radians
+	double radians = acos(normalized_window_vup.get_x()) * ((normalized_window_vup.get_y()<0) ? -1 : 1);
+	return radians;
 }

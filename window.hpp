@@ -15,6 +15,7 @@ public:
 	Coordinates get_min();
 	Coordinates get_max();
 	Coordinates get_vup();
+	double get_vup_angle();
 	std::vector<Coordinates> get_drawing_points();
 private:
 	void transform(Matriz3x3 transformation);
