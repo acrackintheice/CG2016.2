@@ -9,8 +9,9 @@
 class Polygon : public Object
 {
 public:
-    Polygon(std::vector<Coordinates> pontos, std::string name);
+    Polygon(std::vector<Coordinates> points, std::string name, Color* color, Color* background_color, bool filled);
     ~Polygon();
+    void clip();
     std::vector<Coordinates> get_drawing_points();
 };
 

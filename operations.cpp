@@ -16,5 +16,37 @@ public:
 		}
 		return angle;
 	}
+	static Coordinates intersection_between_lines(Coordinates p1,Coordinates p2, Coordinates p3, Coordinates p4){
+		double a1 = 0;
+		double a2 = 0;
+		double b1 = 0;
+		double b2 = 0;
+    // Pontos da Interseccao
+		double x=0;
+		double y=0;
+    // Calculando a interseccao
+		if(p1.get_x()==p2.get_x()){
+			x = p1.get_x();
+			a2 = (p3.get_y()-p4.get_y())/(p3.get_x()-p4.get_x());
+			b2 = p3.get_y() - a2*p3.get_x();
+			y=x*a2+b2;
+		}
+		else{
+			a1 = (p1.get_y()-p2.get_y())/(p1.get_x()-p2.get_x());
+			b1 = p1.get_y() - a1*p1.get_x();
+			if(p3.get_x()==p4.get_x()){
+				x =p3.get_x();
+			}
+			else{
+				a2 = (p3.get_y()-p4.get_y())/(p3.get_x()-p4.get_x());
+				b2 = p3.get_y() - a2*p3.get_x();
+				x = -(b1-b2)/(a1-a2);
+			}
+			y = x*a1 + b1;
+		}
+		return Coordinates(x,y);
+	}
 };
+
+
 

@@ -3,9 +3,12 @@
 
 using namespace std;
 
-Point::Point(Coordinates xy, string name){
+Point::Point(Coordinates xy, string name, Color* color){
 	_points.push_back(xy);
 	_name = name;
+	_color = color;
+	_filled = false;
+    _background_color = new Color(1, 1, 1, 1);
 }
 Point::~Point(){
 }

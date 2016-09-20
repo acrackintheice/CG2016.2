@@ -4,11 +4,14 @@
 
 using namespace std;
 
-Line::Line(Coordinates p1,Coordinates p2, string name)
+Line::Line(Coordinates p1,Coordinates p2, string name, Color* color)
 {
 	_points.push_back(p1);
 	_points.push_back(p2);
-	_name = name;
+	_name = name;	
+	_color = color;
+	_filled = false;
+    _background_color = new Color(1, 1, 1, 1);
 }
 Line::~Line(){
 }
@@ -60,7 +63,6 @@ void Line::clip(){
 	}
 	if(u1 >  u2)
 	{
-		cout << "kappa 2" << endl;
 		_scn_points.clear();
 	}else{
 		vector<Coordinates> new_scn_points;

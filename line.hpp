@@ -9,7 +9,7 @@
 class Line: public Object
 {
 public:
-    Line(Coordinates p1, Coordinates p2, std::string name);
+    Line(Coordinates p1, Coordinates p2, std::string name, Color* color);
     ~Line();
     void clip();
 };

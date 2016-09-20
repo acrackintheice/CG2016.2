@@ -11,6 +11,7 @@
 #include <iostream>
 #include <algorithm>
 #include "math.h"
+#include "operations.cpp"
 
 using namespace std;
 
@@ -29,13 +30,12 @@ int main (int argc, char *argv[]){
   square_points.push_back(Coordinates(0,500));
   square_points.push_back(Coordinates(500,0));
   square_points.push_back(Coordinates(0,-500));
-  Polygon* pol = new Polygon(square_points, "Square");
-  Point* p = new Point(Coordinates(-607,0), "Point");
-  Line* r =  new Line(Coordinates(0, 0), Coordinates(0,550), "Line");
+  Polygon* pol = new Polygon(square_points, "Square", new Color(255,0,0,1), new Color(255,0,0,1), false);
+  Point* p = new Point(Coordinates(-607,0), "Point", new Color(0,0,0,1));
+  Line* r =  new Line(Coordinates(0, 0), Coordinates(0,550), "Line", new Color(0, 255, 0, 1));
   world->add_object(pol);
-  //world->add_object(p);
+  world->add_object(p);
   world->add_object(r);
-  world->add_object(window);
   UI ui = UI(argc, argv, world);
   return 0;
 }

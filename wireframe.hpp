@@ -9,7 +9,7 @@
 class Wireframe : public Object
 {
 public:
-    Wireframe(std::vector<Coordinates> pontos, std::string name);
+    Wireframe(std::vector<Coordinates> pontos, std::string name, Color* color);
     ~Wireframe();
 };
 

@@ -13,6 +13,7 @@
 #include "wireframe.hpp"
 #include "coordinates.hpp"
 #include "polygon.hpp"
+#include "color.hpp"
 
 class UI 
 {
@@ -77,6 +78,8 @@ private:
 	GObject* _button_rotate;
 	GObject* _button_rotate_window;
 	GObject* _text_entry_angle_window;
+	GObject*  _line_color_button;
+	GObject* _background_color_button;
 	// Add object dialog widgets
 	GObject* _button_add;
 	GObject* _button_cancel;
@@ -94,6 +97,7 @@ private:
 	GObject* _textview_number_of_points;
 	GObject* _radio_button_polygon;
 	GObject* _radio_button_wireframe;
+	GObject* _radio_button_filled;
 
 	// Non-widget attributes
 	World* _world;

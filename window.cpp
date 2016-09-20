@@ -11,6 +11,9 @@ Window::Window(Coordinates p1, Coordinates p2, Coordinates vup) : _vup(vup)
     _points.push_back(p1);
     _points.push_back(p2);
     _scn_points = _points;
+    _color = new Color(255, 0, 0, 1);
+    _background_color = new Color(1, 1, 1, 1);
+    _filled = false;
 }
 Window::~Window(){
 }

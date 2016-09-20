@@ -6,6 +6,7 @@ using namespace std;
 
 
 Object::~Object(){
+	delete _color;
 }
 /* 
 Return the list of points to be drawn, in the general case this list is the _scn_points list. 
@@ -17,8 +18,17 @@ std::vector<Coordinates> Object::get_drawing_points(){
 string Object::get_name(){
 	return _name;
 }
+Color* Object::get_color(){
+	return _color;
+}
+Color* Object::get_background_color(){
+	return _color;
+}
 vector<Coordinates> Object::get_points(){
 	return _points;
+}
+bool Object::is_filled(){
+	return _filled;
 }
 /* Prints the object's data */
 void Object::print(){
