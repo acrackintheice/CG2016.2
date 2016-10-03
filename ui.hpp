@@ -13,6 +13,7 @@
 #include "wireframe.hpp"
 #include "coordinates.hpp"
 #include "polygon.hpp"
+#include "curve.hpp"
 #include "color.hpp"
 
 class UI 
@@ -25,6 +26,7 @@ public:
 	void show_add_object_dialog();
 	void hide_add_object_dialog();
 	void add_point_to_polygon();
+	void add_point_to_curve();
 	void move_window(double dx, double dy);
 	void remove_object();
 	void zoom_in();
@@ -41,6 +43,7 @@ private:
 	void set_text_of_textview(GtkWidget *text_view, gchar* text);
 	bool input_is_valid();
 	void reset_polygon_points();
+	void reset_curve_points();
 	void add_name_to_list(const gchar* name);
 	void remove_name_from_list(const gchar* name);
 	Coordinates get_rotation_point();
@@ -93,8 +96,12 @@ private:
 	GObject* _text_entry_line_y2;
 	GObject* _text_entry_polygon_x;
 	GObject* _text_entry_polygon_y;
+	GObject* _text_entry_curve_x;
+	GObject* _text_entry_curve_y;
 	GObject* _button_add_point_to_polygon;
+	GObject* _button_add_point_to_curve;
 	GObject* _textview_number_of_points;
+	GObject* _textview_number_of_points_to_curve;
 	GObject* _radio_button_polygon;
 	GObject* _radio_button_wireframe;
 	GObject* _radio_button_filled;
@@ -102,6 +109,7 @@ private:
 	// Non-widget attributes
 	World* _world;
 	std::vector<Coordinates> _polygon_points;
+	std::vector<Coordinates> _curve_points;
 
 };
 

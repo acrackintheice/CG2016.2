@@ -2,13 +2,16 @@
 #include "matriz4x1.hpp"
 #include "matriz4x4.hpp"
 
-Curve::Curve(std::vector<Coordinates> points, std::string name, Color* color, Color* background_color, bool filled){
+Curve::Curve(std::vector<Coordinates> points, std::string name, Color* color){
 	_points = points;
 	_name = name;
 	//_scn_points = _points;
 	_color = color;
-	_background_color = background_color;
-	_filled = filled;
+	_background_color = new Color(1, 1, 1, 1);
+	_filled = false;
+}
+
+Curve::~Curve(){
 }
 
 void Curve::clip() {

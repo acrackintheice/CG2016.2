@@ -83,6 +83,9 @@ static void add_object_from_dialog_callback (GtkWidget *widget, gpointer data){
 static void add_point_to_polygon_callback (GtkWidget *widget, gpointer data){
 	static_cast<UI*>(data)->add_point_to_polygon();
 }
+static void add_point_to_curve_callback (GtkWidget *widget, gpointer data){
+	static_cast<UI*>(data)->add_point_to_curve();
+}
 static void remove_object_callback (GtkWidget *widget, gpointer data){
 	static_cast<UI*>(data)->remove_object();
 }
@@ -159,24 +162,28 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 	_background_color_button		= gtk_builder_get_object (_builder, "background_color_button");
 	_line_color_button				= gtk_builder_get_object (_builder, "line_color_button");
 	/* Add object dialog widgets*/
-	_dialog_add_object    			= gtk_builder_get_object (_builder, "dialog_add_object");
-	_button_add	  		  			= gtk_builder_get_object (_builder, "button_add"); 
-	_button_cancel		  			= gtk_builder_get_object (_builder, "button_cancel");
-	_notebook	  		  			= gtk_builder_get_object (_builder, "notebook"); 
-	_text_entry_object_name			= gtk_builder_get_object (_builder, "text_entry_object_name");
-	_text_entry_point_x   			= gtk_builder_get_object (_builder, "text_entry_point_x"); 
-	_text_entry_point_y   			= gtk_builder_get_object (_builder, "text_entry_point_y"); 
-	_text_entry_line_x1	  			= gtk_builder_get_object (_builder, "text_entry_line_x1"); 
-	_text_entry_line_y1   			= gtk_builder_get_object (_builder, "text_entry_line_y1"); 
-	_text_entry_line_x2	  			= gtk_builder_get_object (_builder, "text_entry_line_x2"); 
-	_text_entry_line_y2	  			= gtk_builder_get_object (_builder, "text_entry_line_y2");
-	_text_entry_polygon_x 			= gtk_builder_get_object (_builder, "text_entry_polygon_x");
-	_text_entry_polygon_y 			= gtk_builder_get_object (_builder, "text_entry_polygon_y");
-	_textview_number_of_points 		= gtk_builder_get_object (_builder, "textview_number_of_points");
-	_button_add_point_to_polygon 	= gtk_builder_get_object (_builder, "button_add_point_to_polygon");
-	_radio_button_polygon			= gtk_builder_get_object (_builder, "radio_button_polygon");
-	_radio_button_wireframe 		= gtk_builder_get_object (_builder, "radio_button_wireframe");
-	_radio_button_filled			= gtk_builder_get_object (_builder, "radio_button_filled");
+	_dialog_add_object    				= gtk_builder_get_object (_builder, "dialog_add_object");
+	_button_add	  		  				= gtk_builder_get_object (_builder, "button_add");
+	_button_cancel		  				= gtk_builder_get_object (_builder, "button_cancel");
+	_notebook	  		  				= gtk_builder_get_object (_builder, "notebook");
+	_text_entry_object_name				= gtk_builder_get_object (_builder, "text_entry_object_name");
+	_text_entry_point_x   				= gtk_builder_get_object (_builder, "text_entry_point_x");
+	_text_entry_point_y   				= gtk_builder_get_object (_builder, "text_entry_point_y");
+	_text_entry_line_x1	  				= gtk_builder_get_object (_builder, "text_entry_line_x1");
+	_text_entry_line_y1   				= gtk_builder_get_object (_builder, "text_entry_line_y1");
+	_text_entry_line_x2	  				= gtk_builder_get_object (_builder, "text_entry_line_x2");
+	_text_entry_line_y2	  				= gtk_builder_get_object (_builder, "text_entry_line_y2");
+	_text_entry_polygon_x 				= gtk_builder_get_object (_builder, "text_entry_polygon_x");
+	_text_entry_polygon_y 				= gtk_builder_get_object (_builder, "text_entry_polygon_y");
+	_text_entry_curve_x 				= gtk_builder_get_object (_builder, "text_entry_curve_x");
+	_text_entry_curve_y 				= gtk_builder_get_object (_builder, "text_entry_curve_y");
+	_textview_number_of_points 			= gtk_builder_get_object (_builder, "textview_number_of_points");
+	_textview_number_of_points_to_curve	= gtk_builder_get_object (_builder, "textview_number_of_points_to_curve");
+	_button_add_point_to_polygon 		= gtk_builder_get_object (_builder, "button_add_point_to_polygon");
+	_button_add_point_to_curve			= gtk_builder_get_object (_builder, "button_add_point_to_curve");
+	_radio_button_polygon				= gtk_builder_get_object (_builder, "radio_button_polygon");
+	_radio_button_wireframe 			= gtk_builder_get_object (_builder, "radio_button_wireframe");
+	_radio_button_filled				= gtk_builder_get_object (_builder, "radio_button_filled");
 	// Signals
 	g_signal_connect (_main_window, 		  "destroy", 		G_CALLBACK (gtk_main_quit), 					NULL);
 	g_signal_connect (_main_window,			  "check-resize",  	G_CALLBACK (resize_callback),              		this);
@@ -196,6 +203,7 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 	g_signal_connect (_button_add, 	  				"clicked", 		G_CALLBACK (add_object_from_dialog_callback), 	this);
 	g_signal_connect (_button_cancel, 				"clicked", 		G_CALLBACK (hide_add_object_dialog_callback),  	this);
 	g_signal_connect (_button_add_point_to_polygon, "clicked", 		G_CALLBACK (add_point_to_polygon_callback)	,  	this);
+	g_signal_connect (_button_add_point_to_curve, 	"clicked", 		G_CALLBACK (add_point_to_curve_callback)	,  	this);
 	/* Adding the test objects to the list */
 	vector<Object*> objects = _world->get_objects();
 	vector<Object*>::iterator it;
@@ -319,6 +327,13 @@ void UI::add_point_to_polygon(){
 	gchar* size_text = (char *)to_string(_polygon_points.size()).c_str();
 	set_text_of_textview(GTK_WIDGET(_textview_number_of_points), size_text);
 }
+void UI::add_point_to_curve(){
+	gdouble x = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_curve_x), NULL);
+	gdouble y = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_curve_y), NULL);
+	_curve_points.push_back(Coordinates(x,y));
+	gchar* size_text = (char *)to_string(_curve_points.size()).c_str();
+	set_text_of_textview(GTK_WIDGET(_textview_number_of_points_to_curve), size_text);
+}
 char* UI::get_text_of_textview(GtkWidget *text_view) {
 	GtkTextIter start, end;
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer((GtkTextView *)text_view);
@@ -407,10 +422,27 @@ void UI::add_object_from_dialog(){
 					//TODO
 		}
 	}
+	else if(strcmp(page_name, "Curve")==0){
+		if(input_is_valid()){
+			Object* obj = new Curve(_curve_points, name, line_color);
+			_world->add_object(obj);
+			add_name_to_list(name);
+			reset_curve_points();
+			draw();
+			gtk_widget_hide (GTK_WIDGET(_dialog_add_object));
+		}
+		else{
+					//TODO
+		}
+	}
 }
 void UI::reset_polygon_points(){
 	_polygon_points.clear();
 	set_text_of_textview(GTK_WIDGET(_textview_number_of_points), (char *)"0");
+}
+void UI::reset_curve_points(){
+	_curve_points.clear();
+	set_text_of_textview(GTK_WIDGET(_textview_number_of_points_to_curve), (char *)"0");
 }
 bool UI::input_is_valid(){
 	return true;
