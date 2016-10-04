@@ -145,9 +145,9 @@ public:
 	{
 		double t = (previous_t + next_t)/2;// média dos t's
 		double l1T[] = {(t*t*t),(t*t),t,1};
-		Matriz1x4* T  = new Matriz1x4(l1T);
-		double x = T->multiplicarPor4x1(MB_Gx);
-		double y = T->multiplicarPor4x1(MB_Gy);
+		Matriz1x4 T  = Matriz1x4(l1T);
+		double x = T.multiplicarPor4x1(MB_Gx);
+		double y = T.multiplicarPor4x1(MB_Gy);
 		Coordinates point = Coordinates(x, y);
 		{
 			if(	n_esima_recursao <= min_quota// Se a cota minima de recursão não foi alcançada, ou
@@ -206,7 +206,7 @@ void Curve::blending_functions()
 	double l2MB[] = { 3, -6,  3,  0};
 	double l3MB[] = {-3,  3,  0,  0};
 	double l4MB[] = { 1,  0,  0,  0};
-	Matriz4x4* MB = new Matriz4x4(l1MB, l2MB, l3MB, l4MB);//Matriz de Bezier
+	Matriz4x4 MB = Matriz4x4(l1MB, l2MB, l3MB, l4MB);//Matriz de Bezier
 	// Desenhando a curva 4 pontos por vezes sempre repetindo o ultimo ponto de uma sequencia de quatro como primeiro da próxima sequência
 	it_points++;// Simulando ter passado pelo último ponto de uma sequência de quatro.
 	while(it_points != old_scn_points.end()){
@@ -223,12 +223,12 @@ void Curve::blending_functions()
 			it_points++;
 		}
 		// Criando a matriz geometrica Gx
-		Matriz4x1* Gx = new Matriz4x1(lGx[0], lGx[1], lGx[2], lGx[3]);
+		Matriz4x1 Gx = Matriz4x1(lGx[0], lGx[1], lGx[2], lGx[3]);
 		// Criando a matriz geometrica Gy
-		Matriz4x1* Gy = new Matriz4x1(lGy[0], lGy[1], lGy[2], lGy[3]);
+		Matriz4x1 Gy = Matriz4x1(lGy[0], lGy[1], lGy[2], lGy[3]);
 		// Multiplicando a matriz de Bézier pelas matrizes de geometria
-		Matriz4x1* MB_Gx = MB->multiplicar4x1(Gx);
-		Matriz4x1* MB_Gy = MB->multiplicar4x1(Gy);
+		Matriz4x1* MB_Gx = MB.multiplicar4x1(&Gx);
+		Matriz4x1* MB_Gy = MB.multiplicar4x1(&Gy);
 		// Primeiro e último ponto
 		Coordinates first_p = Coordinates(lGx[0], lGy[0]);
 		Coordinates last_p = Coordinates(lGx[3], lGy[3]);
@@ -246,5 +246,8 @@ void Curve::blending_functions()
 		if(BF_aux::is_on_window(last_p)) {
 			_scn_points.push_back(last_p);
 		}
+		// Liberando memória das matrizes
+		delete MB_Gx;
+		delete MB_Gy;
 	}
 }
