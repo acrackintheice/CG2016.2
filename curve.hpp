@@ -11,7 +11,7 @@ public:
 	Curve(std::vector<Coordinates> points, std::string name, Color* color);
 	virtual ~Curve();
 private:
-	void blending_functions(std::vector<Coordinates> points);
+	void blending_functions();
 	void clip();
 };
 
