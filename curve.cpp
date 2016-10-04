@@ -214,8 +214,7 @@ void Curve::blending_functions()
 		it_points--;// Repetindo o ultimo ponto da ultima sequencia de quatro como o primeiro dessa sequência
 		for(unsigned char i = 0; i < 4; ++i){
 			if(it_points == old_scn_points.end()){// Nunca ocorre. Se ocorrer, há falha na quantidade de pontos.
-				throw false;// Primeiramente implementado o algoritmo do avestruz.
-				// Pode-se simplesmente sair do laço while, mas não quero pensar em como implementar isso agora.
+				return;// Ignora os pontos de sobra, e termina a função.
 			}
 			Coordinates w_point = *it_points;
 			lGx[i] = w_point.get_x();
