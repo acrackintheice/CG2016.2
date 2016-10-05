@@ -6,27 +6,22 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data)
 {
 	World* world = static_cast<World*>(data);
 	Window* window = world->get_window();
-
-	/* Getting the viewport coordinates*/
+	/* Getting the viewport and window coordinates*/
 	double vp_width = (double) (gtk_widget_get_allocated_width  (widget));
 	double vp_height = (double) (gtk_widget_get_allocated_height (widget));
 	Coordinates viewport_min = Coordinates(10,10);
 	Coordinates viewport_max = Coordinates(vp_width-10, vp_height-10);
-
-	/* Getting the window coordinates */
 	Coordinates window_min =  Coordinates(-1,-1);//window->get_min();
 	Coordinates window_max =  Coordinates(1,1);//window->get_max();
-	/* Filling the background */
+	/* Filling the background, seeting line width and cap */
 	cairo_set_source_rgba(cr, 1, 1, 1, 1);
 	cairo_paint(cr);
-	/* Set the line width */
-	cairo_set_line_width(cr,2);
-	/* Set the line cap, otherwise points dont show*/
+	cairo_set_line_width(cr,3);
 	cairo_set_line_cap  (cr, CAIRO_LINE_CAP_ROUND); 
-	/* Drawing objects */
+	/* snc transformation and clip, maybe this isnt the best place to call these things*/
 	world->scn_upate();
 	world->clip();
-	/* Drawing every object*/
+	/* Drawing objects */
 	vector<Object*> objects = world->get_objects();
 	vector<Object*>::iterator it;
 	for(it = objects.begin(); it != objects.end(); it++){
@@ -50,13 +45,10 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data)
 				/* Flagging that the next points are not the first anymore*/
 				first_point = false;
 			}
-			/* 
-			When it is not the first point we already have the pen on the canvas,  
-			so we only need to keep drawing it 
-			*/
+			/* When it is not the first point we only need to keep drawing it */
 			cairo_line_to(cr, vp_point.get_x(), vp_point.get_y());
 		}
-		/* If the object should be filled */
+		/* Drawing filled objects */
 		if(obj->is_filled()){
 			/* Setting the filling color */
 			Color* bc = obj->get_background_color();
@@ -65,7 +57,7 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data)
 			cairo_fill(cr);
 		}
 		else{
-			/* The stroke function actually draws the object */
+			/* Drawing non-filled objects */
 			cairo_stroke(cr);
 		}
 	}
@@ -119,6 +111,12 @@ static void rotate_window_callback (GtkWidget *widget, gpointer data){
 static void resize_callback (GtkWidget *widget, gpointer data){
 	static_cast<UI*>(data)->update_text_view_window();
 }
+static void cohen_sutherland_callback (GtkWidget *widget, gpointer data){
+	static_cast<UI*>(data)->update_clip_type(true);
+}
+static void liang_barsky_callback (GtkWidget *widget, gpointer data){
+	static_cast<UI*>(data)->update_clip_type(false);
+}
 /* Member Functions */
 UI::UI(int argc, char *argv[], World* world) : _world(world)
 {
@@ -158,6 +156,8 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 	_text_entry_angle_window 		= gtk_builder_get_object (_builder, "text_entry_angle_window");
 	_background_color_button		= gtk_builder_get_object (_builder, "background_color_button");
 	_line_color_button				= gtk_builder_get_object (_builder, "line_color_button");
+	_radio_button_cohen_sutherland  = gtk_builder_get_object (_builder, "radio_button_cohen_sutherland");
+	_radio_button_liang_barsky      = gtk_builder_get_object (_builder, "radio_button_liang_barsky");
 	/* Add object dialog widgets*/
 	_dialog_add_object    			= gtk_builder_get_object (_builder, "dialog_add_object");
 	_button_add	  		  			= gtk_builder_get_object (_builder, "button_add"); 
@@ -192,6 +192,8 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 	g_signal_connect (_button_scale,	 	  "clicked", 		G_CALLBACK (scale_callback),				    this);
 	g_signal_connect (_button_rotate,	 	  "clicked", 		G_CALLBACK (rotate_callback),				    this);
 	g_signal_connect (_button_rotate_window,  "clicked", 		G_CALLBACK (rotate_window_callback),			this);
+	g_signal_connect (_radio_button_cohen_sutherland, "toggled", 		G_CALLBACK (cohen_sutherland_callback)	,  	this);
+	g_signal_connect (_radio_button_liang_barsky,     "toggled", 		G_CALLBACK (liang_barsky_callback)	    ,  	this);
 	/* Add object dialog widget signals */
 	g_signal_connect (_button_add, 	  				"clicked", 		G_CALLBACK (add_object_from_dialog_callback), 	this);
 	g_signal_connect (_button_cancel, 				"clicked", 		G_CALLBACK (hide_add_object_dialog_callback),  	this);
@@ -204,6 +206,7 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 		if(obj->get_name() != "Window")
 			add_name_to_list(obj->get_name().c_str());
 	}
+	update_clip_type(true);
 	/* Draing the world*/
 	draw();
 	gtk_widget_show ( GTK_WIDGET(_main_window) );
@@ -212,6 +215,7 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 	gtk_main ();
 }
 UI::~UI(){
+	delete _world;
 }
 void UI::update_text_view_window(){
 	Window* window = _world->get_window();
@@ -226,6 +230,10 @@ void UI::update_text_view_window(){
 	string text = "WINDOW : (" + to_string(x1) + "," + to_string(y1) + ")" + ",(" + to_string(x2) + "," + to_string(y2) + ")"; 
 	text = text + "   +-+-+  VP : ("+ to_string(vp_width) + ", " + to_string(vp_height) + " )";
 	set_text_of_textview((GtkWidget*)_text_view_window, (char*)text.c_str());
+	gtk_widget_queue_draw ((GtkWidget*) _canvas);
+}
+void UI::update_clip_type(bool flag){
+	_world->set_clip_flag(flag);
 	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 }
 void UI::draw(){
@@ -347,14 +355,14 @@ void UI::add_object_from_dialog(){
 	GtkNotebook* notebook = (GtkNotebook*)_notebook;
 	const gchar* page_name = get_current_page_label(notebook);
 	const gchar* name = gtk_entry_get_text ((GtkEntry*) _text_entry_object_name);
-	GdkRGBA *color_rgba = new GdkRGBA();
-	GdkRGBA *background_rgba = new GdkRGBA();
+	GdkRGBA *color_rgba = new GdkRGBA(); /* had to create this beucause of gtk*/
+	GdkRGBA *background_rgba = new GdkRGBA(); /* this too */
 	gtk_color_chooser_get_rgba ( (GtkColorChooser*) _line_color_button, color_rgba);
 	gtk_color_chooser_get_rgba ( (GtkColorChooser*) _background_color_button, background_rgba);
 	Color* background_color = new Color(background_rgba->red, background_rgba->green, background_rgba->blue, background_rgba->alpha);
 	Color* line_color = new Color(color_rgba->red, color_rgba->green, color_rgba->blue, color_rgba->alpha);
-	delete color_rgba;
-	delete background_rgba;
+	delete color_rgba; /* Deleting these things we had to create*/
+	delete background_rgba;  /* deleting this too*/
 	if(strcmp(page_name, "Point") == 0){
 		gdouble x = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_point_x), NULL);
 		gdouble y = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_point_y), NULL);
@@ -366,7 +374,7 @@ void UI::add_object_from_dialog(){
 			gtk_widget_hide (GTK_WIDGET(_dialog_add_object));
 		}
 		else{
-				// TODO
+				// TODO - Showing a message if the input is invalid
 		}
 	}
 	else if(strcmp(page_name, "Line")==0){
@@ -382,7 +390,7 @@ void UI::add_object_from_dialog(){
 			gtk_widget_hide (GTK_WIDGET(_dialog_add_object));
 		}
 		else{
-				//TODO
+				//TODO - Showing a message if the input is invalid
 		}
 	}
 	else if(strcmp(page_name, "Polygon")==0){
@@ -404,7 +412,7 @@ void UI::add_object_from_dialog(){
 			gtk_widget_hide (GTK_WIDGET(_dialog_add_object));
 		}
 		else{
-					//TODO
+					//TODO - Showing a message if the input is invalid
 		}
 	}
 }
@@ -413,6 +421,7 @@ void UI::reset_polygon_points(){
 	set_text_of_textview(GTK_WIDGET(_textview_number_of_points), (char *)"0");
 }
 bool UI::input_is_valid(){
+	/* TODO */
 	return true;
 }
 string UI::get_selected_object_name(){

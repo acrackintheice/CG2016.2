@@ -13,17 +13,19 @@ class Object
 public:
     std::string get_name();
     std::vector<Coordinates> get_points();
+    std::vector<Coordinates> get_scn_points();
+    std::vector<Coordinates> virtual get_drawing_points();
     Color* get_color();
     Color* get_background_color();
     bool is_filled();
-    std::vector<Coordinates> virtual get_drawing_points();
     Coordinates get_geometric_center();
     void translate(double sx, double sy);
-	void scale(double sx, double sy);
-	void rotate(double angle, Coordinates point);
+    void scale(double sx, double sy);
+    void rotate(double angle, Coordinates point);
     void update_scn_points(Matriz3x3 scn_matrix);
     void virtual clip();
-	void print();
+    void virtual clip2();
+    void print();
     virtual ~Object();
 protected:
 	void virtual transform(Matriz3x3 transformation);

@@ -15,6 +15,9 @@ It might change for especific objects, so they will need to overwrite this metho
 std::vector<Coordinates> Object::get_drawing_points(){
 	return _scn_points;
 }
+std::vector<Coordinates> Object::get_scn_points(){
+	return _scn_points;
+}
 string Object::get_name(){
 	return _name;
 }
@@ -99,24 +102,25 @@ void Object::rotate(double angle, Coordinates point){
 	Matriz3x3 rotation_matrix = Matriz3x3(l0,l1,l2);
 	transform(rotation_matrix);
 }
-/* 
-	Converts every point from _points to a _scn_point using the scn_matrix and stores 
-	the new transformed point in the scn_points vector 
-*/
-	void Object::update_scn_points(Matriz3x3 scn_matrix){
-		vector<Coordinates> new_scn_points;
-		vector<Coordinates>::iterator it;
-		for(it = _points.begin(); it != _points.end(); it++){
-			double l4[] = {0,0,1};
-			Coordinates point = (*it);
-			l4[0] = point.get_x();
-			l4[1] = point.get_y();
-			Matriz1x3 point_matrix = Matriz1x3(l4);
-			Matriz1x3 transformed_point = point_matrix.multiplicarPor3x3(scn_matrix);
-			new_scn_points.push_back(Coordinates(transformed_point.get(0), transformed_point.get(1)));
-		}
-		_scn_points = new_scn_points;
+/* 	Converts every point from _points to a _scn_point using the scn_matrix and stores 
+	the new transformed point in the scn_points vector */
+void Object::update_scn_points(Matriz3x3 scn_matrix){
+	vector<Coordinates> new_scn_points;
+	vector<Coordinates>::iterator it;
+	for(it = _points.begin(); it != _points.end(); it++){
+		double l4[] = {0,0,1};
+		Coordinates point = (*it);
+		l4[0] = point.get_x();
+		l4[1] = point.get_y();
+		Matriz1x3 point_matrix = Matriz1x3(l4);
+		Matriz1x3 transformed_point = point_matrix.multiplicarPor3x3(scn_matrix);
+		new_scn_points.push_back(Coordinates(transformed_point.get(0), transformed_point.get(1)));
 	}
-
-	void Object::clip(){
-	}
+	_scn_points = new_scn_points;
+}
+void Object::clip(){
+}
+	/* For objects that only have one choice for clipping clip2 will be the same as clip */
+void Object::clip2(){
+	clip();
+}

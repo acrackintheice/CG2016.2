@@ -3,6 +3,7 @@
 
 #include "object.hpp"
 
+
 class Window : public Object
 {
 public:

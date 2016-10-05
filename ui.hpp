@@ -35,6 +35,7 @@ public:
 	void rotate_window();
 	void window_resize_updates();
 	void update_text_view_window();
+	void update_clip_type(bool flag);
 private:
 	const gchar* get_current_page_label(GtkNotebook* notebook);
 	char* get_text_of_textview(GtkWidget *text_view);
@@ -80,6 +81,8 @@ private:
 	GObject* _text_entry_angle_window;
 	GObject*  _line_color_button;
 	GObject* _background_color_button;
+	GObject* _radio_button_cohen_sutherland;
+	GObject* _radio_button_liang_barsky;
 	// Add object dialog widgets
 	GObject* _button_add;
 	GObject* _button_cancel;

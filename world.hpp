@@ -21,10 +21,12 @@ public:
     double angle_between_vectors(Coordinates vector_1,Coordinates vector_2);
     void scn_upate();
     void clip();
+    void set_clip_flag(bool clip_flag);
 private:
 
 	Window* _window;
     std::vector<Object*> _objects;
+    bool _clip_flag;
 };
 
 #endif // WORLD_HPP

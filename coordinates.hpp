@@ -1,6 +1,8 @@
 #ifndef COORDINATES_HPP
 #define COORDINATES_HPP
 
+#include <string>
+
 class Coordinates
 {
 public:
@@ -8,6 +10,7 @@ public:
     ~Coordinates();
     double get_x();
     double get_y();
+    std::string to_string();
 private:
     double _x;
     double _y;

@@ -5,7 +5,7 @@
 
 using namespace std;
 
-World::World(Window* window) : _window(window)
+World::World(Window* window) : _window(window), _clip_flag(false)
 {
     add_object(window);
 }
@@ -16,6 +16,9 @@ World::~World(){
         delete obj;
     }
     delete _window;
+}
+void World::set_clip_flag(bool clip_flag){
+    _clip_flag = clip_flag;
 }
 void World::add_object(Object* obj){
     _objects.push_back(obj);
@@ -55,11 +58,16 @@ void World::clip(){
     vector<Object*>::iterator it;
     for(it = _objects.begin(); it != _objects.end(); it++){
         Object* obj = (*it);
-        obj-> clip();
+        if (_clip_flag){
+            obj-> clip2();
+        }
+        else{
+            obj-> clip();
+        }
     }
 }
 void World::scn_upate(){
-    /* Creating a new window cause we don't want to mess with the world window*/
+    /* Creating a new window cause we don't want to mess with the world window */
     Window window = Window( _window->get_min(), _window->get_max(), _window->get_vup());
     /* Defining the parameters for the scn transformation */
     /* dx and dy are pretty straightfoward*/

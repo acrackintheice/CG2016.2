@@ -5,6 +5,7 @@ using namespace std;
 
 Point::Point(Coordinates xy, string name, Color* color){
 	_points.push_back(xy);
+	_scn_points.push_back(xy);
 	_name = name;
 	_color = color;
 	_filled = false;

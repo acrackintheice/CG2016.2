@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="CPP_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/world.hpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/color.hpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/point.hpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/polygon.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/window.hpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/operations.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/curve.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/object.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/polygon.hpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ui.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/matriz3x3.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/curve.hpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/object.hpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/line.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/window.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/line.hpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ui.hpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/matriz3x3.hpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/transformations.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/coordinates.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/simple.glade" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/matriz1x3.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wireframe.hpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wireframe.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/world.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/matriz1x3.hpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/color.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/point.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/coordinates.hpp" isTestSource="false" />
+    </content>
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library name="Header Search Paths">
+        <CLASSES>
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include" />
+          <root url="file:///usr/include" />
+          <root url="file:///usr/local/include" />
+        </CLASSES>
+        <SOURCES>
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include" />
+          <root url="file:///usr/include" />
+          <root url="file:///usr/local/include" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+  </component>
+</module>

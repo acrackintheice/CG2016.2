@@ -14,3 +14,7 @@ double Coordinates::get_x(){
 double Coordinates::get_y(){
     return _y;
 }
+std::string Coordinates::to_string(){
+	return "(" + std::to_string(_x) + ", " + std::to_string(_y) + ")";
+}
+

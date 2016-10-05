@@ -131,7 +131,7 @@ void Window::move(double dx, double dy){
     		dx*-sin(rad) + dy*cos(rad),
     		1};
     Matriz3x3 resultant(l1,l2,l3);
-    this->transform(resultant);
+    transform(resultant);
 }
 Coordinates Window::get_min(){
     return _points[0];
