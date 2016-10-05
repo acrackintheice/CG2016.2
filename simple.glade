@@ -909,6 +909,14 @@
   <object class="GtkTextBuffer" id="textbuffer1">
     <property name="text" translatable="yes">0</property>
   </object>
+  <object class="GtkTextBuffer" id="textbuffer2">
+    <property name="text" translatable="yes">HOW TO ADD CURVA BEZIER:
+Insira os pontos da curva de Bézier na sequência: P1-P2-P3-P4,
+onde P1 e P4 são os extremos da curva e P2 e P3 são os pontos
+de controle. Para inserir curvas contínuas basta continuar
+inserindo pontos, pulando o primeiro das curvas subsequentes,
+o qual é o último ponto da curva anterior (incluído automaticamente) .</property>
+  </object>
   <object class="GtkDialog" id="dialog_add_object">
     <property name="name">dialog_add_object</property>
     <property name="width_request">600</property>
@@ -1706,6 +1714,33 @@
                       <packing>
                         <property name="left_attach">0</property>
                         <property name="top_attach">3</property>
+                        <property name="width">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkScrolledWindow" id="scrolledwindow5">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="vexpand">True</property>
+                        <property name="shadow_type">in</property>
+                        <child>
+                          <object class="GtkViewport" id="viewport3">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkTextView" id="textview1">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="editable">False</property>
+                                <property name="buffer">textbuffer2</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">4</property>
                         <property name="width">3</property>
                       </packing>
                     </child>
