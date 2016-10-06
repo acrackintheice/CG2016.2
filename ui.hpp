@@ -14,6 +14,9 @@
 #include "coordinates.hpp"
 #include "polygon.hpp"
 #include "color.hpp"
+#include "bspline.hpp"
+#include "curve.hpp"
+#include "operations.cpp"
 
 class UI 
 {
@@ -44,6 +47,7 @@ private:
 	void reset_polygon_points();
 	void add_name_to_list(const gchar* name);
 	void remove_name_from_list(const gchar* name);
+	std::vector<Coordinates> string_to_points(string x);
 	Coordinates get_rotation_point();
 	Object* get_selected_object();
 	std::string get_selected_object_name();
@@ -101,6 +105,9 @@ private:
 	GObject* _radio_button_polygon;
 	GObject* _radio_button_wireframe;
 	GObject* _radio_button_filled;
+	GObject* _text_entry_curve;
+	GObject* _radio_button_bezier;
+	GObject* _radio_button_bspline;
 
 	// Non-widget attributes
 	World* _world;

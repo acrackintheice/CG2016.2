@@ -7,6 +7,7 @@ using namespace std;
 
 Object::~Object(){
 	delete _color;
+	delete _background_color;
 }
 /* 
 Return the list of points to be drawn, in the general case this list is the _scn_points list. 

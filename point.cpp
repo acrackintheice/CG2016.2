@@ -11,8 +11,6 @@ Point::Point(Coordinates xy, string name, Color* color){
 	_filled = false;
     _background_color = new Color(1, 1, 1, 1);
 }
-Point::~Point(){
-}
 void Point::clip(){
 	double x = _scn_points[0].get_x();
 	double y = _scn_points[0].get_y();

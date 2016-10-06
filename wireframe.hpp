@@ -12,7 +12,6 @@ class Wireframe : public Object
 {
 public:
     Wireframe(std::vector<Coordinates> points, std::string name, Color* color);
-    ~Wireframe();
     void clip();
 };
 

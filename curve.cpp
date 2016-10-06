@@ -137,7 +137,7 @@ public:
 	 */
 	static void BF_recursivo(
 			unsigned n_esima_recursao,
-			Matriz4x1* MB_Gx, Matriz4x1* MB_Gy,
+			Matriz4x1 MB_Gx, Matriz4x1 MB_Gy,
 			Coordinates previous_p, double previous_t,
 			Coordinates next_p, double next_t,
 			std::vector<Coordinates> &new_scn_points
@@ -226,8 +226,8 @@ void Curve::blending_functions()
 		// Criando a matriz geometrica Gy
 		Matriz4x1 Gy = Matriz4x1(lGy[0], lGy[1], lGy[2], lGy[3]);
 		// Multiplicando a matriz de Bézier pelas matrizes de geometria
-		Matriz4x1* MB_Gx = MB.multiplicar4x1(&Gx);
-		Matriz4x1* MB_Gy = MB.multiplicar4x1(&Gy);
+		Matriz4x1 MB_Gx = MB.multiplicar4x1(Gx);
+		Matriz4x1 MB_Gy = MB.multiplicar4x1(Gy);
 		// Primeiro e último ponto
 		Coordinates first_p = Coordinates(lGx[0], lGy[0]);
 		Coordinates last_p = Coordinates(lGx[3], lGy[3]);
@@ -246,7 +246,5 @@ void Curve::blending_functions()
 			_scn_points.push_back(last_p);
 		}
 		// Liberando memória das matrizes
-		delete MB_Gx;
-		delete MB_Gy;
 	}
 }

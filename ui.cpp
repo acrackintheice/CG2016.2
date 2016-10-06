@@ -1,4 +1,5 @@
 #include "ui.hpp"
+#include <stdlib.h>
 
 using namespace std;
 
@@ -177,6 +178,9 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 	_radio_button_polygon			= gtk_builder_get_object (_builder, "radio_button_polygon");
 	_radio_button_wireframe 		= gtk_builder_get_object (_builder, "radio_button_wireframe");
 	_radio_button_filled			= gtk_builder_get_object (_builder, "radio_button_filled");
+	_radio_button_bspline			= gtk_builder_get_object (_builder, "radio_button_bspline");
+	_radio_button_bezier			= gtk_builder_get_object (_builder, "radio_button_bezier");
+	_text_entry_curve				= gtk_builder_get_object (_builder, "text_entry_curve");
 	// Signals
 	g_signal_connect (_main_window, 		  "destroy", 		G_CALLBACK (gtk_main_quit), 					NULL);
 	g_signal_connect (_main_window,			  "check-resize",  	G_CALLBACK (resize_callback),              		this);
@@ -207,7 +211,7 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 			add_name_to_list(obj->get_name().c_str());
 	}
 	update_clip_type(true);
-	/* Draing the world*/
+	/* Drawing the world*/
 	draw();
 	gtk_widget_show ( GTK_WIDGET(_main_window) );
 	update_text_view_window();
@@ -415,6 +419,47 @@ void UI::add_object_from_dialog(){
 					//TODO - Showing a message if the input is invalid
 		}
 	}
+	else if(strcmp(page_name, "Curve")==0){
+		if(input_is_valid()){
+			Object* obj;
+			string points(gtk_entry_get_text ((GtkEntry*) _text_entry_curve));
+			vector<Coordinates> curve_points = string_to_points(points);
+			vector<Coordinates>::iterator it;
+			if(gtk_toggle_button_get_active ((GtkToggleButton*) _radio_button_bezier)){
+				cout << "Bezier" << endl;
+				obj = new Curve(curve_points, name, line_color);
+			}
+			else{
+				cout << "B-Spline" << endl;
+				obj = new BSpline(curve_points, name, line_color);
+			}
+			_world->add_object(obj);
+			add_name_to_list(name);
+			draw();
+			gtk_widget_hide (GTK_WIDGET(_dialog_add_object));
+		}
+		else{
+					//TODO - Showing a message if the input is invalid
+		}
+	}
+}
+vector<Coordinates> UI::string_to_points(string x){
+	vector<Coordinates> points;
+	vector<string> splitted = Operations::split(x, ' ');
+	vector<string>::iterator it;
+	for (it = splitted.begin(); it != splitted.end(); it++){
+		string coordinates_string = *it;
+		/* coordinates_string = '(1,2)' */
+		Operations::remove_char_from_string(coordinates_string, (char *)"() ");
+		/* coordinates_string = '1,2' */
+		vector<string> string_points = Operations::split(coordinates_string, ',');
+		/* string_points = ['1', '2'] */
+		double x = atof(string_points[0].c_str());
+		double y = atof(string_points[1].c_str());
+		Coordinates c = Coordinates(x,y);
+		points.push_back(c);
+	}
+	return points;
 }
 void UI::reset_polygon_points(){
 	_polygon_points.clear();

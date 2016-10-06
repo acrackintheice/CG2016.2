@@ -45,9 +45,12 @@ int main (int argc, char *argv[]){
   curve_points.push_back(Coordinates(0,70));
   curve_points.push_back(Coordinates(65, 30));
   curve_points.push_back(Coordinates(65, -30));
-  //curve_points.push_back(Coordinates(0,-400));
-  //curve_points.push_back(Coordinates(300,-150));
-  //curve_points.push_back(Coordinates(-300,150));  
+  curve_points.push_back(Coordinates(0,-70));
+  curve_points.push_back(Coordinates(-65,-30));
+  curve_points.push_back(Coordinates(-65,30));  
+
+ /* (0,-70) (-65,-30) (-65,30) (0,70) (65,30) (65,-30) (0,-70) (-65,-30) (-65,30) */
+
   BSpline* c = new BSpline(curve_points, "Curve", new Color(0,0,255,1));
   Point* p1 = new Point(Coordinates(0,-70), "P1-Spline", new Color(0,0,0,1));
   Point* p2 = new Point(Coordinates(-65,-30), "P2-Spline", new Color(255,0,0,1));

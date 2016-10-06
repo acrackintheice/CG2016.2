@@ -13,10 +13,12 @@ class BSpline: public Object
 {
 public:
     BSpline(std::vector<Coordinates> points, std::string name, Color* color);
-    ~BSpline();
     std::vector<Coordinates> getFwdDiffPoints(double n,Matriz4x1 dx, Matriz4x1 dy);
     std::vector<Coordinates> get_drawing_points();
     void clip();
+private:
+	bool too_far_away(Coordinates c);
+	bool is_inside(Coordinates c);
 };
 
 #endif // BSPLINE_HPP

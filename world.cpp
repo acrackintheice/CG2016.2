@@ -15,7 +15,6 @@ World::~World(){
         Object* obj = (*it);
         delete obj;
     }
-    delete _window;
 }
 void World::set_clip_flag(bool clip_flag){
     _clip_flag = clip_flag;

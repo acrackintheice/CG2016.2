@@ -1,5 +1,16 @@
+#ifndef OPERATIONS_HPP
+#define OPERATIONS_HPP
+
 #include "coordinates.hpp"
 #include "math.h"
+#include <string>
+#include <sstream>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+
+using namespace std;
 
 class Operations{
 
@@ -46,7 +57,27 @@ public:
 		}
 		return Coordinates(x,y);
 	}
+	static void split(const std::string &s, char delim, std::vector<string> &elems) {
+		std::stringstream ss;
+		ss.str(s);
+		std::string item;
+		while (std::getline(ss, item, delim)) {
+			elems.push_back(item);
+		}
+	}
+
+	static std::vector<std::string> split(const std::string &s, char delim) {
+		std::vector<std::string> elems;
+		split(s, delim, elems);
+		return elems;
+	}
+	static void remove_char_from_string( string &str, char* charsToRemove ) {
+		for ( unsigned int i = 0; i < strlen(charsToRemove); ++i ) {
+			str.erase( remove(str.begin(), str.end(), charsToRemove[i]), str.end() );
+		}
+	}
 };
 
+#endif 
 
 

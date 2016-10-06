@@ -9,7 +9,6 @@ class Point : public Object
 {
 public:
     Point(Coordinates xy, std::string name, Color* color);
-    ~Point();
     void clip();
 };
 

@@ -15,8 +15,6 @@ Line::Line(Coordinates p1,Coordinates p2, string name, Color* color)
 	_filled = false;
 	_background_color = new Color(1, 1, 1, 1);
 }
-Line::~Line(){
-}
 /* Cohen-Sutherland Clipping */
 void Line::clip2(){
 	vector<Coordinates> new_scn_points;

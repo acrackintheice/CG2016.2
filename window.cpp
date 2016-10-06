@@ -15,8 +15,6 @@ Window::Window(Coordinates p1, Coordinates p2, Coordinates vup) : _vup(vup)
     _background_color = new Color(1, 1, 1, 1);
     _filled = false;
 }
-Window::~Window(){
-}
 
 std::vector<Coordinates> Window::get_drawing_points(){
     std::vector<Coordinates> drawing_points;

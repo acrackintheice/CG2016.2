@@ -8,7 +8,6 @@ class Window : public Object
 {
 public:
 	Window(Coordinates p1, Coordinates p2, Coordinates vup);
-	~Window();
 	void move(double dx, double dy);
 	void zoom_in(double value);
 	void zoom_out(double value);
@@ -20,7 +19,6 @@ public:
 	std::vector<Coordinates> get_drawing_points();
 private:
 	void transform(Matriz3x3 transformation);
-
 	Coordinates _vup;
 };
 

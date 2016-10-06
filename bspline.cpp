@@ -1,5 +1,6 @@
 #include "bspline.hpp"
 #include <iostream>
+#include "line.hpp"
 
 using namespace std;
 
@@ -11,9 +12,6 @@ BSpline::BSpline(std::vector<Coordinates> points, std::string name, Color* color
 	_filled = false;
 	_background_color = new Color(1, 1, 1, 1);
 }
-BSpline::~BSpline(){
-}
-
 void BSpline::clip(){
 }
 /* The points to be drawn will be defined using the forward differences method*/
@@ -51,6 +49,36 @@ std::vector<Coordinates> BSpline::get_drawing_points(){
 		std::vector<Coordinates> some_points = getFwdDiffPoints(1/deltao,dx,dy);
 		drawing_points.insert(drawing_points.end(), some_points.begin(), some_points.end());
 	}
+	/*  Clipping  */
+
+	if(too_far_away(drawing_points[0]))
+		drawing_points.clear();
+	else /* if(is_inside(drawing_points[0])) */{
+		std::vector<Coordinates> new_drawing_points;
+		/*for (it = drawing_points.begin(); it != drawing_points.end(); it++)
+		{
+			Coordinates c = *it;
+			if(is_inside(c))
+				new_drawing_points.push_back(c);
+			else{
+				Line l = Line(*(it-1),c,"",new Color(1,1,1,1));
+				l.clip();
+				new_drawing_points.push_back(l.get_scn_points()[1]);
+				break;
+			}
+		}
+		*/
+		it = drawing_points.begin();
+		for (int i = 0; i < drawing_points.size()-2; ++i,it++){
+			Coordinates c1 = *(it);
+			Coordinates c2 = *(it+1);
+			Line l = Line(c1,c2,"",new Color(1,1,1,1));
+			l.clip();
+			std::vector<Coordinates> clipped_points = l.get_scn_points();
+			new_drawing_points.insert(new_drawing_points.end(), clipped_points.begin(), clipped_points.end());
+		}
+		drawing_points = new_drawing_points;
+	}
 	return drawing_points;
 }
 
@@ -76,4 +104,16 @@ std::vector<Coordinates> BSpline::getFwdDiffPoints(double n, Matriz4x1 dx, Matri
 		some_points.push_back(Coordinates(x,y));
 	}
 	return some_points;
+}
+bool BSpline::too_far_away(Coordinates c){
+	if (c.get_x() < -10 || c.get_x() > 10 || c.get_y() > 10 || c.get_y() > 10 )
+		return true;
+	else
+		return false;
+}
+bool BSpline::is_inside(Coordinates c){
+	if (c.get_x() < 1 && c.get_x() >-1 && c.get_y() > -1 && c.get_y() < 1 )
+		return true;
+	else
+		return false;
 }

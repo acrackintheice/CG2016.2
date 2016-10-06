@@ -12,8 +12,6 @@ Wireframe::Wireframe(vector<Coordinates> points, string name, Color* color){
 	_filled = false;
 	_background_color = new Color(1, 1, 1, 1);
 }
-Wireframe::~Wireframe(){
-}
 
 void Wireframe::clip(){
 	vector<Coordinates> input = _scn_points;
