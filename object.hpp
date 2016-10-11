@@ -19,7 +19,7 @@ public:
     Color* get_background_color();
     bool is_filled();
     Coordinates get_geometric_center();
-    void translate(double sx, double sy);
+    void translate(double dx, double dy);
     void scale(double sx, double sy);
     void rotate(double angle, Coordinates point);
     void update_scn_points(Matriz3x3 scn_matrix);

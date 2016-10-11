@@ -18,3 +18,6 @@ Matriz1x4 Matriz1x4::multiplicarPor4x4(Matriz4x4 M2){
 double Matriz1x4::multiplicarPor4x1(Matriz4x1 M2){
     return ((M1[0][0] * M2.get(0)) + (M1[0][1] * M2.get(1)) + (M1[0][2] * M2.get(2)) + (M1[0][3])* M2.get(3));
 }
+double Matriz1x4::get(int coluna){
+    return M1[0][coluna];
+}

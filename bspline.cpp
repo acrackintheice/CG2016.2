@@ -53,21 +53,8 @@ std::vector<Coordinates> BSpline::get_drawing_points(){
 
 	if(too_far_away(drawing_points[0]))
 		drawing_points.clear();
-	else /* if(is_inside(drawing_points[0])) */{
+	else {
 		std::vector<Coordinates> new_drawing_points;
-		/*for (it = drawing_points.begin(); it != drawing_points.end(); it++)
-		{
-			Coordinates c = *it;
-			if(is_inside(c))
-				new_drawing_points.push_back(c);
-			else{
-				Line l = Line(*(it-1),c,"",new Color(1,1,1,1));
-				l.clip();
-				new_drawing_points.push_back(l.get_scn_points()[1]);
-				break;
-			}
-		}
-		*/
 		it = drawing_points.begin();
 		for (int i = 0; i < drawing_points.size()-2; ++i,it++){
 			Coordinates c1 = *(it);

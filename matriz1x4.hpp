@@ -8,6 +8,7 @@ public:
     Matriz1x4(double _linha[]);
     Matriz1x4 multiplicarPor4x4(Matriz4x4 M2);
     double multiplicarPor4x1(Matriz4x1 M2);
+    double get(int coluna);
 private:
     double M1[1][4];
 };

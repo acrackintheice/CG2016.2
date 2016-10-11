@@ -8,7 +8,9 @@ class Matriz4x4
 public:
     Matriz4x4(double l1[], double l2[], double l3[],double l4[]);
     Matriz4x1 multiplicar4x1(Matriz4x1 M2);
+    Matriz4x4 multiplicarPor4x4(Matriz4x4 M2);
     double get(int linha, int coluna);
+    void print();
 private:
     double M1[4][4];
 };
