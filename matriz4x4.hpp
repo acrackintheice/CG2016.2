@@ -1,6 +1,7 @@
 #ifndef MATRIZ4X4_HPP
 #define MATRIZ4X4_HPP
 
+#include <iostream>
 #include "matriz4x1.hpp"
 
 class Matriz4x4

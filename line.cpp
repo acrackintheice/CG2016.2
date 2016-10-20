@@ -1,25 +1,23 @@
 #include "line.hpp"
-#include <algorithm>
-#include <iostream>
 
 using namespace std;
 
-Line::Line(Coordinates p1,Coordinates p2, string name, Color* color)
+Line::Line(Coordinates_3d* p1,Coordinates_3d* p2, string name, Color* color)
 {
 	_points.push_back(p1);
 	_points.push_back(p2);
-	_scn_points.push_back(p1);
-	_scn_points.push_back(p2);
+	_edges.push_back(Edge(p1,p2));
 	_name = name;	
 	_color = color;
 	_filled = false;
 	_background_color = new Color(1, 1, 1, 1);
 }
 /* Cohen-Sutherland Clipping */
-void Line::clip2(){
-	vector<Coordinates> new_scn_points;
-	Coordinates p1 = _scn_points[0];
-	Coordinates p2 = _scn_points[1];
+vector<Edge> Line::clip2()
+{
+	vector<Edge> output;
+	Coordinates_3d p1 = Coordinates_3d(_points[0]->get_x_scn(), _points[0]->get_y_scn(), 0);
+	Coordinates_3d p2 = Coordinates_3d(_points[1]->get_x_scn(), _points[1]->get_y_scn(), 0);
 	const int INSIDE = 0; // 0000
 	const int LEFT = 1;   // 0001
 	const int RIGHT = 2;  // 0010
@@ -47,78 +45,99 @@ void Line::clip2(){
 	else if (p2.get_y() > 1)      
 		RC2 =  (RC2 | TOP);
 	/* Checking whether the  line is fully visibile, invisble or partially visible*/
-	if ((RC1 | RC2) == 0){ /* First, checking if the line is contained in the window(RC1=RC2=[0,0,0,0])*/
-		return;/* If it is, all the points in the scn representation  are kept cause everything will be drawn*/
+	/* First, checking if the line is contained in the window(RC1=RC2=[0,0,0,0])*/
+	if ((RC1 | RC2) == 0){ 
+		/* If it is, everything will be drawn, so we add the whole line to the output list*/
+		output.push_back(Edge(new Coordinates_3d(p1.get_x(), p1.get_y(),0), new Coordinates_3d(p2.get_x(), p2.get_y(),0)));
 	}
-	else if((RC1 & RC2) != 0){ /* Now, checking if the line completely out of the window(RC1^RC2 != [0,0,0,0]) */
-		_scn_points.clear(); /* If it is, all scn points are removed cause nothing will be drawn*/
+	/* Now, checking if the line completely out of the window(RC1^RC2 != [0,0,0,0]) */
+	else if((RC1 & RC2) != 0){ 
+		/* If it is, nothing will be drawn and a empty output list is returned*/
+		output.clear();
 	}
-	else{ /* If it is partially in/out*/
+	/* Then, if the line is not all in or all out, its partially in/out */
+	else{ 
+		Coordinates_3d* new_p1;
+		Coordinates_3d* new_p2;
 		double x, y;
 		double m = (p2.get_y() - p1.get_y()) / (p2.get_x() - p1.get_x()); 
 		/* Checking if RC1 is out of the window*/
 		if (RC1 != 0) { 
-			if ((RC1 & TOP) != 0) {   /* point is above the clip rectangle */    
+			if ((RC1 & TOP) != 0) {   
+			/* point is above the clip rectangle */    
 				x = p1.get_x() + 1/m * (1 - p1.get_y());
 				y = 1;
 				if (x > -1 && x < 1)
-					new_scn_points.push_back(Coordinates(x,1));
+					new_p1 = new Coordinates_3d(x,1,0);
 			}
-			if ((RC1 & BOTTOM) != 0) { /* point is below the clip rectangle */
+			if ((RC1 & BOTTOM) != 0) { 
+			/* point is below the clip rectangle */
 				x = p1.get_x() + 1/m * (-1 - p1.get_y());
 				if (x > -1 && x < 1)
-					new_scn_points.push_back(Coordinates(x,-1));
+					new_p1 = new Coordinates_3d(x,-1,0);
 			} 
-			if ((RC1 & RIGHT) != 0) {  /* point is to the right of clip rectangle */
+			if ((RC1 & RIGHT) != 0) {  
+			/* point is to the right of clip rectangle */
 				y = m * (1 - p1.get_x()) + p1.get_y();
 				if (y > -1 && y < 1)
-					new_scn_points.push_back(Coordinates(1,y));
+					new_p1 = new Coordinates_3d(1,y,0);
 			} 
-			if ((RC1 & LEFT) != 0) {  /* point is to the left of clip rectangle */
+			if ((RC1 & LEFT) != 0) {  
+			/* point is to the left of clip rectangle */
 				y = m * (-1 - p1.get_x()) + p1.get_y();
 				if (y > -1 && y < 1)
-					new_scn_points.push_back(Coordinates(-1,y));
+					new_p1 = new Coordinates_3d(-1,y,0);
 			}
 		}
+		/* Else, it is inside the window*/
 		else
-			new_scn_points.push_back(p1);
+			/* new_p1 = p1 */
+			new_p1 = new Coordinates_3d(p1.get_x(), p1.get_y(),0);
 		/* Checking if RC2 is out of the window*/
 		if (RC2 != 0)
 		{
-			if ((RC2 & TOP) != 0) { /* point is above the clip rectangle */ 
+			if ((RC2 & TOP) != 0) { 
+			/* point is above the clip rectangle */ 
 				x = p2.get_x() + 1/m * (1 - p2.get_y());
 				y = 1;
 				if (x > -1 && x < 1)
-					new_scn_points.push_back(Coordinates(x,y));
+					new_p2 = new Coordinates_3d(x,y,0);
 			} 
-			if ((RC2 & BOTTOM) != 0) { /* point is below the clip rectangle */
+			if ((RC2 & BOTTOM) != 0) { 
+			/* point is below the clip rectangle */
 				x = p2.get_x() + 1/m * (-1 - p2.get_y());
 				y = -1;
 				if (x > -1 && x < 1)
-					new_scn_points.push_back(Coordinates(x,y));
+					new_p2 = new Coordinates_3d(x,y,0);
 			} 
-			if ((RC2 & RIGHT) != 0) {/* point is to the right of clip rectangle */
+			if ((RC2 & RIGHT) != 0) {
+			/* point is to the right of clip rectangle */
 				y = m * (1 - p2.get_x()) + p2.get_y();
 				x = 1;
 				if (y > -1 && y < 1)
-					new_scn_points.push_back(Coordinates(x,y));
+					new_p2 = new Coordinates_3d(x,y,0);
 			} 
-			if ((RC2 & LEFT) != 0) { /* point is to the left of clip rectangle */
+			if ((RC2 & LEFT) != 0) { 
+			/* point is to the left of clip rectangle */
 				y = m * (-1 - p2.get_x()) + p2.get_y();
 				x = -1;
 				if (y > -1 && y < 1)
-					new_scn_points.push_back(Coordinates(x,y));
+					new_p2 = new Coordinates_3d(x,y,0);
 			}
 		}
-		else
-			new_scn_points.push_back(p2);
+		else{
+			new_p2 = new Coordinates_3d(p2.get_x(), p2.get_y(),0);
+		}
+		output.push_back(Edge(new_p1, new_p2));
 	}
-	_scn_points = new_scn_points;
+	return output;
 }
 /* Liang-Barsky Clipping, no comments cause it works by magic */
-void Line::clip(){
-	Coordinates p1 = _scn_points[0];
-	Coordinates p2 = _scn_points[1];
+vector<Edge> Line::clip()
+{
+	vector<Edge> output;
+	Coordinates_3d p1 = Coordinates_3d(_points[0]->get_x_scn(), _points[0]->get_y_scn(),0);
+	Coordinates_3d p2 = Coordinates_3d(_points[1]->get_x_scn(), _points[1]->get_y_scn(),0);
 	vector<double> ps;
 	ps.push_back( -(p2.get_x() - p1.get_x()) );
 	ps.push_back(   p2.get_x() - p1.get_x() );
@@ -138,8 +157,7 @@ void Line::clip(){
 		double q = *(it_qs);
 		if(p == 0 & q < 0)
 		{
-			_scn_points.clear();
-			return;
+			return output;
 		}
 		else if(p < 0){
 			rs_less_than_zero.push_back( q/p );
@@ -162,21 +180,19 @@ void Line::clip(){
 	}
 	if(u1 >  u2)
 	{
-		_scn_points.clear();
+		return output;
 	}else{
-		vector<Coordinates> new_scn_points;
-		Coordinates new_p1 = 
-		Coordinates(
+		Coordinates_3d* new_p1 = 
+		new Coordinates_3d(
 			p1.get_x() + u1 * (p2.get_x() - p1.get_x()), 
-			p1.get_y() + u1 * (p2.get_y() - p1.get_y())
+			p1.get_y() + u1 * (p2.get_y() - p1.get_y()),0
 			);
-		Coordinates new_p2 = 
-		Coordinates(
+		Coordinates_3d* new_p2 = 
+		new Coordinates_3d(
 			p1.get_x() + u2 * (p2.get_x() - p1.get_x()), 
-			p1.get_y() + u2 * (p2.get_y() - p1.get_y())
+			p1.get_y() + u2 * (p2.get_y() - p1.get_y()),0
 			);
-		new_scn_points.push_back(new_p1);
-		new_scn_points.push_back(new_p2);
-		_scn_points = new_scn_points;
+		output.push_back(Edge(new_p1, new_p2));
+		return output;
 	}
 }

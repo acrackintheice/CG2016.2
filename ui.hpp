@@ -4,6 +4,7 @@
 #include <gtk/gtk.h>
 #include <iostream>
 #include <string.h>
+#include <stdlib.h>
 #include "transformations.cpp"
 #include "point.hpp"
 #include "object.hpp"
@@ -11,8 +12,6 @@
 #include "world.hpp"
 #include "line.hpp"
 #include "wireframe.hpp"
-#include "coordinates.hpp"
-#include "polygon.hpp"
 #include "color.hpp"
 #include "bspline.hpp"
 #include "curve.hpp"
@@ -35,10 +34,13 @@ public:
 	void translate();
 	void scale();
 	void rotate();
+	void rotate1();
 	void rotate_window();
 	void window_resize_updates();
 	void update_text_view_window();
 	void update_clip_type(bool flag);
+	World* get_world();
+	bool get_clip_flag();
 private:
 	const gchar* get_current_page_label(GtkNotebook* notebook);
 	char* get_text_of_textview(GtkWidget *text_view);
@@ -47,11 +49,12 @@ private:
 	void reset_polygon_points();
 	void add_name_to_list(const gchar* name);
 	void remove_name_from_list(const gchar* name);
-	std::vector<Coordinates> string_to_points(string x);
-	Coordinates get_rotation_point();
+	std::vector<Coordinates_3d*> string_to_points(string x);
+	Coordinates_3d get_rotation_point();
 	Object* get_selected_object();
 	std::string get_selected_object_name();
-	
+	std::vector<Edge> edges_from_points(std::vector<Coordinates_3d*> points);
+	std::vector<Edge> string_to_edges(std::vector<Coordinates_3d*> points, std::string x);
 
 	GtkBuilder* _builder;
 	// Main window widgets
@@ -108,10 +111,25 @@ private:
 	GObject* _text_entry_curve;
 	GObject* _radio_button_bezier;
 	GObject* _radio_button_bspline;
+	GObject* _text_entry_wireframe_edges;
+	GObject* _text_entry_wireframe_points;
+	GObject* _radio_button_any_axis;
+	GObject* _radio_button_x_axis;
+	GObject* _radio_button_y_axis;
+	GObject* _radio_button_z_axis;
+	GObject* _text_entry_rotation_point_x1;
+	GObject* _text_entry_rotation_point_x2;
+	GObject* _text_entry_rotation_point_y1;
+	GObject* _text_entry_rotation_point_y2;
+	GObject* _text_entry_rotation_point_z1;
+	GObject* _text_entry_rotation_point_z2;
+	GObject* _button_rotate1;
+	GObject* _text_entry_angle1;
 
 	// Non-widget attributes
 	World* _world;
-	std::vector<Coordinates> _polygon_points;
+	std::vector<Coordinates_3d*> _polygon_points;
+	bool _clip_flag;
 
 };
 

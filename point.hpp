@@ -3,13 +3,12 @@
 
 #include <string>
 #include "object.hpp"
-#include "coordinates.hpp"
 
 class Point : public Object
 {
 public:
-    Point(Coordinates xy, std::string name, Color* color);
-    void clip();
+    Point(Coordinates_3d* xy, std::string name, Color* color);
+    std::vector<Edge> clip();
 };
 
 #endif // POINT_HPP

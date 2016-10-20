@@ -1,66 +1,78 @@
 #include "ui.hpp"
-#include <stdlib.h>
 
 using namespace std;
 
 static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data)
 {
-	World* world = static_cast<World*>(data);
-	Window* window = world->get_window();
+	UI* ui = static_cast<UI*>(data);
+	World* world = ui->get_world();
+	bool clip_flag = ui->get_clip_flag();
 	/* Getting the viewport and window coordinates*/
 	double vp_width = (double) (gtk_widget_get_allocated_width  (widget));
 	double vp_height = (double) (gtk_widget_get_allocated_height (widget));
-	Coordinates viewport_min = Coordinates(10,10);
-	Coordinates viewport_max = Coordinates(vp_width-10, vp_height-10);
-	Coordinates window_min =  Coordinates(-1,-1);//window->get_min();
-	Coordinates window_max =  Coordinates(1,1);//window->get_max();
+	Coordinates_3d viewport_min = Coordinates_3d(10,10,0);
+	Coordinates_3d viewport_max = Coordinates_3d(vp_width-10, vp_height-10,0);
+	Coordinates_3d window_min =  Coordinates_3d(-1,-1,0);
+	Coordinates_3d window_max =  Coordinates_3d(1,1,0);
 	/* Filling the background, seeting line width and cap */
 	cairo_set_source_rgba(cr, 1, 1, 1, 1);
 	cairo_paint(cr);
-	cairo_set_line_width(cr,3);
+	cairo_set_line_width(cr,1);
 	cairo_set_line_cap  (cr, CAIRO_LINE_CAP_ROUND); 
-	/* snc transformation and clip, maybe this isnt the best place to call these things*/
+	/* Projecting and normalizing the objects */
+	world->project_3d_objects(false);
 	world->scn_upate();
-	world->clip();
 	/* Drawing objects */
 	vector<Object*> objects = world->get_objects();
-	vector<Object*>::iterator it;
-	for(it = objects.begin(); it != objects.end(); it++){
+	for(vector<Object*>::iterator it = objects.begin(); it != objects.end(); it++)
+	{
 		Object* obj = (*it);
-		/* Set the line color */
+		/* Setting the line color */
 		Color* color = obj->get_color();
 		cairo_set_source_rgba(cr, color->get_r(), color->get_g(), color->get_b(), color->get_a());
-        /* Getting the points from the object*/
-		vector<Coordinates> points = obj->get_drawing_points();
-		vector<Coordinates>::iterator it_points = points.begin();
-		/* Flagging that the next point is the first */
+        /* Getting the edges from the object*/
+		vector<Edge> edges; 
+		if (clip_flag)
+			edges = obj->clip2();
+		else
+			edges = obj->clip();
 		bool first_point = true;
 		/* Drawing every point*/
-		for(it_points; it_points != points.end(); it_points++){
-			Coordinates w_point = *it_points;
-			Coordinates vp_point = Transformations::viewport(w_point, window_min, window_max, viewport_min, viewport_max);
+		for(vector<Edge>::iterator it_edges = edges.begin(); it_edges != edges.end(); it_edges++)
+		{
+			Edge e = *(it_edges);
+			Coordinates_3d* w_point1 = e.get_p1();
+			Coordinates_3d* w_point2 = e.get_p2();
+			Coordinates_3d vp_point1 = Transformations::viewport(w_point1, window_min, window_max, viewport_min, viewport_max);
+			Coordinates_3d vp_point2 = Transformations::viewport(w_point2, window_min, window_max, viewport_min, viewport_max);
 			/* If it is the first point we need to move the pen to the canvas */
 			if (first_point)
 			{
-				cairo_move_to(cr, vp_point.get_x(), vp_point.get_y());
+				cairo_move_to(cr, vp_point1.get_x(), vp_point1.get_y());
 				/* Flagging that the next points are not the first anymore*/
 				first_point = false;
 			}
+			else
+			{
+				cairo_line_to(cr, vp_point1.get_x(), vp_point1.get_y());
+			}
 			/* When it is not the first point we only need to keep drawing it */
-			cairo_line_to(cr, vp_point.get_x(), vp_point.get_y());
+			cairo_line_to(cr, vp_point2.get_x(), vp_point2.get_y());
+			cairo_stroke(cr);
 		}
 		/* Drawing filled objects */
-		if(obj->is_filled()){
+		if(obj->is_filled())
+		{
 			/* Setting the filling color */
 			Color* bc = obj->get_background_color();
 			cairo_set_source_rgba(cr, bc->get_r(), bc->get_g(), bc->get_b(), bc->get_a());
 			cairo_stroke_preserve(cr);
 			cairo_fill(cr);
 		}
-		else{
+		else
+		{
 			/* Drawing non-filled objects */
-			cairo_stroke(cr);
-		}
+		}		
 	}
 	return FALSE;
 }
@@ -105,6 +117,9 @@ static void scale_callback (GtkWidget *widget, gpointer data){
 }
 static void rotate_callback (GtkWidget *widget, gpointer data){
 	static_cast<UI*>(data)->rotate();
+}
+static void rotate1_callback (GtkWidget *widget, gpointer data){
+	static_cast<UI*>(data)->rotate1();
 }
 static void rotate_window_callback (GtkWidget *widget, gpointer data){
 	static_cast<UI*>(data)->rotate_window();
@@ -153,7 +168,6 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 	_text_entry_rotation_point_x 	= gtk_builder_get_object (_builder, "text_entry_rotation_point_x");
 	_text_entry_rotation_point_y 	= gtk_builder_get_object (_builder, "text_entry_rotation_point_y");
 	_button_rotate 					= gtk_builder_get_object (_builder, "button_rotate");
-	_button_rotate_window 			= gtk_builder_get_object (_builder, "button_rotate_window");
 	_text_entry_angle_window 		= gtk_builder_get_object (_builder, "text_entry_angle_window");
 	_background_color_button		= gtk_builder_get_object (_builder, "background_color_button");
 	_line_color_button				= gtk_builder_get_object (_builder, "line_color_button");
@@ -181,6 +195,20 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 	_radio_button_bspline			= gtk_builder_get_object (_builder, "radio_button_bspline");
 	_radio_button_bezier			= gtk_builder_get_object (_builder, "radio_button_bezier");
 	_text_entry_curve				= gtk_builder_get_object (_builder, "text_entry_curve");
+	_text_entry_wireframe_points	= gtk_builder_get_object (_builder, "text_entry_wireframe_points");
+	_text_entry_wireframe_edges		= gtk_builder_get_object (_builder, "text_entry_wireframe_edges");
+	_radio_button_any_axis			= gtk_builder_get_object (_builder, "radio_button_any_axis");
+	_radio_button_x_axis			= gtk_builder_get_object (_builder, "radio_button_x_axis");
+	_radio_button_y_axis 			= gtk_builder_get_object (_builder, "radio_button_y_axis");
+	_radio_button_z_axis 			= gtk_builder_get_object (_builder, "radio_button_z_axis");
+	_text_entry_rotation_point_x1   = gtk_builder_get_object (_builder, "text_entry_rotation_point_x1");
+	_text_entry_rotation_point_x2   = gtk_builder_get_object (_builder, "text_entry_rotation_point_x2");
+	_text_entry_rotation_point_y1   = gtk_builder_get_object (_builder, "text_entry_rotation_point_y1");
+	_text_entry_rotation_point_y2   = gtk_builder_get_object (_builder, "text_entry_rotation_point_y2");
+	_text_entry_rotation_point_z1   = gtk_builder_get_object (_builder, "text_entry_rotation_point_z1");
+	_text_entry_rotation_point_z2   = gtk_builder_get_object (_builder, "text_entry_rotation_point_z2");
+	_button_rotate1 				= gtk_builder_get_object (_builder, "button_rotate1");
+	_text_entry_angle1 				= gtk_builder_get_object (_builder, "text_entry_angle1");
 	// Signals
 	g_signal_connect (_main_window, 		  "destroy", 		G_CALLBACK (gtk_main_quit), 					NULL);
 	g_signal_connect (_main_window,			  "check-resize",  	G_CALLBACK (resize_callback),              		this);
@@ -195,7 +223,7 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 	g_signal_connect (_button_translate, 	  "clicked", 		G_CALLBACK (translate_callback),			    this);
 	g_signal_connect (_button_scale,	 	  "clicked", 		G_CALLBACK (scale_callback),				    this);
 	g_signal_connect (_button_rotate,	 	  "clicked", 		G_CALLBACK (rotate_callback),				    this);
-	g_signal_connect (_button_rotate_window,  "clicked", 		G_CALLBACK (rotate_window_callback),			this);
+	g_signal_connect (_button_rotate1,	 	  "clicked", 		G_CALLBACK (rotate1_callback),				    this);
 	g_signal_connect (_radio_button_cohen_sutherland, "toggled", 		G_CALLBACK (cohen_sutherland_callback)	,  	this);
 	g_signal_connect (_radio_button_liang_barsky,     "toggled", 		G_CALLBACK (liang_barsky_callback)	    ,  	this);
 	/* Add object dialog widget signals */
@@ -207,8 +235,7 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 	vector<Object*>::iterator it;
 	for(it = objects.begin(); it != objects.end(); it++){
 		Object* obj = (*it);
-		if(obj->get_name() != "Window")
-			add_name_to_list(obj->get_name().c_str());
+		add_name_to_list(obj->get_name().c_str());
 	}
 	update_clip_type(true);
 	/* Drawing the world*/
@@ -221,12 +248,18 @@ UI::UI(int argc, char *argv[], World* world) : _world(world)
 UI::~UI(){
 	delete _world;
 }
+World* UI::get_world(){
+	return _world;
+}
+bool UI::get_clip_flag(){
+	return _clip_flag;
+}
 void UI::update_text_view_window(){
 	Window* window = _world->get_window();
-	int x1 = window->get_min().get_x();
-	int y1 = window->get_min().get_y();
-	int x2 = window->get_max().get_x();
-	int y2 = window->get_max().get_y();
+	double x1 = window->get_p1()->get_x();
+	double y1 = window->get_p1()->get_y();
+	double x2 = window->get_p3()->get_x();
+	double y2 = window->get_p3()->get_y();
 
 	int vp_width  = gtk_widget_get_allocated_width  (GTK_WIDGET(_canvas));
 	int vp_height = gtk_widget_get_allocated_height (GTK_WIDGET(_canvas)); 
@@ -237,11 +270,11 @@ void UI::update_text_view_window(){
 	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 }
 void UI::update_clip_type(bool flag){
-	_world->set_clip_flag(flag);
+	_clip_flag = flag;
 	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 }
 void UI::draw(){
-	g_signal_connect (_canvas, "draw", G_CALLBACK (draw_object), _world);
+	g_signal_connect (_canvas, "draw", G_CALLBACK (draw_object), this);
 	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 }
 void UI::remove_object(){
@@ -252,19 +285,19 @@ void UI::remove_object(){
 }
 void UI::move_window(double dx, double dy){
 	Window* window = _world->get_window();
-	window->move(dx,dy);
+	window->move(dx,dy,0);
 	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 	update_text_view_window();
 }
 void UI::zoom_in(){
 	Window* window = _world->get_window();
-	window->scale(0.9, 0.9);
+	window->scale(0.9, 0.9, 0);
 	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 	update_text_view_window();
 }
 void UI::zoom_out(){
 	Window* window = _world->get_window();
-	window->scale(1.1, 1.1);
+	window->scale(1.1, 1.1, 0);
 	gtk_widget_queue_draw ((GtkWidget*) _canvas);
 	update_text_view_window();
 }
@@ -273,7 +306,7 @@ void UI::scale(){
 	double sy = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_sy), NULL);
 	Object* obj = get_selected_object();
 	if(obj != NULL){
-		obj->scale(sx, sy);
+		obj->scale(sx, sy,0);
 		gtk_widget_queue_draw ((GtkWidget*) _canvas);
 	}
 }
@@ -282,7 +315,7 @@ void UI::translate(){
 	double dy = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_dy), NULL);
 	Object* obj = get_selected_object();
 	if(obj != NULL){
-		obj->translate(dx, dy);
+		obj->translate(dx, dy, 0);
 		gtk_widget_queue_draw ((GtkWidget*) _canvas);
 	}
 }
@@ -290,8 +323,8 @@ void UI::rotate_window(){
 	double angle = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_angle_window), NULL);
 	Object* obj = _world->get_window();
 	if(obj != NULL){
-		Coordinates ponto = obj->get_geometric_center();
-		obj->rotate(angle, ponto);
+		Coordinates_3d ponto = obj->get_geometric_center();
+		obj->rotate(angle, ponto, Coordinates_3d(0,0,1));
 		gtk_widget_queue_draw ((GtkWidget*) _canvas);
 	}
 	update_text_view_window();
@@ -300,19 +333,46 @@ void UI::rotate(){
 	double angle = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_angle), NULL);
 	Object* obj = get_selected_object();
 	if(obj != NULL){
-		Coordinates ponto = get_rotation_point();
-		obj->rotate(angle, ponto);
+		Coordinates_3d ponto = get_rotation_point();
+		obj->rotate(angle, ponto, Coordinates_3d(ponto.get_x(), ponto.get_y(), 1));
 		gtk_widget_queue_draw ((GtkWidget*) _canvas);
 	}
 }
-Coordinates UI::get_rotation_point(){
+void UI::rotate1(){
+	double angle = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_angle1), NULL);
+	Object* obj = get_selected_object();
+	if(obj != NULL){
+		if(gtk_toggle_button_get_active ((GtkToggleButton*) _radio_button_x_axis)){
+			obj->rotate_x(angle);
+		}
+		else if(gtk_toggle_button_get_active ((GtkToggleButton*) _radio_button_y_axis)){
+			obj->rotate_y(angle);
+		}
+		else if(gtk_toggle_button_get_active ((GtkToggleButton*) _radio_button_z_axis)){
+			obj->rotate_z(angle);
+		}
+		else if(gtk_toggle_button_get_active ((GtkToggleButton*) _radio_button_any_axis)){
+			double x1 = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_rotation_point_x1), NULL);
+			double y1 = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_rotation_point_y1), NULL);
+			double z1 = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_rotation_point_z1), NULL);
+			Coordinates_3d p1 = Coordinates_3d(x1,y1,z1);
+			double x2 = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_rotation_point_x2), NULL);
+			double y2 = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_rotation_point_y2), NULL);
+			double z2 = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_rotation_point_z2), NULL);
+			Coordinates_3d p2 = Coordinates_3d(x2,y2,z2);
+			obj->rotate(angle, p1,p2);
+		}
+		gtk_widget_queue_draw ((GtkWidget*) _canvas);
+	}
+}
+Coordinates_3d UI::get_rotation_point(){
 	if(gtk_toggle_button_get_active ((GtkToggleButton*) _radio_button_origin)){
-		return Coordinates(0,0);
+		return Coordinates_3d(0,0,0);
 	}
 	else if(gtk_toggle_button_get_active ((GtkToggleButton*) _radio_button_arbitrary_point)){
 		double x = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_rotation_point_x), NULL);
 		double y = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_rotation_point_y), NULL);
-		return Coordinates(x,y);
+		return Coordinates_3d(x,y,0);
 	}
 	else{
 		return get_selected_object()->get_geometric_center();
@@ -327,7 +387,7 @@ void UI::hide_add_object_dialog(){
 void UI::add_point_to_polygon(){
 	gdouble x = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_polygon_x), NULL);
 	gdouble y = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_polygon_y), NULL);
-	_polygon_points.push_back(Coordinates(x,y));
+	_polygon_points.push_back(new Coordinates_3d(x,y,0));
 	gchar* size_text = (char *)to_string(_polygon_points.size()).c_str();
 	set_text_of_textview(GTK_WIDGET(_textview_number_of_points), size_text);
 }
@@ -371,7 +431,12 @@ void UI::add_object_from_dialog(){
 		gdouble x = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_point_x), NULL);
 		gdouble y = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_point_y), NULL);
 		if(input_is_valid()){
-			Point* p = new Point(Coordinates(x,y), name, line_color);
+			std::vector<Coordinates_3d*> points;
+			Coordinates_3d* point = new Coordinates_3d(x,y,0);
+			points.push_back(point);
+			vector<Edge> edges;
+			edges.push_back(Edge(point, point));
+			Wireframe* p = new Wireframe(points, edges, name, line_color, new Color(1,1,1,1), false);
 			_world->add_object(p);
 			add_name_to_list(name);
 			draw();
@@ -387,7 +452,11 @@ void UI::add_object_from_dialog(){
 		gdouble x2 = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_line_x2), NULL);
 		gdouble y2 = g_ascii_strtod(gtk_entry_get_text ((GtkEntry*) _text_entry_line_y2), NULL);
 		if(input_is_valid()){
-			Line* r = new Line(Coordinates(x1,y1),Coordinates(x2,y2), name, line_color);
+			vector<Coordinates_3d*> points;
+			points.push_back(new Coordinates_3d(x1,y1,0));
+			points.push_back(new Coordinates_3d(x2,y2,0));
+			vector<Edge> edges = edges_from_points(points);
+			Wireframe* r = new Wireframe(points, edges, name, line_color, new Color(1,1,1,1), false);
 			_world->add_object(r);
 			add_name_to_list(name);
 			draw();
@@ -400,14 +469,17 @@ void UI::add_object_from_dialog(){
 	else if(strcmp(page_name, "Polygon")==0){
 		if(input_is_valid()){
 			Object* obj;
+			vector<Edge> edges = edges_from_points(_polygon_points);
 			if(gtk_toggle_button_get_active ((GtkToggleButton*) _radio_button_wireframe)){
-				obj = new Wireframe(_polygon_points, name, line_color);
+				obj = new Wireframe(_polygon_points, edges, name, line_color, new Color(1,1,1,1), false);
 			}
 			else if (gtk_toggle_button_get_active ((GtkToggleButton*) _radio_button_polygon)){
-				obj = new Polygon(_polygon_points, name, line_color, background_color, false);
+				edges.push_back(Edge(_polygon_points.back(), _polygon_points.front()));
+				obj = new Wireframe(_polygon_points, edges, name, line_color, new Color(1,1,1,1), false);
 			}
 			else if (gtk_toggle_button_get_active ((GtkToggleButton*) _radio_button_filled)){
-				obj = new Polygon(_polygon_points, name, line_color, background_color, true);
+				edges.push_back(Edge(_polygon_points.back(), _polygon_points.front()));
+				obj = new Wireframe(_polygon_points, edges, name, line_color, background_color, true);
 			}
 			_world->add_object(obj);
 			add_name_to_list(name);
@@ -419,18 +491,29 @@ void UI::add_object_from_dialog(){
 					//TODO - Showing a message if the input is invalid
 		}
 	}
+	else if(strcmp(page_name, "Wireframe 3d")==0){
+		if(input_is_valid()){
+			Object* obj;
+			string points(gtk_entry_get_text ((GtkEntry*) _text_entry_wireframe_points));
+			vector<Coordinates_3d*> wireframe_points = string_to_points(points);
+			string edges(gtk_entry_get_text ((GtkEntry*) _text_entry_wireframe_edges));
+			vector<Edge> wireframe_edges = string_to_edges(wireframe_points, edges);
+			obj = new Wireframe(wireframe_points, wireframe_edges, name, line_color, new Color(1,1,1,1), false);
+			_world->add_object(obj);
+			add_name_to_list(name);
+			draw();
+			gtk_widget_hide (GTK_WIDGET(_dialog_add_object));
+		}
+	}
 	else if(strcmp(page_name, "Curve")==0){
 		if(input_is_valid()){
 			Object* obj;
 			string points(gtk_entry_get_text ((GtkEntry*) _text_entry_curve));
-			vector<Coordinates> curve_points = string_to_points(points);
-			vector<Coordinates>::iterator it;
+			vector<Coordinates_3d*> curve_points = string_to_points(points);
 			if(gtk_toggle_button_get_active ((GtkToggleButton*) _radio_button_bezier)){
-				cout << "Bezier" << endl;
 				obj = new Curve(curve_points, name, line_color);
 			}
 			else{
-				cout << "B-Spline" << endl;
 				obj = new BSpline(curve_points, name, line_color);
 			}
 			_world->add_object(obj);
@@ -443,8 +526,39 @@ void UI::add_object_from_dialog(){
 		}
 	}
 }
-vector<Coordinates> UI::string_to_points(string x){
-	vector<Coordinates> points;
+vector<Edge> UI::edges_from_points(vector<Coordinates_3d*> points){
+	vector<Edge> edges;
+	if (points.size() > 1)
+	{
+		vector<Coordinates_3d*>::iterator it = points.begin();
+		for (int i = 0; i < points.size()-1; i++){
+			Coordinates_3d* p1 = *it;
+			it++;
+			Coordinates_3d* p2 = *it;
+			edges.push_back(Edge(p1,p2));
+		}
+	}
+	return edges;
+}
+
+vector<Edge> UI::string_to_edges(vector<Coordinates_3d*> points, string x){
+	vector<Edge> edges;
+	vector<string> splitted = Operations::split(x, ' ');
+	vector<string>::iterator it;
+	for (it = splitted.begin(); it != splitted.end(); it++){
+		string edge_string = *it;
+		Operations::remove_char_from_string(edge_string, (char *)"() ");
+		vector<string> string_points = Operations::split(edge_string, ',');
+		double p1_index = atof(string_points[0].c_str());
+		double p2_index = atof(string_points[1].c_str());
+		Edge e = Edge(points[p1_index], points[p2_index]);
+		edges.push_back(e);
+	}
+	return edges;
+}
+
+vector<Coordinates_3d*> UI::string_to_points(string x){
+	vector<Coordinates_3d*> points;
 	vector<string> splitted = Operations::split(x, ' ');
 	vector<string>::iterator it;
 	for (it = splitted.begin(); it != splitted.end(); it++){
@@ -456,7 +570,7 @@ vector<Coordinates> UI::string_to_points(string x){
 		/* string_points = ['1', '2'] */
 		double x = atof(string_points[0].c_str());
 		double y = atof(string_points[1].c_str());
-		Coordinates c = Coordinates(x,y);
+		Coordinates_3d* c = new Coordinates_3d(x,y,0);
 		points.push_back(c);
 	}
 	return points;
