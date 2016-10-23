@@ -4,51 +4,55 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "coordinates_3d.hpp"
-#include "matriz1x3.hpp"
-#include "matriz3x3.hpp"
-#include "matriz1x4.hpp"
+#include "coordinates.hpp"
+#include "matrix1x4.hpp"
 #include "matriz4x4.hpp"
-#include "matriz4x1.hpp"
+#include "matrix4x1.hpp"
 #include "color.hpp"
 #include "edge.hpp"
 #include "math.h"
 #include "operations.cpp"
 #include "matrices.cpp"
 
-class Object
-{
+class Object {
 public:
-    std::string get_name();
-    std::vector<Coordinates_3d*> get_points();
-    std::vector<Edge> get_edges();
-    Color* get_color();
-    Color* get_background_color();
-    bool is_filled();
-    Coordinates_3d get_geometric_center();
+    std::string name();
+
+    Color *color();
+
+    Color *background_color();
+
+    bool filled();
+
+    Coordinates geometric_center(bool use_z = true, bool use_scn = false);
+
     void translate(double dx, double dy, double dz);
+
     void scale(double sx, double sy, double sz);
-    void rotate(double angle, Coordinates_3d p1, Coordinates_3d p2);
+
+    void rotate(double angle, Coordinates p1, Coordinates p2);
+
     void rotate_x(double angle);
+
     void rotate_y(double angle);
+
     void rotate_z(double angle);
-    void virtual update_scn_points(Matriz3x3 scn_matrix);
-    std::vector<Edge> virtual clip();
-    std::vector<Edge> virtual clip2();
-    void virtual transform(Matriz4x4 transformation); 
-    void virtual transform2(Matriz4x4 transformation);
-    void project(Matriz4x4 rotation_matrix);
-    std::string to_string();
+
+    virtual std::vector<Edge> clip()= 0;
+
+    virtual std::vector<Edge> clip2();
+
+    virtual void transform(Matriz4x4 transformation, bool use_scn = false, bool change_scn = false);
+
     virtual ~Object();
+
 protected:
     std::string _name;
-    std::vector<Coordinates_3d*> _points;
-
+    std::vector<Coordinates *> _points;
     std::vector<Edge> _edges;
-
+    Color *_color;
+    Color *_background_color;
     bool _filled;
-    Color* _color;
-    Color* _background_color;
 };
 
 #endif // OBJECT_HPP

@@ -1,17 +1,22 @@
 #ifndef COLOR_HPP
 #define COLOR_HPP
 
-class Color
-{
+class Color {
 public:
     Color(double r, double g, double b, double a);
+
     ~Color();
-    double get_r();
-    double get_g();
-    double get_b();
-    double get_a();
+
+    double r();
+
+    double g();
+
+    double b();
+
+    double a();
+
 private:
-	double _r,_g,_b,_a;    
+    double _r, _g, _b, _a;
 };
 
 #endif // COLOR_HPP

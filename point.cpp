@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Point::Point(Coordinates_3d* xy, string name, Color* color)
+Point::Point(Coordinates* xy, string name, Color* color)
 {
 	_points.push_back(xy);
 	_edges.push_back(Edge(xy,xy));
@@ -14,8 +14,8 @@ Point::Point(Coordinates_3d* xy, string name, Color* color)
 vector<Edge> Point::clip()
 {
 	vector<Edge> output;
-	double x = _points[0]->get_x_scn();
-	double y = _points[0]->get_y_scn();
+	double x = _points[0]->x_scn();
+	double y = _points[0]->y_scn();
 
 	if(x < -1 || x > 1 || y < -1 || y > 1)
 	{
@@ -23,6 +23,6 @@ vector<Edge> Point::clip()
 	}
 	else
 	{
-		output.push_back(Edge(new Coordinates_3d(x,y,0), new Coordinates_3d(x,y,0)));
+		output.push_back(Edge(new Coordinates(x,y,0), new Coordinates(x,y,0)));
 	}
 }

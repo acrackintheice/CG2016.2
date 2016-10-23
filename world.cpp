@@ -22,7 +22,7 @@ Object *World::get_object(string name) {
     Object *chosen = 0;
     for (vector<Object *>::iterator it = _objects.begin(); it != _objects.end(); it++) {
         Object *obj = (*it);
-        if (obj->get_name() == name) {
+        if (obj->name() == name) {
             chosen = obj;
             break;
         }
@@ -30,7 +30,7 @@ Object *World::get_object(string name) {
     return chosen;
 }
 
-vector<Object *> World::get_objects() {
+vector<Object *> World::objects() {
     return _objects;
 }
 
@@ -38,7 +38,7 @@ void World::remove_object(string name) {
     if (name != "Window") {
         for (vector<Object *>::iterator it = _objects.begin(); it != _objects.end(); it++) {
             Object *obj = (*it);
-            if (obj->get_name() == name) {
+            if (obj->name() == name) {
                 _objects.erase(it);
                 delete obj;
                 break;
@@ -47,98 +47,54 @@ void World::remove_object(string name) {
     }
 }
 
-Window *World::get_window() {
+Window *World::window() {
     return _window;
 }
 
-void World::scn_upate() {
-    /* Creating a new window cause we don't want to mess with the world window */
-    Window window = Window(
-            new Coordinates_3d(_window->get_p1()->get_x(), _window->get_p1()->get_y(), _window->get_p1()->get_z()),
-            new Coordinates_3d(_window->get_p2()->get_x(), _window->get_p2()->get_y(), _window->get_p1()->get_z()),
-            new Coordinates_3d(_window->get_p3()->get_x(), _window->get_p3()->get_y(), _window->get_p1()->get_z()),
-            new Coordinates_3d(_window->get_p4()->get_x(), _window->get_p4()->get_y(), _window->get_p1()->get_z()),
-            new Coordinates_3d(_window->get_vup()->get_x(), _window->get_vup()->get_y(), _window->get_vup()->get_z()),
-            new Coordinates_3d(_window->get_vpn()->get_x(), _window->get_vpn()->get_y(), _window->get_vpn()->get_z()));
-    /* Defining the parameters for the scn transformation */
-    /* dx and dy are pretty straightfoward*/
-    double dx = -window.get_geometric_center().get_x();
-    double dy = -window.get_geometric_center().get_y();
-    /* Translating the window to the world origin in order to calculate the angle between the Vup vector and the Y axis*/
-    window.translate(dx, dy, 0);
-    /* The angle we will rotate the objects with in order to fix their orientation */
-    double angle = -(Operations::angle_between_vectors(Coordinates_3d(0, 10, 0), *(window.get_vup())));
-    /* Rotating the window to calculate the scaling factors */
-    window.rotate(angle * 180.0 / M_PI, Coordinates_3d(0, 0, 0), Coordinates_3d(0, 0, 1));
-    /* Well, these are the formulas for the scaling factors, we dont really know why */
-    double sx = 1.0 / fabs(window.get_geometric_center().get_x() - window.get_p1()->get_x());
-    double sy = 1.0 / fabs(window.get_geometric_center().get_y() - window.get_p1()->get_y());
-    /* Now we have all the parameters so we can create the transformation matrix*/
-    double l1[] = {sx * cos(angle), sx * (-sin(angle)), 0};
-    double l2[] = {sy * sin(angle), sy * cos(angle), 0};
-    double l3[] = {cos(angle) * (dx * sx) + sin(angle) * (dy * sy), -sin(angle) * (dx * sx) + cos(angle) * (dy * sy),
-                   1};
-    Matriz3x3 scn_matrix = Matriz3x3(l1, l2, l3);
-    /* Updating the objects SCN values */
-    for (vector<Object *>::iterator it = _objects.begin(); it != _objects.end(); it++) {
-        Object *obj = (*it);
-        obj->update_scn_points(scn_matrix);
+void World::project(bool perspective) {
+    if (perspective) {
+
+    } else {
+        // The projection goes as:
+        // Translation -> Rotation -> Scale -> Ignore Z
+        // The Translation and Rotation are executed together using a Projection Matrix
+        // Scaling and ignoring z are also executed together using the Normalization Matrix
+        // Before Translating and Rotating the world, the window and her vectors are translated in order to calculate
+        // the rotation vectors that are used in the rotations of the Projection Matrix.
+        // I couldn't get the Projection to work putting the 4 operations together.
+
+        // Starting the Work !!!
+        // Translating the Window, VPN and Vup in order to calculate the rotation vectors
+        double cx = _window->geometric_center().x();
+        double cy = _window->geometric_center().y();
+        double cz = _window->geometric_center().z();
+        Matriz4x4 translation = Matrices::generate_translation_matrix(-cx, -cz, -cy);
+        _window->transform(translation, false, true);
+        // Calculating the rotation vectors
+        Coordinates vpn = Coordinates(_window->vpn().x_scn(), _window->vpn().y_scn(), _window->vpn().z_scn());
+        Coordinates vup = Coordinates(_window->vup().x_scn(), _window->vup().y_scn(), _window->vup().z_scn());
+        double n_vpn = Operations::norma(vpn);
+        Coordinates n = Coordinates(vpn.x() / n_vpn, vpn.y() / n_vpn, vpn.z() / n_vpn);
+        Coordinates cross = Operations::cross_product_3d(vup, n);
+        double n_cross = Operations::norma(cross);
+        Coordinates u = Coordinates(cross.x() / n_cross, cross.y() / n_cross, cross.z() / n_cross);
+        Coordinates v = Operations::cross_product_3d(n, u);
+        // Translating and Rotating the World using the projection matrix
+        Matriz4x4 projection_matrix = Matrices::generate_projection_matrix(u.x(),u.y(),u.z(),v.x(),v.y(),v.z(),n.x(),n.y(),n.z(),cx,cy,cz);
+        for (vector<Object *>::iterator it = _objects.begin(); it != _objects.end(); it++) {
+            Object *obj = (*it);
+            obj->transform(projection_matrix, false, true);
+        }
+        // Calculating sx, sy for the normalization
+        Coordinates center = _window->geometric_center(false, true);
+        Coordinates window_min = _window->min();
+        double sx = 1.0 / fabs(center.x() - window_min.x_scn());
+        double sy = 1.0 / fabs(center.y() - window_min.y_scn());
+        // Dropping Z and normalizing the world
+        Matriz4x4 normalization_matrix = Matrices::generate_normalization_matrix(sx,sy);
+        for (vector<Object *>::iterator it = _objects.begin(); it != _objects.end(); it++) {
+            Object *obj = (*it);
+            obj->transform(normalization_matrix, true, true);
+        }
     }
 }
-
-void World::project_3d_objects(bool perspective) {
-    Coordinates_3d vrp = _window->get_geometric_center();
-    // Translate every object of -VRP
-    for (vector<Object *>::iterator it = _objects.begin(); it != _objects.end(); it++) {
-        Object *obj = (*it);
-        obj->translate(-vrp.get_x(), -vrp.get_y(), -vrp.get_z());
-    }
-    // Determine VPN and its angle with X and Y
-    Coordinates_3d *N = _window->get_vpn();
-    Coordinates_3d *V = _window->get_vup();
-    double norma_N = Operations::norma_3d(N);
-    Coordinates_3d *n = new Coordinates_3d(N->get_x() / norma_N, N->get_y() / norma_N, N->get_z() / norma_N);
-    Coordinates_3d *croos_V_N = Operations::cross_product_3d(V, N);
-    double norma_cross_V_N = Operations::norma_3d(croos_V_N);
-    Coordinates_3d *u = new Coordinates_3d(croos_V_N->get_x() / norma_cross_V_N,
-                                           croos_V_N->get_y() / norma_cross_V_N,
-                                           croos_V_N->get_z() / norma_cross_V_N);
-    Coordinates_3d *v = Operations::cross_product_3d(n, u);
-
-    double u1 = u->get_x();
-    double u2 = u->get_y();
-    double u3 = u->get_z();
-
-    double v1 = v->get_x();
-    double v2 = v->get_y();
-    double v3 = v->get_z();
-
-    double n1 = n->get_x();
-    double n2 = n->get_y();
-    double n3 = n->get_z();
-
-    //Rotate the world around X and Y in order to align VPN with Z
-    double l1[] = {u1, u2, u3, 0};
-    double l2[] = {v1, v2, v3, 0};
-    double l3[] = {n1, n2, n3, 0};
-    double l4[] = {0, 0, 0, 1};
-    Matriz4x4 rotation_matrix = Matriz4x4(l1, l2, l3, l4);
-
-    for (vector<Object *>::iterator it = _objects.begin(); it != _objects.end(); it++) {
-        Object *obj = (*it);
-        obj->project(rotation_matrix);
-    }
-    // Ignore Z for all objects
-}
-/*
-gcc -pthread -I/usr/include/gtk-3.0 -I/usr/include/atk-1.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/pixman-1 -I/usr/include/libpng12 -I/usr/include/gtkmm-3.0 -I/usr/lib/x86_64-linux-gnu/gtkmm-3.0/include -I/usr/include/atkmm-1.6 -I/usr/include/giomm-2.4 -I/usr/lib/x86_64-linux-gnu/giomm-2.4/include -I/usr/include/pangomm-1.4 -I/usr/lib/x86_64-linux-gnu/pangomm-1.4/include -I/usr/include/cairomm-1.0 -I/usr/lib/x86_64-linux-gnu/cairomm-1.0/include -I/usr/include/gtk-3.0/unix-print -I/usr/include/gdkmm-3.0 -I/usr/lib/x86_64-linux-gnu/gdkmm-3.0/include -I/usr/include/glibmm-2.4 -I/usr/lib/x86_64-linux-gnu/glibmm-2.4/include -I/usr/include/sigc++-2.0 -I/usr/lib/x86_64-linux-gnu/sigc++-2.0/include  -o vpl_wexecution coordenadas.cpp cor.cpp main.cpp mundo.cpp objeto.cpp ponto.cpp reta.cpp transformations.cpp ui.cpp window.cpp wireframe.cpp -lgtkmm-3.0 -latkmm-1.6 -lgdkmm-3.0 -lgiomm-2.4 -lpangomm-1.4 -lgtk-3 -lglibmm-2.4 -lcairomm-1.0 -lgdk-3 -latk-1.0 -lgio-2.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lcairo-gobject -lpango-1.0 -lcairo -lsigc-2.0 -lgobject-2.0 -lglib-2.0   -rdynamic -lstdc++ -std=c++11 -lm
-*/
-
-
-
-
-
-
-
-
-

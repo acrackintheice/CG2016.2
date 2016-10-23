@@ -33,28 +33,23 @@ public:
 	void zoom_out();
 	void translate();
 	void scale();
-	void rotate();
 	void rotate1();
-	void rotate_window();
-	void window_resize_updates();
 	void update_text_view_window();
 	void update_clip_type(bool flag);
-	World* get_world();
-	bool get_clip_flag();
+	World* world();
+	bool clip_flag();
 private:
-	const gchar* get_current_page_label(GtkNotebook* notebook);
-	char* get_text_of_textview(GtkWidget *text_view);
+	const gchar* current_page_label(GtkNotebook* notebook);
 	void set_text_of_textview(GtkWidget *text_view, gchar* text);
 	bool input_is_valid();
 	void reset_polygon_points();
 	void add_name_to_list(const gchar* name);
 	void remove_name_from_list(const gchar* name);
-	std::vector<Coordinates_3d*> string_to_points(string x);
-	Coordinates_3d get_rotation_point();
-	Object* get_selected_object();
-	std::string get_selected_object_name();
-	std::vector<Edge> edges_from_points(std::vector<Coordinates_3d*> points);
-	std::vector<Edge> string_to_edges(std::vector<Coordinates_3d*> points, std::string x);
+	std::vector<Coordinates*> string_to_points(string x);
+	Object* selected_object();
+	std::string selected_object_name();
+	std::vector<Edge> edges_from_points(std::vector<Coordinates*> points);
+	std::vector<Edge> string_to_edges(std::vector<Coordinates*> points, std::string x);
 
 	GtkBuilder* _builder;
 	// Main window widgets
@@ -70,22 +65,15 @@ private:
 	GObject* _button_translate;
 	GObject* _text_entry_dx;
 	GObject* _text_entry_dy;
+	GObject* _text_entry_dz;
 	GObject* _button_scale;
 	GObject* _text_entry_sx;
 	GObject* _text_entry_sy;
+    GObject* _text_entry_sz;
 	GObject* _dialog_add_object;
 	GObject* _canvas;
 	GObject* _object_list;
 	GObject* _text_view_window;
-	GObject* _text_entry_angle;
-	GObject* _radio_button_center;
-	GObject* _radio_button_origin;
-	GObject* _radio_button_arbitrary_point;
-	GObject* _text_entry_rotation_point_x;
-	GObject* _text_entry_rotation_point_y;
-	GObject* _button_rotate;
-	GObject* _button_rotate_window;
-	GObject* _text_entry_angle_window;
 	GObject*  _line_color_button;
 	GObject* _background_color_button;
 	GObject* _radio_button_cohen_sutherland;
@@ -128,7 +116,7 @@ private:
 
 	// Non-widget attributes
 	World* _world;
-	std::vector<Coordinates_3d*> _polygon_points;
+	std::vector<Coordinates*> _polygon_points;
 	bool _clip_flag;
 
 };

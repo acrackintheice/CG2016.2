@@ -2,8 +2,8 @@
 
 using namespace std;
 
-Window::Window(Coordinates_3d* p1, Coordinates_3d* p2, Coordinates_3d* p3, Coordinates_3d* p4, Coordinates_3d* vup, Coordinates_3d* vpn)
-{
+Window::Window(Coordinates *p1, Coordinates *p2, Coordinates *p3, Coordinates *p4, Coordinates *vup,
+               Coordinates *vpn) {
     _vup = vup;
     _vpn = vpn;
     _name = "Window";
@@ -11,143 +11,76 @@ Window::Window(Coordinates_3d* p1, Coordinates_3d* p2, Coordinates_3d* p3, Coord
     _points.push_back(p2);
     _points.push_back(p3);
     _points.push_back(p4);
-
-
-    _edges.push_back(Edge(p1,p2));
-    _edges.push_back(Edge(p2,p3));
-    _edges.push_back(Edge(p3,p4));
-    _edges.push_back(Edge(p4,p1));
-
+    _edges.push_back(Edge(p1, p2));
+    _edges.push_back(Edge(p2, p3));
+    _edges.push_back(Edge(p3, p4));
+    _edges.push_back(Edge(p4, p1));
+    configuration_points.push_back(_vup);
+    configuration_points.push_back(_vpn);
     _color = new Color(255, 0, 0, 1);
     _background_color = new Color(1, 1, 1, 1);
     _filled = false;
 }
-/* 
-The window's transform function is different from the Object's one because  
-it also needs to transform the Vup vector
-*/
-void Window::transform(Matriz4x4 transformation){
-    /* Transforming the points */
-    vector<Coordinates_3d*>::iterator it;
-    for(it = _points.begin(); it != _points.end(); it++){
-        double l4[] = {0,0,0,1};
-        Coordinates_3d* point = (*it);
-        l4[0] = point->get_x();
-        l4[1] = point->get_y();
-        l4[2] = point->get_z();
-        Matriz1x4 point_matrix = Matriz1x4(l4);
-        Matriz1x4 transformed_point = point_matrix.multiplicarPor4x4(transformation);
-        point->set_x(transformed_point.get(0));
-        point->set_y(transformed_point.get(1));
-        point->set_z(transformed_point.get(2));
-    }
-    /* Transforming the vup vector */
-    double l4[] = {0,0,0,1};
-    Coordinates_3d* point = _vup;
-    l4[0] = point->get_x();
-    l4[1] = point->get_y();
-    l4[2] = point->get_z();
-    Matriz1x4 point_matrix = Matriz1x4(l4);
-    Matriz1x4 transformed_point = point_matrix.multiplicarPor4x4(transformation);
-    point->set_x(transformed_point.get(0));
-    point->set_y(transformed_point.get(1));
-    point->set_z(transformed_point.get(2));
-    /* Transforming the VPN */
-    double v[] = {0,0,0,1};
-    point = _vpn;
-    v[0] = point->get_x();
-    v[1] = point->get_y();
-    v[2] = point->get_z();
-    Matriz1x4 point_matrix_2 = Matriz1x4(v);
-    transformed_point = point_matrix_2.multiplicarPor4x4(transformation);
-    point->set_x(transformed_point.get(0));
-    point->set_y(transformed_point.get(1));
-    point->set_z(transformed_point.get(2));
-}
-void Window::transform2(Matriz4x4 transformation){
-    /* Transforming the points */
-    vector<Coordinates_3d*>::iterator it;
-    for(it = _points.begin(); it != _points.end(); it++){
-        Coordinates_3d* point = (*it);
-        Matriz4x1 point_matrix = Matriz4x1(point->get_x(), point->get_y(), point->get_z(), 1);
-        Matriz4x1 transformed_point = transformation.multiplicar4x1(point_matrix);
-        point->set_x(transformed_point.get(0));
-        point->set_y(transformed_point.get(1));
-        point->set_z(transformed_point.get(2));
-    }
-    /* Transforming the vup vector */
-    Coordinates_3d* point = _vup;
-    Matriz4x1 point_matrix = Matriz4x1(point->get_x(), point->get_y(), point->get_z(), 1);
-    Matriz4x1 transformed_point = transformation.multiplicar4x1(point_matrix);
-    point->set_x(transformed_point.get(0));
-    point->set_y(transformed_point.get(1));
-    point->set_z(transformed_point.get(2));
-    /* Transforming the VPN */
-    point = _vpn;
-    Matriz4x1 point_matrix_2 = Matriz4x1(point->get_x(), point->get_y(), point->get_z(), 1);
-    Matriz4x1 transformed_point_2 = transformation.multiplicar4x1(point_matrix_2);
-    point->set_x(transformed_point_2.get(0));
-    point->set_y(transformed_point_2.get(1));
-    point->set_z(transformed_point_2.get(2));
-}
-void Window::move(double dx, double dy, double dz){
-	translate(dx,dy,dz);
-    //Getting the difference of the view-up of the window and 90ª (view-up of the world)
-    //double rad = get_vup_angle() - (M_PI / 2);
-    /*
-    //Naming variables in a character (to use in WolframAlpha):
-    center = get_geometric_center();
-    a = center.get_x();
-    b = center.get_y();
-    c = dx;
-    d = dy;
-    u = rad;
 
-	//Matrices of transformations (1 per line) to move the window:
-    ---------------------------
-    {{1,0,0},{0,1,0},{-a,-b,1}}*
-    {{cos(-u),-sin(-u),0},{sin(-u),cos(-u),0},{0,0,1}}*
-    {{1,0,0},{0,1,0},{c,d,1}}*
-    {{cos(u),-sin(u),0},{sin(u),cos(u),0},{0,0,1}}*
-    {{1,0,0},{0,1,0},{a,b,1}}
-	---------------------------
-    //Use WolframAlpha to obtain the resultant matrix (and a nice vision of the matrices).
-    
-    double l1[] = {1,0,0};
-    double l2[] = {0,1,0};
-    double l3[] = { dx*cos(rad) + dy*sin(rad), dx*-sin(rad) + dy*cos(rad), 1};
-    Matriz3x3 resultant(l1,l2,l3);
-    transform(resultant);
-    */
+Window::~Window() {
+    for (vector<Coordinates *>::iterator it = _points.begin(); it != _points.end(); it++) {
+        Coordinates *point = (*it);
+        delete point;
+    }
+    delete _vup;
+    delete _vpn;
 }
-Coordinates_3d* Window::get_p1(){
-    return _points[0];
+
+/*
+The window's transform function is different from the Object's one because
+it also needs to transform the configuration points that don't define the window's geometry
+*/
+void Window::transform(Matriz4x4 transformation, bool use_scn, bool change_scn) {
+    vector<Coordinates *> all_points = _points;
+    all_points.insert(all_points.end(), configuration_points.begin(), configuration_points.end());
+    /* Transforming the points */
+    for (vector<Coordinates *>::iterator it = all_points.begin(); it != all_points.end(); it++) {
+        Coordinates *point = (*it);
+        Matriz4x1 transformed_point =
+                (use_scn) ? transformation.multiplicar4x1(Matriz4x1(point->x_scn(), point->y_scn(), point->z_scn(), 1))
+                          : transformation.multiplicar4x1(Matriz4x1(point->x(), point->y(), point->z(), 1));
+        if (change_scn) {
+            point->set_xyz_scn(transformed_point.get(0), transformed_point.get(1), transformed_point.get(2));
+        } else {
+            point->set_xyz(transformed_point.get(0), transformed_point.get(1), transformed_point.get(2));
+        }
+    }
 }
-Coordinates_3d* Window::get_p2(){
-    return _points[1];
+
+void Window::move(double dx, double dy, double dz) {
+    translate(dx, dy, dz);
 }
-Coordinates_3d* Window::get_p3(){
-    return _points[2];
+
+Coordinates Window::min() {
+    Coordinates min = Coordinates(_points[0]->x(), _points[0]->y(), _points[0]->z());
+    min.set_xyz_scn(_points[0]->x_scn(), _points[0]->y_scn(), _points[0]->z_scn());
+    return min;
 }
-Coordinates_3d* Window::get_p4(){
-    return _points[3];
+
+Coordinates Window::max() {
+    Coordinates max = Coordinates(_points[1]->x(), _points[1]->y(), _points[1]->z());
+    max.set_xyz_scn(_points[1]->x_scn(), _points[1]->y_scn(), _points[1]->z_scn());
+    return max;
 }
-Coordinates_3d* Window::get_vup(){
-    return _vup;
+
+Coordinates Window::vup() {
+    Coordinates vup = Coordinates(_vup->x(), _vup->y(), _vup->z());
+    vup.set_xyz_scn(_vup->x_scn(), _vup->y_scn(), _vup->z_scn());
+    return vup;
 }
-Coordinates_3d* Window::get_vpn(){
-    return _vpn;
+
+Coordinates Window::vpn() {
+    Coordinates vpn = Coordinates(_vpn->x(), _vpn->y(), _vpn->z());
+    vpn.set_xyz_scn(_vpn->x_scn(), _vpn->y_scn(), _vpn->z_scn());
+    return vpn;
 }
-double Window::get_vup_angle(){
-	//Getting the window's center
-    Coordinates_3d center = get_geometric_center();
-    //Getting the vector that indicates the upward direction of the window
-    Coordinates_3d window_vup = Coordinates_3d(center.get_x()-_vup->get_x(), -(center.get_y()-_vup->get_y()), 0);
-    //Getting the length (magnitude) of the window_vup
-    double length = sqrt(pow(window_vup.get_x(),2)+pow(window_vup.get_y(),2));
-	//Normalizing the window_vup
-    Coordinates_3d normalized_window_vup = Coordinates_3d(window_vup.get_x()/length, window_vup.get_y()/length, 0);
-	//Getting the angle of the window in radians
-    double radians = acos(normalized_window_vup.get_x()) * ((normalized_window_vup.get_y()<0) ? -1 : 1);
-    return radians;
+
+vector<Edge> Window::clip() {
+    return _edges;
 }
+

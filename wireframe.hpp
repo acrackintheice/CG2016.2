@@ -10,15 +10,19 @@
 #include "point.hpp"
 
 
-class Wireframe : public Object
-{
+class Wireframe : public Object {
 public:
-    Wireframe(std::vector<Coordinates_3d*> points, std::vector<Edge> edges, std::string name, Color* color, Color* background_color, bool filled);
+    Wireframe(std::vector<Coordinates *> points, std::vector<Edge> edges, std::string name, Color *color,
+              Color *background_color, bool filled);
+
     std::vector<Edge> clip();
+
 private:
-	std::vector<Edge> sub_clip(std::vector<Edge> in);
-	bool fake_frame(std::vector<Edge> in);
-	bool inside(Coordinates_3d* point, std::string edge);
+    std::vector<Edge> sub_clip(std::vector<Edge> in);
+
+    bool fake_frame(std::vector<Edge> in);
+
+    bool inside(Coordinates *point, int edge_code);
 };
 
 #endif // WIREFRAME_HPP

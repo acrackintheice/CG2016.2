@@ -9,20 +9,20 @@
 class Window : public Object
 {
 public:
-	Window(Coordinates_3d* p1, Coordinates_3d* p2, Coordinates_3d* p3, Coordinates_3d* p4, Coordinates_3d* vup, Coordinates_3d* vpn);
+	Window(Coordinates* p1, Coordinates* p2, Coordinates* p3, Coordinates* p4, Coordinates* vup, Coordinates* vpn);
+    ~Window();
 	void move(double dx, double dy, double dz);
-	Coordinates_3d* get_p1();
-	Coordinates_3d* get_p2();
-	Coordinates_3d* get_p3();
-	Coordinates_3d* get_p4();
-	Coordinates_3d* get_vup();
-	Coordinates_3d* get_vpn();
-	void transform(Matriz4x4 transformation);
-	void transform2(Matriz4x4 transformation);
-	double get_vup_angle();
+	Coordinates min();
+	Coordinates max();
+	Coordinates vup();
+	Coordinates vpn();
+	void transform(Matriz4x4 transformation, bool use_scn = false, bool change_scn = false);
+    std::vector<Edge> clip();
 private:
-	Coordinates_3d* _vup;
-	Coordinates_3d* _vpn;
+	Coordinates* _vup;
+	Coordinates* _vpn;
+
+    std::vector<Coordinates*> configuration_points;
 };
 
 #endif // WINDOW_HPP

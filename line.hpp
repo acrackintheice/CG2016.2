@@ -9,7 +9,7 @@
 class Line: public Object
 {
 public:
-    Line(Coordinates_3d* p1, Coordinates_3d* p2, std::string name, Color* color);
+    Line(Coordinates* p1, Coordinates* p2, std::string name, Color* color);
     std::vector<Edge> clip2();
     std::vector<Edge> clip();
 };

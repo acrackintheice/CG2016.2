@@ -50,14 +50,3 @@ Matriz4x4 Matriz4x4::multiplicarPor4x4(Matriz4x4 M2){
 
     return Matriz4x4(l1,l2,l3,l4);
 }
-
-void Matriz4x4::print(){
-    cout << " ------------------------------------------- " << endl;
-    for (int i = 0; i < 4; ++i){
-        for (int j = 0; j < 4; ++j){
-            cout << "L["<<i<<"]["<<j<<"] = " << M1[i][j] << endl;
-        }
-        cout <<  endl;
-    }
-    cout << " ------------------------------------------- " << endl;
-}

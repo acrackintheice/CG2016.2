@@ -7,7 +7,7 @@
 class Point : public Object
 {
 public:
-    Point(Coordinates_3d* xy, std::string name, Color* color);
+    Point(Coordinates* xy, std::string name, Color* color);
     std::vector<Edge> clip();
 };
 
