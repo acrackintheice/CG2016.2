@@ -69,7 +69,7 @@ void Object::transform(Matriz4x4 transformation, bool use_scn, bool change_scn) 
 }
 
 void Object::translate(double dx, double dy, double dz) {
-    transform(Matrices::generate_translation_matrix(dx, dy, dz));
+    transform(Matrices::translation(dx, dy, dz));
 }
 
 void Object::scale(double sx, double sy, double sz) {
@@ -77,22 +77,22 @@ void Object::scale(double sx, double sy, double sz) {
     double cx = center.x();
     double cy = center.y();
     double cz = center.z();
-    transform(Matrices::generate_scaling_matrix(sx, sy, sz, cx, cy, cz));
+    transform(Matrices::scaling(sx, sy, sz, cx, cy, cz));
 }
 
 void Object::rotate_x(double angle) {
     angle = (M_PI / 180.0) * angle;
-    transform(Matrices::generate_rotate_x_matrix(angle));
+    transform(Matrices::rotate_x(angle));
 }
 
 void Object::rotate_y(double angle) {
     angle = (M_PI / 180.0) * angle;
-    transform(Matrices::generate_rotate_y_matrix(angle));
+    transform(Matrices::rotate_y(angle));
 }
 
 void Object::rotate_z(double angle) {
     angle = (M_PI / 180.0) * angle;
-    transform(Matrices::generate_rotate_z_matrix(angle));
+    transform(Matrices::rotate_z(angle));
 }
 
 /* Rotate by angle(in Degrees) around an axis defined by P1 -> P2 */
@@ -111,8 +111,8 @@ void Object::rotate(double angle, Coordinates p1, Coordinates p2) {
     double l = pow(u, 2) + pow(v, 2) + pow(w, 2);
     double j = cos(angle);
     double k = sin(angle);
-    Matriz4x4 rotation_matrix = Matrices::generate_arbitrary_rotation_matrix(u, v, w, a, b, c, j, k, l);
-    transform(rotation_matrix);
+    Matriz4x4 rotation = Matrices::arbitrary_rotation(u, v, w, a, b, c, j, k, l);
+    transform(rotation);
 }
 
 /* Generic method for objects that only have one clipping option */

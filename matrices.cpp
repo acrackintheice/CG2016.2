@@ -9,7 +9,7 @@ using namespace std;
 class Matrices {
 
 public:
-    static Matriz4x4 generate_translation_matrix(double dx, double dy, double dz) {
+    static Matriz4x4 translation(double dx, double dy, double dz) {
         double l0[] = {1, 0, 0, dx};
         double l1[] = {0, 1, 0, dy};
         double l2[] = {0, 0, 1, dz};
@@ -17,7 +17,7 @@ public:
         return Matriz4x4(l0, l1, l2, l3);
     }
 
-    static Matriz4x4 generate_scaling_matrix(double sx, double sy, double sz, double cx, double cy, double cz) {
+    static Matriz4x4 scaling(double sx, double sy, double sz, double cx, double cy, double cz) {
         double l0[] = {sx, 0, 0, 0};
         double l1[] = {0, sy, 0, 0};
         double l2[] = {0, 0, sz, 0};
@@ -25,7 +25,7 @@ public:
         return Matriz4x4(l0, l1, l2, l3);
     }
 
-    static Matriz4x4 generate_rotate_x_matrix(double angle) {
+    static Matriz4x4 rotate_x(double angle) {
         double l0[] = {1, 0, 0, 0};
         double l1[] = {0, cos(angle), -sin(angle), 0};
         double l2[] = {0, sin(angle), cos(angle), 0};
@@ -33,7 +33,7 @@ public:
         return Matriz4x4(l0, l1, l2, l3);
     }
 
-    static Matriz4x4 generate_rotate_y_matrix(double angle) {
+    static Matriz4x4 rotate_y(double angle) {
         double l0[] = {cos(angle), 0, sin(angle), 0};
         double l1[] = {0, 1, 0, 0};
         double l2[] = {-sin(angle), 0, cos(angle), 0};
@@ -41,7 +41,7 @@ public:
         return Matriz4x4(l0, l1, l2, l3);
     }
 
-    static Matriz4x4 generate_rotate_z_matrix(double angle) {
+    static Matriz4x4 rotate_z(double angle) {
         double l0[] = {cos(angle), -sin(angle), 0, 0};
         double l1[] = {sin(angle), cos(angle), 0, 0};
         double l2[] = {0, 0, 1, 0};
@@ -49,9 +49,8 @@ public:
         return Matriz4x4(l0, l1, l2, l3);
     }
 
-    static Matriz4x4
-    generate_arbitrary_rotation_matrix(double u, double v, double w, double a, double b, double c, double j, double k,
-                                       double l) {
+    static Matriz4x4 arbitrary_rotation(double u, double v, double w, double a, double b,
+                                        double c, double j, double k, double l) {
         double l0_0 = pow(u, 2) + (pow(v, 2) + pow(w, 2)) * j;
         double l0_1 = u * v * (1 - j) - w * sqrt(l) * k;
         double l0_2 = u * w * (1 - j) + v * sqrt(l) * k;
@@ -74,8 +73,8 @@ public:
         return Matriz4x4(l0, l1, l2, l3);
     }
 
-    static Matriz4x4 generate_projection_matrix(double ux, double uy, double uz, double vx, double vy, double vz,
-                                                double nx, double ny, double nz, double cx, double cy, double cz) {
+    static Matriz4x4 projection(double ux, double uy, double uz, double vx, double vy, double vz,
+                                double nx, double ny, double nz, double cx, double cy, double cz) {
         double l0[] = {ux, uy, uz, -cx};
         double l1[] = {vx, vy, vz, -cy};
         double l2[] = {nx, ny, nz, -cz};
@@ -83,8 +82,8 @@ public:
         return Matriz4x4(l0, l1, l2, l3);
     }
 
-    static Matriz4x4 generate_projection_rotation_matrix(double ux, double uy, double uz, double vx, double vy,
-                                                         double vz, double nx, double ny, double nz) {
+    static Matriz4x4 projection_rotation(double ux, double uy, double uz, double vx, double vy,
+                                         double vz, double nx, double ny, double nz) {
         double l0[] = {ux, uy, uz, 0};
         double l1[] = {vx, vy, vz, 0};
         double l2[] = {nx, ny, nz, 0};
@@ -92,8 +91,8 @@ public:
         return Matriz4x4(l0, l1, l2, l3);
     }
 
-    static Matriz4x4 generate_projection_matrix2(double ux, double uy, double vx, double vy, double nx,
-                                                 double ny, double cx, double cy, double cz, double sx, double sy) {
+    static Matriz4x4 projection2(double ux, double uy, double vx, double vy, double nx,
+                                 double ny, double cx, double cy, double cz, double sx, double sy) {
         double l0[] = {sx * ux, sy * uy, 0, -cx};
         double l1[] = {sx * vx, sy * vy, 0, -cy};
         double l2[] = {sx * nx, sy * ny, 0, -cz};
@@ -102,7 +101,7 @@ public:
     }
 
 
-    static Matriz4x4 generate_normalization_matrix(double sx, double sy) {
+    static Matriz4x4 normalization(double sx, double sy) {
         double l0[] = {sx, 0, 0, 0};
         double l1[] = {0, sy, 0, 0};
         double l2[] = {0, 0, 0, 0};

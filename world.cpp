@@ -68,11 +68,11 @@ void World::project(bool perspective) {
         double cx = _window->geometric_center().x();
         double cy = _window->geometric_center().y();
         double cz = _window->geometric_center().z();
-        Matriz4x4 translation = Matrices::generate_translation_matrix(-cx, -cz, -cy);
+        Matriz4x4 translation = Matrices::translation(-cx, -cz, -cy);
         _window->transform(translation, false, true);
         // Calculating the rotation vectors
-        Coordinates vpn = Coordinates(_window->vpn().x_scn(), _window->vpn().y_scn(), _window->vpn().z_scn());
-        Coordinates vup = Coordinates(_window->vup().x_scn(), _window->vup().y_scn(), _window->vup().z_scn());
+        Coordinates vpn = _window->vpn();
+        Coordinates vup = _window->vup();
         double n_vpn = Operations::norma(vpn);
         Coordinates n = Coordinates(vpn.x() / n_vpn, vpn.y() / n_vpn, vpn.z() / n_vpn);
         Coordinates cross = Operations::cross_product_3d(vup, n);
@@ -80,21 +80,22 @@ void World::project(bool perspective) {
         Coordinates u = Coordinates(cross.x() / n_cross, cross.y() / n_cross, cross.z() / n_cross);
         Coordinates v = Operations::cross_product_3d(n, u);
         // Translating and Rotating the World using the projection matrix
-        Matriz4x4 projection_matrix = Matrices::generate_projection_matrix(u.x(),u.y(),u.z(),v.x(),v.y(),v.z(),n.x(),n.y(),n.z(),cx,cy,cz);
+        Matriz4x4 projection = Matrices::projection(u.x(), u.y(), u.z(), v.x(), v.y(), v.z(),
+                                                    n.x(), n.y(), n.z(), cx, cy, cz);
         for (vector<Object *>::iterator it = _objects.begin(); it != _objects.end(); it++) {
             Object *obj = (*it);
-            obj->transform(projection_matrix, false, true);
+            obj->transform(projection, false, true);
         }
         // Calculating sx, sy for the normalization
         Coordinates center = _window->geometric_center(false, true);
         Coordinates window_min = _window->min();
-        double sx = 1.0 / fabs(center.x() - window_min.x_scn());
-        double sy = 1.0 / fabs(center.y() - window_min.y_scn());
+        double sx = 1.0 / center.x() - window_min.x_scn();
+        double sy = 1.0 / center.y() - window_min.y_scn();
         // Dropping Z and normalizing the world
-        Matriz4x4 normalization_matrix = Matrices::generate_normalization_matrix(sx,sy);
+        Matriz4x4 normalization = Matrices::normalization(sx, sy);
         for (vector<Object *>::iterator it = _objects.begin(); it != _objects.end(); it++) {
             Object *obj = (*it);
-            obj->transform(normalization_matrix, true, true);
+            obj->transform(normalization, true, true);
         }
     }
 }
