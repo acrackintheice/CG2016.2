@@ -89,8 +89,8 @@ void World::project(bool perspective) {
         // Calculating sx, sy for the normalization
         Coordinates center = _window->geometric_center(false, true);
         Coordinates window_min = _window->min();
-        double sx = 1.0 / center.x() - window_min.x_scn();
-        double sy = 1.0 / center.y() - window_min.y_scn();
+        double sx = 1.0 / fabs(center.x() - window_min.x_scn());
+        double sy = 1.0 / fabs(center.y() - window_min.y_scn());
         // Dropping Z and normalizing the world
         Matriz4x4 normalization = Matrices::normalization(sx, sy);
         for (vector<Object *>::iterator it = _objects.begin(); it != _objects.end(); it++) {
