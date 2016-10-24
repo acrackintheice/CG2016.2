@@ -16,6 +16,10 @@ string Object::name() {
     return _name;
 }
 
+vector<Coordinates*> Object::points() {
+    return _points;
+}
+
 Color *Object::color() {
     return _color;
 }

@@ -523,10 +523,11 @@ vector<Coordinates*> UI::string_to_points(string x){
 		Operations::remove_char_from_string(coordinates_string, (char *)"() ");
 		/* coordinates_string = '1,2' */
 		vector<string> string_points = Operations::split(coordinates_string, ',');
-		/* string_points = ['1', '2'] */
+		/* string_points = ['1', '2', '3'] */
 		double x = atof(string_points[0].c_str());
 		double y = atof(string_points[1].c_str());
-		Coordinates* c = new Coordinates(x,y,0);
+        double z = atof(string_points[2].c_str());
+		Coordinates* c = new Coordinates(x,y,z);
 		points.push_back(c);
 	}
 	return points;

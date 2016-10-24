@@ -5,6 +5,7 @@
 #include <iostream>
 #include "object.hpp"
 #include "operations.cpp"
+#include "wireframe.hpp"
 
 class Window : public Object
 {
@@ -16,13 +17,15 @@ public:
 	Coordinates max();
 	Coordinates vup();
 	Coordinates vpn();
+    Coordinates vrp();
 	void transform(Matriz4x4 transformation, bool use_scn = false, bool change_scn = false);
     std::vector<Edge> clip();
 private:
-	Coordinates* _vup;
-	Coordinates* _vpn;
+	Wireframe* _vup;
+    Wireframe* _vpn;
+    Wireframe* _vrp;
 
-    std::vector<Coordinates*> configuration_points;
+    std::vector<Wireframe*> configuration_points;
 };
 
 #endif // WINDOW_HPP

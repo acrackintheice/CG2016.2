@@ -65,32 +65,41 @@ void World::project(bool perspective) {
 
         // Starting the Work !!!
         // Translating the Window, VPN and Vup in order to calculate the rotation vectors
-        double cx = _window->geometric_center().x();
-        double cy = _window->geometric_center().y();
-        double cz = _window->geometric_center().z();
-        Matriz4x4 translation = Matrices::translation(-cx, -cz, -cy);
-        _window->transform(translation, false, true);
-        // Calculating the rotation vectors
-        Coordinates vpn = _window->vpn();
-        Coordinates vup = _window->vup();
-        double n_vpn = Operations::norma(vpn);
-        Coordinates n = Coordinates(vpn.x() / n_vpn, vpn.y() / n_vpn, vpn.z() / n_vpn);
-        Coordinates cross = Operations::cross_product_3d(vup, n);
-        double n_cross = Operations::norma(cross);
-        Coordinates u = Coordinates(cross.x() / n_cross, cross.y() / n_cross, cross.z() / n_cross);
-        Coordinates v = Operations::cross_product_3d(n, u);
-        // Translating and Rotating the World using the projection matrix
-        Matriz4x4 projection = Matrices::projection(u.x(), u.y(), u.z(), v.x(), v.y(), v.z(),
-                                                    n.x(), n.y(), n.z(), cx, cy, cz);
+        double cx = _window->vrp().x();
+        double cy = _window->vrp().y();
+        double cz = _window->vrp().z();
+        Matriz4x4 translation = Matrices::translation(-cx, -cy, -cz);
         for (vector<Object *>::iterator it = _objects.begin(); it != _objects.end(); it++) {
             Object *obj = (*it);
-            obj->transform(projection, false, true);
+                obj->transform(translation, false, true);
+        }
+        // Calculating the rotation vectors
+        Coordinates vup = _window->vup();
+        double n_vup = Operations::norma(vup, true);
+        vup.set_xyz(vup.x_scn() / n_vup, vup.y_scn() / n_vup, vup.z_scn() / n_vup);
+        Coordinates vpn = _window->vpn();
+        n_vup = Operations::norma(vup, true);
+        double n_vpn = Operations::norma(vpn, true);
+        Coordinates n = Coordinates(vpn.x_scn() / n_vpn, vpn.y_scn() / n_vpn, vpn.z_scn() / n_vpn);
+        double n_n = Operations::norma(n, true);
+        Coordinates cross = Operations::cross_product_3d(vup, n, true);
+        double n_cross = Operations::norma(cross);
+        Coordinates u = Coordinates(cross.x() / n_cross, cross.y() / n_cross, cross.z() / n_cross);
+        double n_u = Operations::norma(u, true);
+        Coordinates v = Operations::cross_product_3d(n, u);
+        double n_v = Operations::norma(v, true);
+        // Translating and Rotating the World using the projection matrix
+        //Matriz4x4 projection = Matrices::projection(u.x(), u.y(), u.z(), v.x(), v.y(), v.z(),
+        //                                            n.x(), n.y(), n.z(), cx, cy, cz);
+        Matriz4x4 projection = Matrices::projection_rotation(u.x(), u.y(), u.z(), v.x(), v.y(), v.z(),
+                                                             n.x(), n.y(), n.z());
+        for (vector<Object *>::iterator it = _objects.begin(); it != _objects.end(); it++) {
+            Object *obj = (*it);
+            obj->transform(projection, true, true);
         }
         // Calculating sx, sy for the normalization
-        Coordinates center = _window->geometric_center(false, true);
-        Coordinates window_min = _window->min();
-        double sx = 1.0 / fabs(center.x() - window_min.x_scn());
-        double sy = 1.0 / fabs(center.y() - window_min.y_scn());
+        double sx = 1.0 / fabs(_window->vrp().x_scn() - _window->min().x_scn());
+        double sy = 1.0 / fabs(_window->vrp().x_scn() - _window->min().y_scn());
         // Dropping Z and normalizing the world
         Matriz4x4 normalization = Matrices::normalization(sx, sy);
         for (vector<Object *>::iterator it = _objects.begin(); it != _objects.end(); it++) {

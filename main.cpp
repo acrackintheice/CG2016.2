@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
 
     Window *window = new Window(new Coordinates(-500, -500, 0), new Coordinates(-500, 500, 0),
                                 new Coordinates(500, 500, 0), new Coordinates(500, -500, 0),
-                                new Coordinates(0, 1, 0), new Coordinates(0, 0, 1));
+                                new Coordinates(0, 500, 0), new Coordinates(0, 0, 500));
     World *world = new World(window);
 
 

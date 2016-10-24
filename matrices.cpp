@@ -18,10 +18,10 @@ public:
     }
 
     static Matriz4x4 scaling(double sx, double sy, double sz, double cx, double cy, double cz) {
-        double l0[] = {sx, 0, 0, 0};
-        double l1[] = {0, sy, 0, 0};
-        double l2[] = {0, 0, sz, 0};
-        double l3[] = {(-cx * sx) + cx, (-cy * sy) + cy, (-cz * sz) + cz, 1};
+        double l0[] = {sx, 0, 0, (-cx * sx) + cx};
+        double l1[] = {0, sy, 0, (-cy * sy) + cy};
+        double l2[] = {0, 0, sz, (-cz * sz) + cz};
+        double l3[] = {0, 0,  0, 1};
         return Matriz4x4(l0, l1, l2, l3);
     }
 

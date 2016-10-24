@@ -18,6 +18,8 @@ class Object {
 public:
     std::string name();
 
+    std::vector<Coordinates *> points();
+
     Color *color();
 
     Color *background_color();
