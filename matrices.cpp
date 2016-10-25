@@ -21,7 +21,7 @@ public:
         double l0[] = {sx, 0, 0, (-cx * sx) + cx};
         double l1[] = {0, sy, 0, (-cy * sy) + cy};
         double l2[] = {0, 0, sz, (-cz * sz) + cz};
-        double l3[] = {0, 0,  0, 1};
+        double l3[] = {0, 0, 0, 1};
         return Matriz4x4(l0, l1, l2, l3);
     }
 
@@ -73,8 +73,8 @@ public:
         return Matriz4x4(l0, l1, l2, l3);
     }
 
-    static Matriz4x4 projection(double ux, double uy, double uz, double vx, double vy, double vz,
-                                double nx, double ny, double nz, double cx, double cy, double cz) {
+    static Matriz4x4 world_to_view(double ux, double uy, double uz, double vx, double vy, double vz,
+                                   double nx, double ny, double nz, double cx, double cy, double cz) {
         double l0[] = {ux, uy, uz, -cx};
         double l1[] = {vx, vy, vz, -cy};
         double l2[] = {nx, ny, nz, -cz};
@@ -82,28 +82,51 @@ public:
         return Matriz4x4(l0, l1, l2, l3);
     }
 
-    static Matriz4x4 projection_rotation(double ux, double uy, double uz, double vx, double vy,
-                                         double vz, double nx, double ny, double nz) {
-        double l0[] = {ux, uy, uz, 0};
-        double l1[] = {vx, vy, vz, 0};
-        double l2[] = {nx, ny, nz, 0};
+    static Matriz4x4 parallel_projection(double ux, double uy, double uz, double vx, double vy, double vz,
+                                         double nx, double ny, double nz, double cx, double cy, double cz,
+                                         double sx, double sy) {
+        double l0[] = {sx * ux, sy * uy, uz, -cx};
+        double l1[] = {sx * vx, sy * vy, vz, -cy};
+        double l2[] = {sx * nx, sy * ny, nz, -cz};
         double l3[] = {0, 0, 0, 1};
         return Matriz4x4(l0, l1, l2, l3);
     }
 
-    static Matriz4x4 projection2(double ux, double uy, double vx, double vy, double nx,
-                                 double ny, double cx, double cy, double cz, double sx, double sy) {
-        double l0[] = {sx * ux, sy * uy, 0, -cx};
-        double l1[] = {sx * vx, sy * vy, 0, -cy};
-        double l2[] = {sx * nx, sy * ny, 0, -cz};
+    static Matriz4x4 normalization_parallel(double sx, double sy) {
+        double l0[] = {sx, 0, 0, 0};
+        double l1[] = {0, sy, 0, 0};
+        double l2[] = {0, 0, 0, 0};
         double l3[] = {0, 0, 0, 1};
         return Matriz4x4(l0, l1, l2, l3);
     }
 
+    static Matriz4x4 normalization_perspective(double sx, double sy, double d) {
+        double l0[] = {sx, 0, 0, 0};
+        double l1[] = {0, sy, 0, 0};
+        double l2[] = {0, 0, 1, 0};
+        double l3[] = {0, 0, 1 / d, 0};
+        return Matriz4x4(l0, l1, l2, l3);
+    }
 
     static Matriz4x4 normalization(double sx, double sy) {
         double l0[] = {sx, 0, 0, 0};
         double l1[] = {0, sy, 0, 0};
+        double l2[] = {0, 0, 1, 0};
+        double l3[] = {0, 0, 0, 1};
+        return Matriz4x4(l0, l1, l2, l3);
+    }
+
+    static Matriz4x4 perspective(double d) {
+        double l0[] = {1, 0, 0, 0};
+        double l1[] = {0, 1, 0, 0};
+        double l2[] = {0, 0, 1, 0};
+        double l3[] = {0, 0, 1/d, 0};
+        return Matriz4x4(l0, l1, l2, l3);
+    }
+
+    static Matriz4x4 parallel() {
+        double l0[] = {1, 0, 0, 0};
+        double l1[] = {0, 1, 0, 0};
         double l2[] = {0, 0, 0, 0};
         double l3[] = {0, 0, 0, 1};
         return Matriz4x4(l0, l1, l2, l3);

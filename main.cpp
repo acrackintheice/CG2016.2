@@ -32,7 +32,8 @@ int main(int argc, char *argv[]) {
 
     Window *window = new Window(new Coordinates(-500, -500, 0), new Coordinates(-500, 500, 0),
                                 new Coordinates(500, 500, 0), new Coordinates(500, -500, 0),
-                                new Coordinates(0, 500, 0), new Coordinates(0, 0, 500));
+                                new Coordinates(0, 500, 0), new Coordinates(0, 0, 500),
+                                new Coordinates(0,0, -2000));
     World *world = new World(window);
 
 
@@ -48,14 +49,14 @@ int main(int argc, char *argv[]) {
 
 
     vector<Coordinates *> cube_points;
-    Coordinates *A = new Coordinates(-200, -200, -200);
-    Coordinates *B = new Coordinates(200, -200, -200);
-    Coordinates *C = new Coordinates(-200, 200, -200);
-    Coordinates *D = new Coordinates(200, 200, -200);
-    Coordinates *E = new Coordinates(-200, -200, 200);
-    Coordinates *F = new Coordinates(200, -200, 200);
-    Coordinates *G = new Coordinates(-200, 200, 200);
-    Coordinates *H = new Coordinates(200, 200, 200);
+    Coordinates *A = new Coordinates(-200, -200, -600);
+    Coordinates *B = new Coordinates(200, -200, -600);
+    Coordinates *C = new Coordinates(-200, 200, -600);
+    Coordinates *D = new Coordinates(200, 200, -600);
+    Coordinates *E = new Coordinates(-200, -200, 1000);
+    Coordinates *F = new Coordinates(200, -200, 1000);
+    Coordinates *G = new Coordinates(-200, 200, 1000);
+    Coordinates *H = new Coordinates(200, 200, 1000);
 
     // (-200,-200,-200) (200,-200,-200) (-200,200,-200) (200,200,-200) (-200,-200,200) (200,-200,200) (-200,200,200) (200,200,200)
     // (0,1) (0,2) (0,4) (1,3) (1,5) (2,3) (2,6) (3,7) (4,6) (4,5) (5,7) (6,7)

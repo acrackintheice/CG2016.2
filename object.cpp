@@ -64,10 +64,12 @@ void Object::transform(Matriz4x4 transformation, bool use_scn, bool change_scn) 
         Matriz4x1 transformed_point =
                 (use_scn) ? transformation.multiplicar4x1(Matriz4x1(point->x_scn(), point->y_scn(), point->z_scn(), 1))
                           : transformation.multiplicar4x1(Matriz4x1(point->x(), point->y(), point->z(), 1));
+        double div = transformed_point.get(3);
         if (change_scn) {
-            point->set_xyz_scn(transformed_point.get(0), transformed_point.get(1), transformed_point.get(2));
+            double div = transformed_point.get(3);
+            point->set_xyz_scn(transformed_point.get(0)/div, transformed_point.get(1)/div, transformed_point.get(2)/div);
         } else {
-            point->set_xyz(transformed_point.get(0), transformed_point.get(1), transformed_point.get(2));
+            point->set_xyz(transformed_point.get(0)/div, transformed_point.get(1)/div, transformed_point.get(2)/div);
         }
     }
 }
