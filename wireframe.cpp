@@ -15,18 +15,18 @@ Wireframe::Wireframe(vector<Coordinates *> points, vector<Edge> edges, string na
 vector<Edge> Wireframe::clip() {
     vector<Edge> clip_edges;
     vector<int> edge_codes = {1, 2, 3, 4};
-    Coordinates *P1_LEFT = new Coordinates(-1, -10000, 0);
-    Coordinates *P2_LEFT = new Coordinates(-1, 10000, 0);
-    clip_edges.push_back(Edge(P1_LEFT, P2_LEFT));
-    Coordinates *P1_RIGHT = new Coordinates(1, -10000, 0);
-    Coordinates *P2_RIGHT = new Coordinates(1, 1000, 0);
-    clip_edges.push_back(Edge(P1_RIGHT, P2_RIGHT));
-    Coordinates *P1_TOP = new Coordinates(-10000, 1, 0);
-    Coordinates *P2_TOP = new Coordinates(10000, 1, 0);
-    clip_edges.push_back(Edge(P1_TOP, P2_TOP));
-    Coordinates *P1_BOTTOM = new Coordinates(-10000, -1, 0);
-    Coordinates *P2_BOTTOM = new Coordinates(10000, -1, 0);
-    clip_edges.push_back(Edge(P1_BOTTOM, P2_BOTTOM));
+    Coordinates P1_LEFT = Coordinates(-1, -10000, 0);
+    Coordinates P2_LEFT =  Coordinates(-1, 10000, 0);
+    clip_edges.push_back(Edge(&P1_LEFT, &P2_LEFT));
+    Coordinates P1_RIGHT = Coordinates(1, -10000, 0);
+    Coordinates P2_RIGHT = Coordinates(1, 1000, 0);
+    clip_edges.push_back(Edge(&P1_RIGHT, &P2_RIGHT));
+    Coordinates P1_TOP = Coordinates(-10000, 1, 0);
+    Coordinates P2_TOP = Coordinates(10000, 1, 0);
+    clip_edges.push_back(Edge(&P1_TOP, &P2_TOP));
+    Coordinates P1_BOTTOM = Coordinates(-10000, -1, 0);
+    Coordinates P2_BOTTOM = Coordinates(10000, -1, 0);
+    clip_edges.push_back(Edge(&P1_BOTTOM, &P2_BOTTOM));
     vector<Edge> in;
     vector<Edge> out = _edges;
     int x = 1;
@@ -55,7 +55,7 @@ vector<Edge> Wireframe::clip() {
                 }
                     // If( E outside EDGE )
                 else {
-                    Coordinates *new_E = Operations::intersection_between_lines_2(E, S, clip_edge.p1(),
+                    Coordinates *new_E = Operations::intersection_between_lines(E, S, clip_edge.p1(),
                                                                                   clip_edge.p2());
                     if (went_out) {
                         out.push_back(Edge(out_buffer, new_E));
@@ -68,7 +68,7 @@ vector<Edge> Wireframe::clip() {
             else {
                 // IF ( E inside EDGE )
                 if (inside(E, edge_code)) {
-                    Coordinates *new_S = Operations::intersection_between_lines_2(E, S, clip_edge.p1(),
+                    Coordinates *new_S = Operations::intersection_between_lines(E, S, clip_edge.p1(),
                                                                                   clip_edge.p2());
                     out.push_back(Edge(new Coordinates(E->x_scn(), E->y_scn(), 0), new_S));
                     out_buffer = new_S;
@@ -78,9 +78,6 @@ vector<Edge> Wireframe::clip() {
                 }
             }
         }
-        /* Deleting the objects created to represent the clipping edges */
-        delete clip_edge.p1();
-        delete clip_edge.p2();
     }
     if (fake_frame(in)) {
         return sub_clip(in);
@@ -88,6 +85,7 @@ vector<Edge> Wireframe::clip() {
     return out;
 }
 
+// E1 => 0xb6b890, 0xb6b850
 bool Wireframe::inside(Coordinates *point, int edge_code) {
     if (edge_code == 1) {
         return point->x_scn() >= -1;

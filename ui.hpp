@@ -38,6 +38,8 @@ public:
 	void update_clip_type(bool flag);
 	World* world();
 	bool clip_flag();
+    void update_projection_type(bool flag);
+    bool projection_flag();
 private:
 	const gchar* current_page_label(GtkNotebook* notebook);
 	void set_text_of_textview(GtkWidget *text_view, gchar* text);
@@ -78,6 +80,8 @@ private:
 	GObject* _background_color_button;
 	GObject* _radio_button_cohen_sutherland;
 	GObject* _radio_button_liang_barsky;
+	GObject* _radio_button_perspective;
+	GObject* _radio_button_parallel;
 	// Add object dialog widgets
 	GObject* _button_add;
 	GObject* _button_cancel;
@@ -118,6 +122,7 @@ private:
 	World* _world;
 	std::vector<Coordinates*> _polygon_points;
 	bool _clip_flag;
+    bool _projection_flag;
 
 };
 

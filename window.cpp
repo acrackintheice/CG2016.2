@@ -81,6 +81,7 @@ Coordinates Window::vpn() {
     vpn.set_xyz_scn(_vpn->x_scn(), _vpn->y_scn(), _vpn->z_scn());
     return vpn;
 }
+
 Coordinates Window::cop() {
     Coordinates cop = Coordinates(_cop->x(), _cop->y(), _cop->z());
     cop.set_xyz_scn(_cop->x_scn(), _cop->y_scn(), _cop->z_scn());
@@ -88,6 +89,12 @@ Coordinates Window::cop() {
 }
 
 vector<Edge> Window::clip() {
-    return _edges;
+    vector<Edge> edges_copy;
+    for (vector<Edge>::iterator it = _edges.begin(); it != _edges.end(); it++) {
+        Edge e = *it;
+        edges_copy.push_back(Edge(new Coordinates(e.p1()->x_scn(), e.p1()->y_scn(), e.p1()->z_scn()),
+                                  new Coordinates(e.p2()->x_scn(), e.p2()->y_scn(), e.p2()->z_scn())));
+    }
+    return edges_copy;
 }
 

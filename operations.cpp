@@ -37,7 +37,7 @@ public:
     }
 
     static Coordinates *
-    intersection_between_lines_2(Coordinates *p0, Coordinates *p1, Coordinates *p2, Coordinates *p3) {
+    intersection_between_lines(Coordinates *p0, Coordinates *p1, Coordinates *p2, Coordinates *p3) {
         double p0_x = p0->x_scn();
         double p0_y = p0->y_scn();
         double p1_x = p1->x_scn();
@@ -83,6 +83,11 @@ public:
         for (unsigned int i = 0; i < strlen(charsToRemove); ++i) {
             str.erase(remove(str.begin(), str.end(), charsToRemove[i]), str.end());
         }
+    }
+
+    template<typename T>
+    static bool contains(vector<T> v, T x) {
+        return (std::find(v.begin(), v.end(), x) != v.end());
     }
 };
 

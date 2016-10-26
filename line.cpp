@@ -24,7 +24,7 @@ vector<Edge> Line::clip2()
 	const int BOTTOM = 4; // 0100
 	const int TOP = 8;    // 1000
 	/* Defining the region codes */
-	/* Define RC = 0000 and go changing it with consecutie OR operations*/
+	/* Define RC = 0000 and go changing it with consecutive OR operations*/
 	int RC1 = INSIDE;          
 	if (p1.x() < -1)           
 		RC1 = (RC1 | LEFT);

@@ -36,31 +36,18 @@ int main(int argc, char *argv[]) {
                                 new Coordinates(0,0, -2000));
     World *world = new World(window);
 
-
-    vector<Coordinates *> line_points;
-    Coordinates *p1 = new Coordinates(0, 0, -1.73);
-    Coordinates *p2 = new Coordinates(0, 0, 1.73);
-    line_points.push_back(p1);
-    line_points.push_back(p2);
-    vector<Edge> line_edges;
-    line_edges.push_back(Edge(p1, p2));
-
-    Wireframe* line = new Wireframe(line_points, line_edges, "kappa", new Color(1,1,1,1), new Color(1,1,1,1),false);
-
-
     vector<Coordinates *> cube_points;
-    Coordinates *A = new Coordinates(-200, -200, -600);
-    Coordinates *B = new Coordinates(200, -200, -600);
-    Coordinates *C = new Coordinates(-200, 200, -600);
-    Coordinates *D = new Coordinates(200, 200, -600);
-    Coordinates *E = new Coordinates(-200, -200, 1000);
-    Coordinates *F = new Coordinates(200, -200, 1000);
-    Coordinates *G = new Coordinates(-200, 200, 1000);
-    Coordinates *H = new Coordinates(200, 200, 1000);
+    Coordinates *A = new Coordinates(-200, -200, 400);
+    Coordinates *B = new Coordinates(200, -200, 400);
+    Coordinates *C = new Coordinates(-200, 200, 400);
+    Coordinates *D = new Coordinates(200, 200, 400);
+    Coordinates *E = new Coordinates(-200, -200, 200);
+    Coordinates *F = new Coordinates(200, -200, 200);
+    Coordinates *G = new Coordinates(-200, 200, 200);
+    Coordinates *H = new Coordinates(200, 200, 200);
 
     // (-200,-200,-200) (200,-200,-200) (-200,200,-200) (200,200,-200) (-200,-200,200) (200,-200,200) (-200,200,200) (200,200,200)
     // (0,1) (0,2) (0,4) (1,3) (1,5) (2,3) (2,6) (3,7) (4,6) (4,5) (5,7) (6,7)
-
 
     cube_points.push_back(A);
     cube_points.push_back(B);

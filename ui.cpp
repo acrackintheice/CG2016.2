@@ -6,6 +6,7 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data) {
     UI *ui = static_cast<UI *>(data);
     World *world = ui->world();
     bool clip_flag = ui->clip_flag();
+    bool projection_flag = ui->projection_flag();
     /* Getting the viewport and window coordinates*/
     double vp_width = (double) (gtk_widget_get_allocated_width(widget));
     double vp_height = (double) (gtk_widget_get_allocated_height(widget));
@@ -18,8 +19,12 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data) {
     cairo_paint(cr);
     cairo_set_line_width(cr, 1);
     cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
-    /* Projecting and normalizing the objects */
-    world->project(true);
+    /* Projecting and normalizing the objects
+     *
+     {{s1,0,0,-(k1*s1)}, {0,s2,0,-(k2*s2)}, {0,0,1,-k3}, {0,0,p^(-1),-(k3/p)}}.
+     {{u1,u2,u3,-(u1*x)-u2*y-u3*z},{v1,v2,v3,-(v1*x)-v2*y-v3*z},{n1,n2, n3,-(n1*x)-n2*y-n3*z},{0,0,0,1}}
+     * */
+    world->project(projection_flag);
     /* Drawing objects */
     vector<Object *> objects = world->objects();
     for (vector<Object *>::iterator it = objects.begin(); it != objects.end(); it++) {
@@ -66,9 +71,16 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data) {
             /* Drawing non-filled objects */
         }
         /* Deleting the clipped points */
-        for (int i = 0; i < edges.size(); ++i) {
-            //delete edges[i].p1();
-            //delete edges[i].p2();
+        for (vector<Edge>::iterator it_edges = edges.begin(); it_edges != edges.end(); it_edges++) {
+            Edge e = *it_edges;
+            if (e.p1() != NULL){
+                delete e.p1();
+                e.set_p1(NULL);
+            }
+            if (e.p2() != NULL){
+                delete e.p2();
+                e.set_p2(NULL);
+            }
         }
     }
     return FALSE;
@@ -142,6 +154,14 @@ static void liang_barsky_callback(GtkWidget *widget, gpointer data) {
     static_cast<UI *>(data)->update_clip_type(false);
 }
 
+static void perspective_callback(GtkWidget *widget, gpointer data) {
+    static_cast<UI *>(data)->update_projection_type(true);
+}
+
+static void parallel_callback(GtkWidget *widget, gpointer data) {
+    static_cast<UI *>(data)->update_projection_type(false);
+}
+
 /* Member Functions */
 UI::UI(int argc, char *argv[], World *world) : _world(world) {
     /* This intializes something, no idea what*/
@@ -175,6 +195,8 @@ UI::UI(int argc, char *argv[], World *world) : _world(world) {
     _line_color_button = gtk_builder_get_object(_builder, "line_color_button");
     _radio_button_cohen_sutherland = gtk_builder_get_object(_builder, "radio_button_cohen_sutherland");
     _radio_button_liang_barsky = gtk_builder_get_object(_builder, "radio_button_liang_barsky");
+    _radio_button_perspective = gtk_builder_get_object(_builder, "radio_button_perspective");
+    _radio_button_parallel = gtk_builder_get_object(_builder, "radio_button_parallel");
     _radio_button_any_axis = gtk_builder_get_object(_builder, "radio_button_any_axis");
     _radio_button_x_axis = gtk_builder_get_object(_builder, "radio_button_x_axis");
     _radio_button_y_axis = gtk_builder_get_object(_builder, "radio_button_y_axis");
@@ -227,6 +249,8 @@ UI::UI(int argc, char *argv[], World *world) : _world(world) {
     g_signal_connect (_button_rotate1, "clicked", G_CALLBACK(rotate1_callback), this);
     g_signal_connect (_radio_button_cohen_sutherland, "toggled", G_CALLBACK(cohen_sutherland_callback), this);
     g_signal_connect (_radio_button_liang_barsky, "toggled", G_CALLBACK(liang_barsky_callback), this);
+    g_signal_connect (_radio_button_perspective, "toggled", G_CALLBACK(perspective_callback), this);
+    g_signal_connect (_radio_button_parallel, "toggled", G_CALLBACK(parallel_callback), this);
     /* Add object dialog widget signals */
     g_signal_connect (_button_add, "clicked", G_CALLBACK(add_object_from_dialog_callback), this);
     g_signal_connect (_button_cancel, "clicked", G_CALLBACK(hide_add_object_dialog_callback), this);
@@ -239,6 +263,7 @@ UI::UI(int argc, char *argv[], World *world) : _world(world) {
         add_name_to_list(obj->name().c_str());
     }
     update_clip_type(true);
+    update_projection_type(true);
     /* Drawing the world*/
     draw();
     gtk_widget_show(GTK_WIDGET(_main_window));
@@ -259,6 +284,20 @@ bool UI::clip_flag() {
     return _clip_flag;
 }
 
+void UI::update_clip_type(bool flag) {
+    _clip_flag = flag;
+    gtk_widget_queue_draw((GtkWidget *) _canvas);
+}
+
+bool UI::projection_flag() {
+    return _projection_flag;
+}
+
+void UI::update_projection_type(bool flag) {
+    _projection_flag = flag;
+    gtk_widget_queue_draw((GtkWidget *) _canvas);
+}
+
 void UI::update_text_view_window() {
     Window *window = _world->window();
     double x1 = window->min().x();
@@ -273,11 +312,6 @@ void UI::update_text_view_window() {
             "WINDOW : (" + to_string(x1) + "," + to_string(y1) + ")" + ",(" + to_string(x2) + "," + to_string(y2) + ")";
     text = text + "   +-+-+  VP : (" + to_string(vp_width) + ", " + to_string(vp_height) + " )";
     set_text_of_textview((GtkWidget *) _text_view_window, (char *) text.c_str());
-    gtk_widget_queue_draw((GtkWidget *) _canvas);
-}
-
-void UI::update_clip_type(bool flag) {
-    _clip_flag = flag;
     gtk_widget_queue_draw((GtkWidget *) _canvas);
 }
 
@@ -457,8 +491,8 @@ void UI::add_object_from_dialog() {
                 edges.push_back(Edge(_polygon_points.back(), _polygon_points.front()));
                 obj = new Wireframe(_polygon_points, edges, name, line_color, new Color(1, 1, 1, 1), false);
             } else {
-                    edges.push_back(Edge(_polygon_points.back(), _polygon_points.front()));
-                    obj = new Wireframe(_polygon_points, edges, name, line_color, background_color, true);
+                edges.push_back(Edge(_polygon_points.back(), _polygon_points.front()));
+                obj = new Wireframe(_polygon_points, edges, name, line_color, background_color, true);
             }
             _world->add_object(obj);
             add_name_to_list(name);

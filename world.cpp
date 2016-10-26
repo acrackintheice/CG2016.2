@@ -57,7 +57,7 @@ void World::project(bool perspective) {
     double cx = (perspective) ? _window->cop().x() : _window->geometric_center().x();
     double cy = (perspective) ? _window->cop().y() : _window->geometric_center().y();
     double cz = (perspective) ? _window->cop().z() : _window->geometric_center().z();
-    // Translating the Window, VPN and VUP in order to calculate the rotation parameters
+    // Translating the Window to the center of the world in order to calculate the rotation parameters
     _window->transform(Matrices::translation(-_window->geometric_center().x(),
                                              -_window->geometric_center().y(),
                                              -_window->geometric_center().z()), false, true);
@@ -69,28 +69,22 @@ void World::project(bool perspective) {
     double n_cross = Operations::norma(cross);
     Coordinates u = Coordinates(cross.x() / n_cross, cross.y() / n_cross, cross.z() / n_cross);
     Coordinates v = Operations::cross_product_3d(n, u);
-    // Creating the world_to_view matrix
-    Matriz4x4 world_to_view = Matrices::world_to_view(u.x(), u.y(), u.z(),
-                                                      v.x(), v.y(), v.z(),
-                                                      n.x(), n.y(), n.z(), cx, cy, cz);
-    // Translating and Rotating the World using the world-to-view matrix
-    for (vector<Object *>::iterator it = _objects.begin(); it != _objects.end(); it++) {
-        (*it)->transform(world_to_view, false, true);
-    }
-    // Projecting
-    Matriz4x4 projection = (perspective) ? Matrices::perspective(_window->geometric_center(true, true).z_scn())
-                                         : Matrices::parallel();
-    for (vector<Object *>::iterator it = _objects.begin(); it != _objects.end(); it++) {
-        (*it)->transform(projection, true, true);
-    }
+    // Translating and rotating the window in order to calculate the projection and normalization parameters
+    _window->transform(Matrices::world_to_view(u.x(), u.y(), u.z(), v.x(), v.y(), v.z(),
+                                               n.x(), n.y(), n.z(), cx, cy, cz), false, true);
+    // Calculating the projection parameters(only used for perspective)
+    double d = _window->geometric_center(true, true).z_scn();
     // Calculating the normalization parameters
     double sx = 1.0 / _window->max().x_scn();
     double sy = 1.0 / _window->max().y_scn();
-    // Now, the normalization and projection matrix can be created
-    Matriz4x4 normalization = Matrices::normalization(sx, sy);
-    // Lastly, the world is projected and normalized
+    // Creating the projection and normalization matrix
+    Matriz4x4 projection = (perspective) ? Matrices::perspective(u.x(), u.y(), u.z(), v.x(), v.y(), v.z(),
+                                                                 n.x(), n.y(), n.z(), cx, cy, cz, sx, sy, d)
+                                         : Matrices::parallel(u.x(), u.y(), u.z(), v.x(), v.y(), v.z(),
+                                                              n.x(), n.y(), n.z(), cx, cy, cz, sx, sy);
+    // Projecting and Normalizing every object
     for (vector<Object *>::iterator it = _objects.begin(); it != _objects.end(); it++) {
-        (*it)->transform(normalization, true, true);
+        (*it)->transform(projection, false, true);
     }
 }
 
