@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
     vector<Edge> wireframe_edges = edges_from_points(wireframe_points);
     Wireframe *w = new Wireframe(wireframe_points, wireframe_edges, "Wireframe", new Color(0, 0, 255, 1),
                                  new Color(1, 1, 1, 1), false);
-    Line *l = new Line(new Coordinates(0, 0, 0), new Coordinates(100, 100, 0), "Line", new Color(0, 0, 0, 1));
+    Line *l = new Line(new Coordinates(-600, -600, -600), new Coordinates(600, 600, 600), "Line", new Color(0, 0, 0, 1));
 
     vector<Coordinates *> curve_points;
     curve_points.push_back(new Coordinates(0, -70, 0));
@@ -96,11 +96,9 @@ int main(int argc, char *argv[]) {
     curve_points.push_back(new Coordinates(0, -70, 0));
     curve_points.push_back(new Coordinates(-65, -30, 0));
     curve_points.push_back(new Coordinates(-65, 30, 0));
-    BSpline *c = new BSpline(curve_points, "Curve", new Color(0, 0, 255, 1));
-    /* (0,-70) (-65,-30) (-65,30) (0,70) (65,30) (65,-30) (0,-70) (-65,-30) (-65,30) */
-    world->add_object(c);
     world->add_object(pol);
     world->add_object(w);
+    world->add_object(l);
 
     UI ui = UI(argc, argv, world);
     return 0;

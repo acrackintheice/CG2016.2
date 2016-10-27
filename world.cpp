@@ -54,13 +54,13 @@ Window *World::window() {
 
 void World::project(bool perspective) {
     // Calculating the translation parameters
-    double cx = (perspective) ? _window->cop().x() : _window->geometric_center().x();
-    double cy = (perspective) ? _window->cop().y() : _window->geometric_center().y();
-    double cz = (perspective) ? _window->cop().z() : _window->geometric_center().z();
+    double cx = (perspective) ? _window->cop().x() : _window->vrp().x();
+    double cy = (perspective) ? _window->cop().y() : _window->vrp().y();
+    double cz = (perspective) ? _window->cop().z() : _window->vrp().z();
     // Translating the Window to the center of the world in order to calculate the rotation parameters
-    _window->transform(Matrices::translation(-_window->geometric_center().x(),
-                                             -_window->geometric_center().y(),
-                                             -_window->geometric_center().z()), false, true);
+    _window->transform(Matrices::translation(-_window->vrp().x(),
+                                             -_window->vrp().y(),
+                                             -_window->vrp().z()), false, true);
     // Calculating the rotation parameters, a bunch of vectors
     Coordinates vpn = _window->vpn();
     double n_vpn = Operations::norma(vpn, true);
@@ -73,7 +73,7 @@ void World::project(bool perspective) {
     _window->transform(Matrices::world_to_view(u.x(), u.y(), u.z(), v.x(), v.y(), v.z(),
                                                n.x(), n.y(), n.z(), cx, cy, cz), false, true);
     // Calculating the projection parameters(only used for perspective)
-    double d = _window->geometric_center(true, true).z_scn();
+    double d = _window->vrp().z_scn();
     // Calculating the normalization parameters
     double sx = 1.0 / _window->max().x_scn();
     double sy = 1.0 / _window->max().y_scn();

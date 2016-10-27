@@ -75,9 +75,9 @@ public:
 
     static Matriz4x4 world_to_view(double ux, double uy, double uz, double vx, double vy, double vz,
                                    double nx, double ny, double nz, double cx, double cy, double cz) {
-        double l0[] = {ux, uy, uz, -cx};
-        double l1[] = {vx, vy, vz, -cy};
-        double l2[] = {nx, ny, nz, -cz};
+        double l0[] = {ux, uy, uz, -(ux * cx) - uy * cy - uz * cz};
+        double l1[] = {vx, vy, vz, -(vx * cx) - vy * cy - vz * cz};
+        double l2[] = {nx, ny, nz, -(nx * cx) - ny * cy - nz * cz};
         double l3[] = {0, 0, 0, 1};
         return Matriz4x4(l0, l1, l2, l3);
     }

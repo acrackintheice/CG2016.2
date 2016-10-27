@@ -16,12 +16,14 @@ public:
 	Coordinates max();
 	Coordinates vup();
 	Coordinates vpn();
+    Coordinates vrp();
     Coordinates cop();
 	void transform(Matriz4x4 transformation, bool use_scn = false, bool change_scn = false);
     std::vector<Edge> clip();
 private:
     Coordinates* _vup;
     Coordinates* _vpn;
+	Coordinates* _vrp;
     Coordinates* _cop;
 
     std::vector<Coordinates*> configuration_points;

@@ -26,23 +26,23 @@ vector<Edge> Line::clip2()
 	/* Defining the region codes */
 	/* Define RC = 0000 and go changing it with consecutive OR operations*/
 	int RC1 = INSIDE;          
-	if (p1.x() < -1)           
+	if (p1.x() <= -1)
 		RC1 = (RC1 | LEFT);
-	else if (p1.x() > 1)      
+	else if (p1.x() >= 1)
 		RC1 = (RC1 | RIGHT);
-	if (p1.y() < -1)          
+	if (p1.y() <= -1)
 		RC1 = (RC1 | BOTTOM);
-	else if (p1.y() > 1)      
+	else if (p1.y() >= 1)
 		RC1 =  (RC1 | TOP);
 	/* The same for for p2 */
 	int RC2 = INSIDE; 
-	if (p2.x() < -1)           
+	if (p2.x() <= -1)
 		RC2 = (RC2 | LEFT);
-	else if (p2.x() > 1)      
+	else if (p2.x() >= 1)
 		RC2 = (RC2 | RIGHT);
-	if (p2.y() <-1)          
+	if (p2.y() <= -1)
 		RC2 = (RC2 | BOTTOM);
-	else if (p2.y() > 1)      
+	else if (p2.y() >= 1)
 		RC2 =  (RC2 | TOP);
 	/* Checking whether the  line is fully visibile, invisble or partially visible*/
 	/* First, checking if the line is contained in the window(RC1=RC2=[0,0,0,0])*/
@@ -57,8 +57,8 @@ vector<Edge> Line::clip2()
 	}
 	/* Then, if the line is not all in or all out, its partially in/out */
 	else{ 
-		Coordinates* new_p1;
-		Coordinates* new_p2;
+		Coordinates* new_p1 = 0;
+		Coordinates* new_p2 = 0;
 		double x, y;
 		double m = (p2.y() - p1.y()) / (p2.x() - p1.x()); 
 		/* Checking if RC1 is out of the window*/
@@ -67,25 +67,25 @@ vector<Edge> Line::clip2()
 			/* point is above the clip rectangle */    
 				x = p1.x() + 1/m * (1 - p1.y());
 				y = 1;
-				if (x > -1 && x < 1)
+				if (x >= -1 && x <= 1)
 					new_p1 = new Coordinates(x,1,0);
 			}
 			if ((RC1 & BOTTOM) != 0) { 
 			/* point is below the clip rectangle */
 				x = p1.x() + 1/m * (-1 - p1.y());
-				if (x > -1 && x < 1)
+				if (x >= -1 && x <= 1)
 					new_p1 = new Coordinates(x,-1,0);
 			} 
 			if ((RC1 & RIGHT) != 0) {  
 			/* point is to the right of clip rectangle */
 				y = m * (1 - p1.x()) + p1.y();
-				if (y > -1 && y < 1)
+				if (y >= -1 && y <= 1)
 					new_p1 = new Coordinates(1,y,0);
 			} 
 			if ((RC1 & LEFT) != 0) {  
 			/* point is to the left of clip rectangle */
 				y = m * (-1 - p1.x()) + p1.y();
-				if (y > -1 && y < 1)
+				if (y >= -1 && y <= 1)
 					new_p1 = new Coordinates(-1,y,0);
 			}
 		}
@@ -100,28 +100,28 @@ vector<Edge> Line::clip2()
 			/* point is above the clip rectangle */ 
 				x = p2.x() + 1/m * (1 - p2.y());
 				y = 1;
-				if (x > -1 && x < 1)
+				if (x >= -1 && x <= 1)
 					new_p2 = new Coordinates(x,y,0);
 			} 
 			if ((RC2 & BOTTOM) != 0) { 
 			/* point is below the clip rectangle */
 				x = p2.x() + 1/m * (-1 - p2.y());
 				y = -1;
-				if (x > -1 && x < 1)
+				if (x >= -1 && x <= 1)
 					new_p2 = new Coordinates(x,y,0);
 			} 
 			if ((RC2 & RIGHT) != 0) {
 			/* point is to the right of clip rectangle */
 				y = m * (1 - p2.x()) + p2.y();
 				x = 1;
-				if (y > -1 && y < 1)
+				if (y >= -1 && y <= 1)
 					new_p2 = new Coordinates(x,y,0);
 			} 
 			if ((RC2 & LEFT) != 0) { 
 			/* point is to the left of clip rectangle */
 				y = m * (-1 - p2.x()) + p2.y();
 				x = -1;
-				if (y > -1 && y < 1)
+				if (y >= -1 && y <= 1)
 					new_p2 = new Coordinates(x,y,0);
 			}
 		}

@@ -19,13 +19,9 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data) {
     cairo_paint(cr);
     cairo_set_line_width(cr, 1);
     cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
-    /* Projecting and normalizing the objects
-     *
-     {{s1,0,0,-(k1*s1)}, {0,s2,0,-(k2*s2)}, {0,0,1,-k3}, {0,0,p^(-1),-(k3/p)}}.
-     {{u1,u2,u3,-(u1*x)-u2*y-u3*z},{v1,v2,v3,-(v1*x)-v2*y-v3*z},{n1,n2, n3,-(n1*x)-n2*y-n3*z},{0,0,0,1}}
-     * */
+    /* Projecting */
     world->project(projection_flag);
-    /* Drawing objects */
+    /* Drawing */
     vector<Object *> objects = world->objects();
     for (vector<Object *>::iterator it = objects.begin(); it != objects.end(); it++) {
         Object *obj = (*it);
@@ -74,11 +70,11 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data) {
         for (vector<Edge>::iterator it_edges = edges.begin(); it_edges != edges.end(); it_edges++) {
             Edge e = *it_edges;
             if (e.p1() != NULL){
-                delete e.p1();
+                //delete e.p1();
                 e.set_p1(NULL);
             }
             if (e.p2() != NULL){
-                delete e.p2();
+                //delete e.p2();
                 e.set_p2(NULL);
             }
         }

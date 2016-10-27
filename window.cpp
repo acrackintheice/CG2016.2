@@ -6,6 +6,7 @@ Window::Window(Coordinates *p1, Coordinates *p2, Coordinates *p3, Coordinates *p
                Coordinates *vpn, Coordinates *cop) {
     _vup = vup;
     _vpn = vpn;
+    _vrp = new Coordinates(0,0,0);
     _cop = cop;
     _name = "Window";
     _points.push_back(p1);
@@ -18,6 +19,7 @@ Window::Window(Coordinates *p1, Coordinates *p2, Coordinates *p3, Coordinates *p
     _edges.push_back(Edge(p4, p1));
     configuration_points.push_back(_vup);
     configuration_points.push_back(_vpn);
+    configuration_points.push_back(_vrp);
     configuration_points.push_back(_cop);
     _color = new Color(255, 0, 0, 1);
     _background_color = new Color(1, 1, 1, 1);
@@ -80,6 +82,12 @@ Coordinates Window::vpn() {
     Coordinates vpn = Coordinates(_vpn->x(), _vpn->y(), _vpn->z());
     vpn.set_xyz_scn(_vpn->x_scn(), _vpn->y_scn(), _vpn->z_scn());
     return vpn;
+}
+
+Coordinates Window::vrp() {
+    Coordinates vrp = Coordinates(_vrp->x(), _vrp->y(), _vrp->z());
+    vrp.set_xyz_scn(_vrp->x_scn(), _vrp->y_scn(), _vrp->z_scn());
+    return vrp;
 }
 
 Coordinates Window::cop() {
