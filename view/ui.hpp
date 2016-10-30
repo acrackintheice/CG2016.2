@@ -5,17 +5,17 @@
 #include <iostream>
 #include <string.h>
 #include <stdlib.h>
-#include "transformations.cpp"
-#include "point.hpp"
-#include "object.hpp"
-#include "color.hpp"
-#include "world.hpp"
-#include "line.hpp"
-#include "wireframe.hpp"
-#include "color.hpp"
-#include "bspline.hpp"
-#include "curve.hpp"
-#include "operations.cpp"
+#include "../utils/transformations.cpp"
+#include "../objects/point.hpp"
+#include "../objects/object.hpp"
+#include "../utils/color.hpp"
+#include "../core/world.hpp"
+#include "../objects/line.hpp"
+#include "../objects/wireframe.hpp"
+#include "../utils/color.hpp"
+#include "../objects/bspline.hpp"
+#include "../objects/curve.hpp"
+#include "../utils/operations.cpp"
 
 class UI 
 {

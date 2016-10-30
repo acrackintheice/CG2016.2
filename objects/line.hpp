@@ -10,8 +10,7 @@ class Line: public Object
 {
 public:
     Line(Coordinates* p1, Coordinates* p2, std::string name, Color* color);
-    std::vector<Edge> clip2();
-    std::vector<Edge> clip();
+    std::vector<Drawing_Edge> clip(bool clip_flag = true);
 };
 
 #endif // LINE_HPP

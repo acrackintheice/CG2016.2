@@ -11,9 +11,9 @@ Curve::Curve(std::vector<Coordinates *> points, std::string name, Color *color) 
     _filled = false;
 }
 
-vector<Edge> Curve::clip() {
+vector<Drawing_Edge> Curve::clip(bool clip_flag) {
     vector<Coordinates> drawing_points;
-    vector<Edge> edges;
+    vector<Drawing_Edge> edges;
     /* Finding the curve points using Blending Functions */
     double step = 0.001;
     /* Creating the Bezier matrix */
@@ -53,13 +53,11 @@ vector<Edge> Curve::clip() {
                 Coordinates p2 = *(it2 + 1);
                 Line l = Line(new Coordinates(p1.x(), p1.y(), 0), new Coordinates(p2.x(), p2.y(), 0), "",
                               new Color(1, 1, 1, 1));;
-                vector<Edge> clipped = l.clip();
+                vector<Drawing_Edge> clipped = l.clip();
                 if (clipped.size() > 0) {
-                    Coordinates *p = clipped[0].p1();
-                    Coordinates *u = clipped[0].p2();
-                    Edge e = Edge(p, u);
-                    edges.push_back(e);
-                    cout << e.to_string() << endl;
+                    Coordinates p = clipped[0].p1();
+                    Coordinates u = clipped[0].p2();
+                    edges.push_back(Drawing_Edge(p, u));
                 }
             }
         }

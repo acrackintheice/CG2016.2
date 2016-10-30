@@ -11,9 +11,9 @@ Point::Point(Coordinates* xy, string name, Color* color)
 	_filled = false;
 	_background_color = new Color(1, 1, 1, 1);
 }
-vector<Edge> Point::clip()
+vector<Drawing_Edge> Point::clip(bool clip_flag)
 {
-	vector<Edge> output;
+	vector<Drawing_Edge> output;
 	double x = _points[0]->x_scn();
 	double y = _points[0]->y_scn();
 
@@ -23,6 +23,6 @@ vector<Edge> Point::clip()
 	}
 	else
 	{
-		output.push_back(Edge(new Coordinates(x,y,0), new Coordinates(x,y,0)));
+		output.push_back(Drawing_Edge(Coordinates(x,y,0), Coordinates(x,y,0)));
 	}
 }

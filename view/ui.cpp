@@ -14,7 +14,7 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data) {
     Coordinates viewport_max = Coordinates(vp_width - 10, vp_height - 10, 0);
     Coordinates window_min = Coordinates(-1, -1, 0);
     Coordinates window_max = Coordinates(1, 1, 0);
-    /* Filling the background, seeting line width and cap */
+    /* Filling the background, setting line width and cap */
     cairo_set_source_rgba(cr, 1, 1, 1, 1);
     cairo_paint(cr);
     cairo_set_line_width(cr, 1);
@@ -29,17 +29,14 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data) {
         Color *color = obj->color();
         cairo_set_source_rgba(cr, color->r(), color->g(), color->b(), color->a());
         /* Getting the edges from the object*/
-        vector<Edge> edges;
-        if (clip_flag)
-            edges = obj->clip2();
-        else
-            edges = obj->clip();
+        vector<Drawing_Edge> edges;
+        edges = obj->clip(clip_flag);
         bool first_point = true;
         /* Drawing every point*/
-        for (vector<Edge>::iterator it_edges = edges.begin(); it_edges != edges.end(); it_edges++) {
-            Edge e = *(it_edges);
-            Coordinates w_point1 = *(e.p1());
-            Coordinates w_point2 = *(e.p2());
+        for (vector<Drawing_Edge>::iterator it_edges = edges.begin(); it_edges != edges.end(); it_edges++) {
+            Drawing_Edge e = *(it_edges);
+            Coordinates w_point1 = e.p1();
+            Coordinates w_point2 = e.p2();
             Coordinates vp_point1 = Transformations::viewport(w_point1, window_min, window_max, viewport_min,
                                                               viewport_max);
             Coordinates vp_point2 = Transformations::viewport(w_point2, window_min, window_max, viewport_min,
@@ -65,18 +62,6 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data) {
             cairo_fill(cr);
         } else {
             /* Drawing non-filled objects */
-        }
-        /* Deleting the clipped points */
-        for (vector<Edge>::iterator it_edges = edges.begin(); it_edges != edges.end(); it_edges++) {
-            Edge e = *it_edges;
-            if (e.p1() != NULL){
-                //delete e.p1();
-                e.set_p1(NULL);
-            }
-            if (e.p2() != NULL){
-                //delete e.p2();
-                e.set_p2(NULL);
-            }
         }
     }
     return FALSE;
@@ -160,12 +145,12 @@ static void parallel_callback(GtkWidget *widget, gpointer data) {
 
 /* Member Functions */
 UI::UI(int argc, char *argv[], World *world) : _world(world) {
-    /* This intializes something, no idea what*/
+    /* This initializes something, no idea what*/
     gtk_init(&argc, &argv);
     /* Constructing a GtkBuilder instance */
     _builder = gtk_builder_new();
     /* Loading the UI from a XML description */
-    gtk_builder_add_from_file(_builder, "simple.glade", NULL);
+    gtk_builder_add_from_file(_builder, "view/simple.glade", NULL);
     /* Main window widgets*/
     _main_window = gtk_builder_get_object(_builder, "main_window");
     _button_add_object = gtk_builder_get_object(_builder, "button_add_object");

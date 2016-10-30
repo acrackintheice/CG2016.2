@@ -120,8 +120,3 @@ void Object::rotate(double angle, Coordinates p1, Coordinates p2) {
     Matriz4x4 rotation = Matrices::arbitrary_rotation(u, v, w, a, b, c, j, k, l);
     transform(rotation);
 }
-
-/* Generic method for objects that only have one clipping option */
-vector<Edge> Object::clip2() {
-    return clip();
-}

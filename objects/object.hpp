@@ -4,15 +4,16 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "coordinates.hpp"
-#include "matrix1x4.hpp"
-#include "matriz4x4.hpp"
-#include "matrix4x1.hpp"
-#include "color.hpp"
-#include "edge.hpp"
+#include "../utils/coordinates.hpp"
+#include "../utils/matrix1x4.hpp"
+#include "../utils/matriz4x4.hpp"
+#include "../utils/matrix4x1.hpp"
+#include "../utils/color.hpp"
+#include "../utils/edge.hpp"
+#include "../utils/drawing_edge.hpp"
 #include "math.h"
-#include "operations.cpp"
-#include "matrices.cpp"
+#include "../utils/operations.cpp"
+#include "../utils/matrices.cpp"
 
 class Object {
 public:
@@ -40,9 +41,7 @@ public:
 
     void rotate_z(double angle);
 
-    virtual std::vector<Edge> clip()= 0;
-
-    virtual std::vector<Edge> clip2();
+    virtual std::vector<Drawing_Edge> clip(bool clip_flag = true)= 0;
 
     virtual void transform(Matriz4x4 transformation, bool use_scn = false, bool change_scn = false);
 

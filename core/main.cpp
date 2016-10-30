@@ -1,18 +1,18 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
-#include "point.hpp"
-#include "line.hpp"
-#include "object.hpp"
-#include "wireframe.hpp"
-#include "ui.hpp"
+#include "../objects/point.hpp"
+#include "../objects/line.hpp"
+#include "../objects/object.hpp"
+#include "../objects/wireframe.hpp"
+#include "../view/ui.hpp"
 #include "world.hpp"
-#include "window.hpp"
+#include "../objects/window.hpp"
 #include "math.h"
-#include "operations.cpp"
-#include "curve.hpp"
-#include "bspline.hpp"
-#include "matrices.cpp"
+#include "../utils/operations.cpp"
+#include "../objects/curve.hpp"
+#include "../objects/bspline.hpp"
+#include "../utils/matrices.cpp"
 
 using namespace std;
 
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
     vector<Edge> wireframe_edges = edges_from_points(wireframe_points);
     Wireframe *w = new Wireframe(wireframe_points, wireframe_edges, "Wireframe", new Color(0, 0, 255, 1),
                                  new Color(1, 1, 1, 1), false);
-    Line *l = new Line(new Coordinates(-600, -600, -600), new Coordinates(600, 600, 600), "Line", new Color(0, 0, 0, 1));
+    Line *l = new Line(new Coordinates(-600, -600, -2000), new Coordinates(600, 600, -2000), "Line", new Color(0, 0, 0, 1));
 
     vector<Coordinates *> curve_points;
     curve_points.push_back(new Coordinates(0, -70, 0));
@@ -96,9 +96,21 @@ int main(int argc, char *argv[]) {
     curve_points.push_back(new Coordinates(0, -70, 0));
     curve_points.push_back(new Coordinates(-65, -30, 0));
     curve_points.push_back(new Coordinates(-65, 30, 0));
+
+    BSpline* c =  new BSpline(curve_points, "Curve", new Color(0,0,0,1));
+    BSpline* c2 =  new BSpline(curve_points, "Curve", new Color(0,0,0,1));
+    BSpline* c3 =  new BSpline(curve_points, "Curve", new Color(0,0,0,1));
+    BSpline* c4 =  new BSpline(curve_points, "Curve", new Color(0,0,0,1));
+    BSpline* c5 =  new BSpline(curve_points, "Curve", new Color(0,0,0,1));
+
+
     world->add_object(pol);
     world->add_object(w);
-    world->add_object(l);
+    world->add_object(c);
+    world->add_object(c5);
+    world->add_object(c2);
+    world->add_object(c3);
+    world->add_object(c4);
 
     UI ui = UI(argc, argv, world);
     return 0;

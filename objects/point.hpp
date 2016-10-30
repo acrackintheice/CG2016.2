@@ -8,7 +8,7 @@ class Point : public Object
 {
 public:
     Point(Coordinates* xy, std::string name, Color* color);
-    std::vector<Edge> clip();
+    std::vector<Drawing_Edge> clip(bool clip_flag = true);
 };
 
 #endif // POINT_HPP

@@ -11,11 +11,11 @@ BSpline::BSpline(std::vector<Coordinates *> points, std::string name, Color *col
     _background_color = new Color(1, 1, 1, 1);
 }
 
-vector<Edge> BSpline::clip() {
+vector<Drawing_Edge> BSpline::clip(bool clip_flag) {
     vector<Coordinates> drawing_points;
-    vector<Edge> edges;
+    vector<Drawing_Edge> edges;
     // 0 - Calculating the deltas.
-    double deltao = 0.001;
+    double deltao = 0.01;
     double deltao2 = deltao * deltao;
     double deltao3 = deltao2 * deltao;
     double l1e[] = {0, 0, 0, 1};
@@ -33,7 +33,7 @@ vector<Edge> BSpline::clip() {
     /* Now for each curve */
     vector<Coordinates *>::iterator it = _points.begin();
     for (int i = 3; i < _points.size(); i++, it++) {
-        /* Creating the Geometric matrixes in order to calculate the Cs */
+        /* Creating the objects matrixes in order to calculate the Cs */
         Matriz4x1 gx = Matriz4x1((*it)->x_scn(), (*(it + 1))->x_scn(), (*(it + 2))->x_scn(), (*(it + 3))->x_scn());
         Matriz4x1 gy = Matriz4x1((*it)->y_scn(), (*(it + 1))->y_scn(), (*(it + 2))->y_scn(), (*(it + 3))->y_scn());
         /* Calculating the Cs */
@@ -59,11 +59,11 @@ vector<Edge> BSpline::clip() {
             Coordinates p2 = *(it2 + 1);
             Line l = Line(new Coordinates(p1.x(), p1.y(), 0), new Coordinates(p2.x(), p2.y(), 0), "",
                           new Color(1, 1, 1, 1));
-            vector<Edge> clipped = l.clip();
+            vector<Drawing_Edge> clipped = l.clip();
             if (clipped.size() > 0) {
-                Coordinates *p = clipped[0].p1();
-                Coordinates *u = clipped[0].p2();
-                edges.push_back(Edge(p, u));
+                Coordinates p = clipped[0].p1();
+                Coordinates u = clipped[0].p2();
+                edges.push_back(Drawing_Edge(p, u));
             }
         }
     }

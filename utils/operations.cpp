@@ -36,16 +36,16 @@ public:
         }
     }
 
-    static Coordinates *
-    intersection_between_lines(Coordinates *p0, Coordinates *p1, Coordinates *p2, Coordinates *p3) {
-        double p0_x = p0->x_scn();
-        double p0_y = p0->y_scn();
-        double p1_x = p1->x_scn();
-        double p1_y = p1->y_scn();
-        double p2_x = p2->x_scn();
-        double p2_y = p2->y_scn();
-        double p3_x = p3->x_scn();
-        double p3_y = p3->y_scn();
+    static Coordinates
+    intersection(Coordinates p0, Coordinates p1, Coordinates p2, Coordinates p3) {
+        double p0_x = p0.x_scn();
+        double p0_y = p0.y_scn();
+        double p1_x = p1.x_scn();
+        double p1_y = p1.y_scn();
+        double p2_x = p2.x_scn();
+        double p2_y = p2.y_scn();
+        double p3_x = p3.x_scn();
+        double p3_y = p3.y_scn();
         double s1_x, s1_y, s2_x, s2_y;
         s1_x = p1_x - p0_x;
         s1_y = p1_y - p0_y;
@@ -58,10 +58,10 @@ public:
             // Collision detected
             double x = p0_x + (t * s1_x);
             double y = p0_y + (t * s1_y);
-            return new Coordinates(x, y, 0);
+            return Coordinates(x, y, 0);
         }
         cout << "The intersection returned a fucked up Coordinate" << endl;
-        return new Coordinates(-10000, -10000, 0);; // No collision
+        return Coordinates(-10000, -10000, 0);; // No collision
     }
 
     static void split(const std::string &s, char delim, std::vector<string> &elems) {

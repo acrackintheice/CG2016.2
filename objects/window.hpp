@@ -3,8 +3,8 @@
 
 #include <vector>
 #include <iostream>
-#include "object.hpp"
-#include "operations.cpp"
+#include "../objects/object.hpp"
+#include "../utils/operations.cpp"
 
 class Window : public Object
 {
@@ -19,7 +19,7 @@ public:
     Coordinates vrp();
     Coordinates cop();
 	void transform(Matriz4x4 transformation, bool use_scn = false, bool change_scn = false);
-    std::vector<Edge> clip();
+    std::vector<Drawing_Edge> clip(bool clip_flag = true);
 private:
     Coordinates* _vup;
     Coordinates* _vpn;

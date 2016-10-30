@@ -96,12 +96,12 @@ Coordinates Window::cop() {
     return cop;
 }
 
-vector<Edge> Window::clip() {
-    vector<Edge> edges_copy;
+vector<Drawing_Edge> Window::clip(bool clip_flag) {
+    vector<Drawing_Edge> edges_copy;
     for (vector<Edge>::iterator it = _edges.begin(); it != _edges.end(); it++) {
         Edge e = *it;
-        edges_copy.push_back(Edge(new Coordinates(e.p1()->x_scn(), e.p1()->y_scn(), e.p1()->z_scn()),
-                                  new Coordinates(e.p2()->x_scn(), e.p2()->y_scn(), e.p2()->z_scn())));
+        edges_copy.push_back(Drawing_Edge(Coordinates(e.p1()->x_scn(), e.p1()->y_scn(), e.p1()->z_scn()),
+                                          Coordinates(e.p2()->x_scn(), e.p2()->y_scn(), e.p2()->z_scn())));
     }
     return edges_copy;
 }
