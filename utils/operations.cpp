@@ -1,7 +1,7 @@
 #ifndef OPERATIONS_CPP
 #define OPERATIONS_CPP
 
-#include "coordinates.hpp"
+#include "../core/coordinates.hpp"
 #include "math.h"
 #include <string>
 #include <sstream>

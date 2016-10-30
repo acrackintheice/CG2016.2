@@ -4,13 +4,13 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "../utils/coordinates.hpp"
+#include "../core/coordinates.hpp"
 #include "../utils/matrix1x4.hpp"
 #include "../utils/matriz4x4.hpp"
 #include "../utils/matrix4x1.hpp"
 #include "../utils/color.hpp"
-#include "../utils/edge.hpp"
-#include "../utils/drawing_edge.hpp"
+#include "../core/edge.hpp"
+#include "../core/drawing_edge.hpp"
 #include "math.h"
 #include "../utils/operations.cpp"
 #include "../utils/matrices.cpp"

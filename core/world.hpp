@@ -6,7 +6,7 @@
 #include <iostream>
 #include "../objects/object.hpp"
 #include "../objects/window.hpp"
-#include "../utils/coordinates.hpp"
+#include "coordinates.hpp"
 #include "math.h"
 #include "../utils/operations.cpp"
 #include "../utils/matriz4x4.hpp"
