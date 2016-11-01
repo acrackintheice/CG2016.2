@@ -1,7 +1,7 @@
 #ifndef TRANSFORMATIONS_CPP
 #define TRANSFORMATIONS_CPP
 
-#include "../core/coordinates.hpp"
+#include "coordinates.hpp"
 
 using namespace std;
 

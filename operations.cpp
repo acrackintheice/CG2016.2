@@ -1,10 +1,10 @@
 #ifndef OPERATIONS_CPP
 #define OPERATIONS_CPP
 
-#include "../core/coordinates.hpp"
+#include "coordinates.hpp"
 #include "math.h"
-#include "../core/edge.hpp"
-#include "../core/drawing_edge.hpp"
+#include "edge.hpp"
+#include "drawing_edge.hpp"
 #include <string>
 #include <sstream>
 #include <vector>

@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 #include "object.hpp"
-#include "../utils/operations.cpp"
+#include "operations.cpp"
 #include "line.hpp"
 #include "point.hpp"
 

@@ -5,9 +5,9 @@
 #include <vector>
 #include <iostream>
 #include "object.hpp"
-#include "../utils/matrix4x1.hpp"
-#include "../utils/matriz4x4.hpp"
-#include "../utils/matrix1x4.hpp"
+#include "matrix4x1.hpp"
+#include "matriz4x4.hpp"
+#include "matrix1x4.hpp"
 #include "line.hpp"
 
 

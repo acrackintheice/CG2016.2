@@ -4,7 +4,7 @@
 #include "math.h"
 #include "matriz4x4.hpp"
 #include <vector>
-#include "../core/coordinates.hpp"
+#include "coordinates.hpp"
 
 using namespace std;
 

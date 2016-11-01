@@ -117,7 +117,7 @@ UI::UI(int argc, char *argv[], World *world) : _world(world) {
     /* Constructing a GtkBuilder instance */
     _builder = gtk_builder_new();
     /* Loading the UI from a XML description */
-    gtk_builder_add_from_file(_builder, "view/simple.glade", NULL);
+    gtk_builder_add_from_file(_builder, "simple.glade", NULL);
     /* Main window widgets*/
     _main_window = gtk_builder_get_object(_builder, "main_window");
     _button_add_object = gtk_builder_get_object(_builder, "button_add_object");

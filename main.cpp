@@ -1,19 +1,19 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
-#include "../objects/point.hpp"
-#include "../objects/line.hpp"
-#include "../objects/object.hpp"
-#include "../objects/wireframe.hpp"
-#include "../view/ui.hpp"
+#include "point.hpp"
+#include "line.hpp"
+#include "object.hpp"
+#include "wireframe.hpp"
+#include "ui.hpp"
 #include "world.hpp"
-#include "../objects/window.hpp"
+#include "window.hpp"
 #include "math.h"
-#include "../utils/operations.cpp"
-#include "../objects/curve.hpp"
-#include "../objects/bspline.hpp"
-#include "../utils/matrices.cpp"
-#include "../objects/surface.hpp"
+#include "operations.cpp"
+#include "curve.hpp"
+#include "bspline.hpp"
+#include "matrices.cpp"
+#include "surface.hpp"
 
 using namespace std;
 
@@ -111,6 +111,9 @@ int main(int argc, char *argv[]) {
     //(-200,200,0)#(-100,200,400)#(100,200,400)#(200,200,0)#(-200,100,400)#(-100,100,400)#(100,100,400)#(200,100,400)#(-200,-100,400)#(-100,-100,400)#(100,-100,400)#(200,-100,400)#(-200,-200,0)#(-100,-200,400)#(100,-200,400)#(200,-200,0)
     Surface* s = new Surface(s_points, "Surface", new Color(0,0,0,1), false);
 
+    pol->translate(200,200,0);
+    w->translate(200,200,0);
+    c->translate(200,200,0);
 
     world->add_object(pol);
     world->add_object(w);

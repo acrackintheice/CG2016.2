@@ -76,10 +76,8 @@ Wireframe::clip_and_draw(cairo_t *cr, Coordinates win_min, Coordinates win_max, 
     }
     for (vector<Drawing_Edge>::iterator it_edges = out.begin(); it_edges != out.end(); it_edges++) {
         Drawing_Edge e = *(it_edges);
-        Coordinates w_point1 = e.p1();
-        Coordinates w_point2 = e.p2();
-        Coordinates vp_point1 = Transformations::viewport(w_point1, win_min, win_max, vp_min, vp_max);
-        Coordinates vp_point2 = Transformations::viewport(w_point2, win_min, win_max, vp_min, vp_max);
+        Coordinates vp_point1 = Transformations::viewport(e.p1(), win_min, win_max, vp_min, vp_max);
+        Coordinates vp_point2 = Transformations::viewport(e.p2(), win_min, win_max, vp_min, vp_max);
         cairo_move_to(cr, vp_point1.x(), vp_point1.y());
         cairo_line_to(cr, vp_point2.x(), vp_point2.y());
         cairo_stroke(cr);

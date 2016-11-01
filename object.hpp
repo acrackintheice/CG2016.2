@@ -5,17 +5,17 @@
 #include <string>
 #include <iostream>
 #include <cairo.h>
-#include "../core/coordinates.hpp"
-#include "../utils/matrix1x4.hpp"
-#include "../utils/matriz4x4.hpp"
-#include "../utils/matrix4x1.hpp"
-#include "../utils/color.hpp"
-#include "../core/edge.hpp"
-#include "../core/drawing_edge.hpp"
+#include "coordinates.hpp"
+#include "matrix1x4.hpp"
+#include "matriz4x4.hpp"
+#include "matrix4x1.hpp"
+#include "color.hpp"
+#include "edge.hpp"
+#include "drawing_edge.hpp"
 #include "math.h"
-#include "../utils/operations.cpp"
-#include "../utils/matrices.cpp"
-#include "../utils/transformations.hpp"
+#include "operations.cpp"
+#include "matrices.cpp"
+#include "transformations.hpp"
 
 class Object {
 public:

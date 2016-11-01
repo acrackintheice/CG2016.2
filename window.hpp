@@ -3,8 +3,8 @@
 
 #include <vector>
 #include <iostream>
-#include "../objects/object.hpp"
-#include "../utils/operations.cpp"
+#include "object.hpp"
+#include "operations.cpp"
 
 class Window : public Object {
 public:

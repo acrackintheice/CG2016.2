@@ -97,6 +97,14 @@ Coordinates Window::cop() {
 }
 
 void Window::clip_and_draw(cairo_t *cr, Coordinates win_min, Coordinates win_max, Coordinates vp_min, Coordinates vp_max, bool clip_flag) {
-
+    vector<Edge> edges_copy;
+    for (vector<Edge>::iterator it = _edges.begin(); it != _edges.end(); it++) {
+        Edge e = *(it);
+        Coordinates vp_point1 = Transformations::viewport(*(e.p1()), win_min, win_max, vp_min, vp_max);
+        Coordinates vp_point2 = Transformations::viewport(*(e.p2()), win_min, win_max, vp_min, vp_max);
+        cairo_move_to(cr, vp_point1.x(), vp_point1.y());
+        cairo_line_to(cr, vp_point2.x(), vp_point2.y());
+        cairo_stroke(cr);
+    }
 }
 

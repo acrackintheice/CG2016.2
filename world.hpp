@@ -4,12 +4,12 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "../objects/object.hpp"
-#include "../objects/window.hpp"
+#include "object.hpp"
+#include "window.hpp"
 #include "coordinates.hpp"
 #include "math.h"
-#include "../utils/operations.cpp"
-#include "../utils/matriz4x4.hpp"
+#include "operations.cpp"
+#include "matriz4x4.hpp"
 
 class World {
 public:
