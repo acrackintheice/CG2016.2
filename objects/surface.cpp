@@ -10,12 +10,9 @@ Surface::Surface(std::vector<Coordinates *> points, std::string name, Color *col
     _bspline = bspline;
 }
 
-// Drawing with blending functions
-std::vector<Drawing_Edge> Surface::clip(bool clip_flag) {
-    std::vector<Drawing_Edge> output;
-    std::vector<Wireframe*> curves;
+void Surface::clip_and_draw(cairo_t *cr, Coordinates win_min, Coordinates win_max,
+                            Coordinates vp_min, Coordinates vp_max, bool clip_flag) {
     if (_bspline) {
-
     } else {
         double s = 0.01;
         double t = 0.01;
@@ -37,43 +34,42 @@ std::vector<Drawing_Edge> Surface::clip(bool clip_flag) {
                 for (double k = 0; k <= 1; k += s) {
                     double l1S[] = {(k * k * k), (k * k), k, 1};
                     Matriz1x4 S = Matriz1x4(l1S);
-                    vector<Coordinates *> curve_points;
+                    Coordinates last_point = Coordinates(0, 0, 0);
                     for (double j = 0; j <= 1; j += t) {
                         Matriz4x1 T = Matriz4x1((j * j * j), (j * j), j, 1);
                         double x = S.multiplicarPor4x4(MGxMt).multiplicarPor4x1(T);
                         double y = S.multiplicarPor4x4(MGyMt).multiplicarPor4x1(T);
-                        // Finding the curve points
-                        curve_points.push_back(new Coordinates(x, y, 0));
+                        if (j == 0) {
+                            last_point = Coordinates(x, y, 0);
+                        } else {
+                            // Clipping and Drawing
+                            Coordinates current_point = Coordinates(x, y, 0);
+                            draw_edge(current_point, last_point, cr, win_min, win_max, vp_min, vp_max);
+                            last_point = current_point;
+                        }
                     }
-                    // Turning the curve points into a wireframe
-                    vector<Edge> curve_edges = Operations::edges_from_points(curve_points);
-                    // Adding to the list of curves(wireframes)
-                    curves.push_back(new Wireframe(curve_points, curve_edges));
                 }
                 // Drawing many s for a fixed t
                 for (double k = 0; k <= 1; k += t) {
                     Matriz4x1 T = Matriz4x1((k * k * k), (k * k), k, 1);
                     vector<Coordinates *> curve_points;
+                    Coordinates last_point = Coordinates(0, 0, 0);
                     for (double j = 0; j <= 1; j += s) {
                         double l1S[] = {(j * j * j), (j * j), j, 1};
                         Matriz1x4 S = Matriz1x4(l1S);
                         double x = S.multiplicarPor4x4(MGxMt).multiplicarPor4x1(T);
                         double y = S.multiplicarPor4x4(MGyMt).multiplicarPor4x1(T);
-                        // Finding the curve points
-                        curve_points.push_back(new Coordinates(x, y, 0));
+                        if (j == 0) {
+                            last_point = Coordinates(x, y, 0);
+                        } else {
+                            // Clipping and Drawing
+                            Coordinates current_point = Coordinates(x, y, 0);
+                            draw_edge(current_point, last_point, cr, win_min, win_max, vp_min, vp_max);
+                            last_point = current_point;
+                        }
                     }
-                    // Turning the curve points into a wireframe
-                    vector<Edge> curve_edges = Operations::edges_from_points(curve_points);
-                    // Adding to the list of curves(wireframes)
-                    curves.push_back(new Wireframe(curve_points, curve_edges));
                 }
             }
         }
-        // Adding the wireframes edges to a list of edges, in order to draw them
-        for(vector<Wireframe*>::iterator it = curves.begin(); it != curves.end(); it++){
-            vector<Drawing_Edge> edges = (*it)->clip();
-            output.insert(output.end(), edges.begin(), edges.end());
-        }
     }
-    return output;
 }

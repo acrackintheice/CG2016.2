@@ -6,11 +6,13 @@
 #include <algorithm>
 #include <iostream>
 
-class Surface: public Object
-{
+class Surface : public Object {
 public:
-    Surface(std::vector<Coordinates*> points, std::string name, Color* color, bool bspline = true);
-    std::vector<Drawing_Edge> clip(bool clip_flag = true);
+    Surface(std::vector<Coordinates *> points, std::string name, Color *color, bool bspline = true);
+
+    virtual void clip_and_draw(cairo_t *cr, Coordinates win_min, Coordinates win_max,
+                               Coordinates vp_min, Coordinates vp_max, bool clip_flag) override;
+
 private:
     bool _bspline;
 };

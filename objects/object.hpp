@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <cairo.h>
 #include "../core/coordinates.hpp"
 #include "../utils/matrix1x4.hpp"
 #include "../utils/matriz4x4.hpp"
@@ -14,6 +15,7 @@
 #include "math.h"
 #include "../utils/operations.cpp"
 #include "../utils/matrices.cpp"
+#include "../utils/transformations.hpp"
 
 class Object {
 public:
@@ -41,7 +43,9 @@ public:
 
     void rotate_z(double angle);
 
-    virtual std::vector<Drawing_Edge> clip(bool clip_flag = true)= 0;
+    virtual void clip_and_draw(cairo_t *cr, Coordinates win_min, Coordinates win_max, Coordinates vp_min, Coordinates vp_max, bool clip_flag)= 0;
+
+    void draw_edge(Coordinates p1, Coordinates p2, cairo_t *cr, Coordinates win_min, Coordinates win_max, Coordinates vp_min, Coordinates vp_max);
 
     virtual void transform(Matriz4x4 transformation, bool use_scn = false, bool change_scn = false);
 

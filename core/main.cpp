@@ -86,6 +86,8 @@ int main(int argc, char *argv[]) {
     curve_points.push_back(new Coordinates(-65, -30, 0));
     curve_points.push_back(new Coordinates(-65, 30, 0));
 
+    //(0, -70, 0)#(-65, -30, 0)#(-65, 30, 0)#(0, 70, 0)#(65, 30, 0)#(65, -30, 0)#(0, -70, 0)#(-65, -30, 0)#(-65, 30, 0)
+
     BSpline* c =  new BSpline(curve_points, "Curve", new Color(0,0,0,1));
 
     vector<Coordinates *> s_points;
@@ -101,17 +103,18 @@ int main(int argc, char *argv[]) {
     s_points.push_back(new Coordinates(-100, -100, 400));
     s_points.push_back(new Coordinates(100, -100, 400));
     s_points.push_back(new Coordinates(200, -100, 400));
-    s_points.push_back(new Coordinates(-200, -200, 0));
+    s_points.push_back(new Coordinates(-200, -200, 0)); // p41
     s_points.push_back(new Coordinates(-100, -200, 400));
     s_points.push_back(new Coordinates(100, -200, 400));
-    s_points.push_back(new Coordinates(200, -200, 0));
+    s_points.push_back(new Coordinates(200, -200, 0)); // p44
 
+    //(-200,200,0)#(-100,200,400)#(100,200,400)#(200,200,0)#(-200,100,400)#(-100,100,400)#(100,100,400)#(200,100,400)#(-200,-100,400)#(-100,-100,400)#(100,-100,400)#(200,-100,400)#(-200,-200,0)#(-100,-200,400)#(100,-200,400)#(200,-200,0)
     Surface* s = new Surface(s_points, "Surface", new Color(0,0,0,1), false);
 
 
-   // world->add_object(pol);
-   // world->add_object(w);
-   // world->add_object(c);
+    world->add_object(pol);
+    world->add_object(w);
+    world->add_object(c);
     world->add_object(s);
 
     UI ui = UI(argc, argv, world);

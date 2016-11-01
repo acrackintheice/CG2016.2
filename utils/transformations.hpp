@@ -1,3 +1,6 @@
+#ifndef TRANSFORMATIONS_CPP
+#define TRANSFORMATIONS_CPP
+
 #include "../core/coordinates.hpp"
 
 using namespace std;
@@ -26,5 +29,5 @@ public:
 	}
 };
 
-
+#endif
 

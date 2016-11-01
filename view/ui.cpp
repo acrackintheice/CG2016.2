@@ -2,7 +2,7 @@
 
 using namespace std;
 
-static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data) {
+static gboolean draw_world(GtkWidget *widget, cairo_t *cr, gpointer data) {
     UI *ui = static_cast<UI *>(data);
     World *world = ui->world();
     bool clip_flag = ui->clip_flag();
@@ -10,10 +10,10 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data) {
     /* Getting the viewport and window coordinates*/
     double vp_width = (double) (gtk_widget_get_allocated_width(widget));
     double vp_height = (double) (gtk_widget_get_allocated_height(widget));
-    Coordinates viewport_min = Coordinates(10, 10, 0);
-    Coordinates viewport_max = Coordinates(vp_width - 10, vp_height - 10, 0);
-    Coordinates window_min = Coordinates(-1, -1, 0);
-    Coordinates window_max = Coordinates(1, 1, 0);
+    Coordinates vp_min = Coordinates(10, 10, 0);
+    Coordinates vp_max = Coordinates(vp_width - 10, vp_height - 10, 0);
+    Coordinates win_min = Coordinates(-1, -1, 0);
+    Coordinates win_max = Coordinates(1, 1, 0);
     /* Filling the background, setting line width and cap */
     cairo_set_source_rgba(cr, 1, 1, 1, 1);
     cairo_paint(cr);
@@ -28,41 +28,7 @@ static gboolean draw_object(GtkWidget *widget, cairo_t *cr, gpointer data) {
         /* Setting the line color */
         Color *color = obj->color();
         cairo_set_source_rgba(cr, color->r(), color->g(), color->b(), color->a());
-        /* Getting the edges from the object*/
-        vector<Drawing_Edge> edges;
-        edges = obj->clip(clip_flag);
-        bool first_point = true;
-        /* Drawing every point*/
-        for (vector<Drawing_Edge>::iterator it_edges = edges.begin(); it_edges != edges.end(); it_edges++) {
-            Drawing_Edge e = *(it_edges);
-            Coordinates w_point1 = e.p1();
-            Coordinates w_point2 = e.p2();
-            Coordinates vp_point1 = Transformations::viewport(w_point1, window_min, window_max, viewport_min,
-                                                              viewport_max);
-            Coordinates vp_point2 = Transformations::viewport(w_point2, window_min, window_max, viewport_min,
-                                                              viewport_max);
-            /* If it is the first point we need to move the pen to the canvas */
-            if (first_point) {
-                cairo_move_to(cr, vp_point1.x(), vp_point1.y());
-                /* Flagging that the next points are not the first anymore*/
-                first_point = false;
-            } else {
-                cairo_line_to(cr, vp_point1.x(), vp_point1.y());
-            }
-            /* When it is not the first point we only need to keep drawing it */
-            cairo_line_to(cr, vp_point2.x(), vp_point2.y());
-            cairo_stroke(cr);
-        }
-        /* Drawing filled objects */
-        if (obj->filled()) {
-            /* Setting the filling color */
-            Color *bc = obj->background_color();
-            cairo_set_source_rgba(cr, bc->r(), bc->g(), bc->b(), bc->a());
-            cairo_stroke_preserve(cr);
-            cairo_fill(cr);
-        } else {
-            /* Drawing non-filled objects */
-        }
+        obj->clip_and_draw(cr, win_min, win_max, vp_min, vp_max, clip_flag);
     }
     return FALSE;
 }
@@ -88,19 +54,20 @@ static void remove_object_callback(GtkWidget *widget, gpointer data) {
 }
 
 static void move_up_callback(GtkWidget *widget, gpointer data) {
-    static_cast<UI *>(data)->move_window(0, 25);
+    UI *ui = static_cast<UI *>(data);
+    ui->move_window(0, 1);
 }
 
 static void move_left_callback(GtkWidget *widget, gpointer data) {
-    static_cast<UI *>(data)->move_window(-25, 0);
+    static_cast<UI *>(data)->move_window(-1, 0);
 }
 
 static void move_down_callback(GtkWidget *widget, gpointer data) {
-    static_cast<UI *>(data)->move_window(0, -25);
+    static_cast<UI *>(data)->move_window(0, -1);
 }
 
 static void move_right_callback(GtkWidget *widget, gpointer data) {
-    static_cast<UI *>(data)->move_window(25, 0);
+    static_cast<UI *>(data)->move_window(1, 0);
 }
 
 static void zoom_in_callback(GtkWidget *widget, gpointer data) {
@@ -214,6 +181,10 @@ UI::UI(int argc, char *argv[], World *world) : _world(world) {
     _text_entry_curve = gtk_builder_get_object(_builder, "text_entry_curve");
     _text_entry_wireframe_points = gtk_builder_get_object(_builder, "text_entry_wireframe_points");
     _text_entry_wireframe_edges = gtk_builder_get_object(_builder, "text_entry_wireframe_edges");
+    _radio_button_surface_bspline = gtk_builder_get_object(_builder, "radio_button_surface_bspline");
+    _radio_button_surface_bezier = gtk_builder_get_object(_builder, "radio_button_surface_bezier");
+    _text_entry_surface = gtk_builder_get_object(_builder, "text_entry_surface");
+    _text_entry_movement = gtk_builder_get_object(_builder, "text_entry_movement");
     // Signals
     g_signal_connect (_main_window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     g_signal_connect (_main_window, "check-resize", G_CALLBACK(resize_callback), this);
@@ -297,7 +268,7 @@ void UI::update_text_view_window() {
 }
 
 void UI::draw() {
-    g_signal_connect (_canvas, "draw", G_CALLBACK(draw_object), this);
+    g_signal_connect (_canvas, "draw", G_CALLBACK(draw_world), this);
     gtk_widget_queue_draw((GtkWidget *) _canvas);
 }
 
@@ -310,7 +281,8 @@ void UI::remove_object() {
 
 void UI::move_window(double dx, double dy) {
     Window *window = _world->window();
-    window->move(dx, dy, 0);
+    double d = g_ascii_strtod(gtk_entry_get_text((GtkEntry *) _text_entry_movement), NULL);
+    window->move(dx*d, dy*d, 0);
     gtk_widget_queue_draw((GtkWidget *) _canvas);
     update_text_view_window();
 }
@@ -513,6 +485,23 @@ void UI::add_object_from_dialog() {
         } else {
             //TODO - Showing a message if the input is invalid
         }
+    } else if (strcmp(page_name, "Surface") == 0) {
+        if (input_is_valid()) {
+            Object *obj;
+            string points(gtk_entry_get_text((GtkEntry *) _text_entry_surface));
+            vector<Coordinates *> curve_points = string_to_points(points);
+            if (gtk_toggle_button_get_active((GtkToggleButton *) _radio_button_surface_bezier)) {
+                obj = new Surface(curve_points, name, line_color, false);
+            } else {
+                obj = new Surface(curve_points, name, line_color);
+            }
+            _world->add_object(obj);
+            add_name_to_list(name);
+            draw();
+            gtk_widget_hide(GTK_WIDGET(_dialog_add_object));
+        } else {
+            //TODO - Showing a message if the input is invalid
+        }
     }
 }
 
@@ -532,11 +521,12 @@ vector<Edge> UI::edges_from_points(vector<Coordinates *> points) {
 
 vector<Edge> UI::string_to_edges(vector<Coordinates *> points, string x) {
     vector<Edge> edges;
-    vector<string> splitted = Operations::split(x, ' ');
+    Operations::remove_char_from_string(x, (char *) " ");
+    vector<string> splitted = Operations::split(x, '#');
     vector<string>::iterator it;
     for (it = splitted.begin(); it != splitted.end(); it++) {
         string edge_string = *it;
-        Operations::remove_char_from_string(edge_string, (char *) "() ");
+        Operations::remove_char_from_string(edge_string, (char *) "()");
         vector<string> string_points = Operations::split(edge_string, ',');
         double p1_index = atof(string_points[0].c_str());
         double p2_index = atof(string_points[1].c_str());
@@ -548,12 +538,13 @@ vector<Edge> UI::string_to_edges(vector<Coordinates *> points, string x) {
 
 vector<Coordinates *> UI::string_to_points(string s) {
     vector<Coordinates *> points;
-    vector<string> split = Operations::split(s, ' ');
+    Operations::remove_char_from_string(s, (char *) " ");
+    vector<string> split = Operations::split(s, '#');
     vector<string>::iterator it;
     for (it = split.begin(); it != split.end(); it++) {
         string coordinates_string = *it;
         /* coordinates_string = '(1,2)' */
-        Operations::remove_char_from_string(coordinates_string, (char *) "() ");
+        Operations::remove_char_from_string(coordinates_string, (char *) "()");
         /* coordinates_string = '1,2' */
         vector<string> string_points = Operations::split(coordinates_string, ',');
         /* string_points = ['1', '2', '3'] */

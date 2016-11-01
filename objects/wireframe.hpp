@@ -15,7 +15,7 @@ public:
     Wireframe(std::vector<Coordinates *> points, std::vector<Edge> edges, std::string name = "", Color *color = new Color(1,1,1,1),
               Color *background_color = new Color(1,1,1,1), bool filled = false);
 
-    std::vector<Drawing_Edge> clip(bool clip_flag = true);
+    void clip_and_draw(cairo_t *cr, Coordinates win_min, Coordinates win_max, Coordinates vp_min, Coordinates vp_max, bool clip_flag);
 
 private:
     std::vector<Drawing_Edge> sub_clip(std::vector<Drawing_Edge> in);

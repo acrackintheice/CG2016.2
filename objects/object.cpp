@@ -16,7 +16,7 @@ string Object::name() {
     return _name;
 }
 
-vector<Coordinates*> Object::points() {
+vector<Coordinates *> Object::points() {
     return _points;
 }
 
@@ -67,9 +67,11 @@ void Object::transform(Matriz4x4 transformation, bool use_scn, bool change_scn) 
         double div = transformed_point.get(3);
         if (change_scn) {
             double div = transformed_point.get(3);
-            point->set_xyz_scn(transformed_point.get(0)/div, transformed_point.get(1)/div, transformed_point.get(2)/div);
+            point->set_xyz_scn(transformed_point.get(0) / div, transformed_point.get(1) / div,
+                               transformed_point.get(2) / div);
         } else {
-            point->set_xyz(transformed_point.get(0)/div, transformed_point.get(1)/div, transformed_point.get(2)/div);
+            point->set_xyz(transformed_point.get(0) / div, transformed_point.get(1) / div,
+                           transformed_point.get(2) / div);
         }
     }
 }
@@ -119,4 +121,17 @@ void Object::rotate(double angle, Coordinates p1, Coordinates p2) {
     double k = sin(angle);
     Matriz4x4 rotation = Matrices::arbitrary_rotation(u, v, w, a, b, c, j, k, l);
     transform(rotation);
+}
+
+void Object::draw_edge(Coordinates p1, Coordinates p2, cairo_t *cr, Coordinates win_min, Coordinates win_max, Coordinates vp_min, Coordinates vp_max) {
+    vector<Drawing_Edge> edges;
+    edges = Operations::liang_barsky(p1.x(), p1.y(), p2.x(), p2.y());
+    if (edges.size() > 0) {
+        Drawing_Edge e = edges[0];
+        Coordinates vp_p1 = Transformations::viewport(e.p1(), win_min, win_max, vp_min, vp_max);
+        Coordinates vp_p2 = Transformations::viewport(e.p2(), win_min, win_max, vp_min, vp_max);
+        cairo_move_to(cr, vp_p1.x(), vp_p1.y());
+        cairo_line_to(cr, vp_p2.x(), vp_p2.y());
+        cairo_stroke(cr);
+    }
 }

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string.h>
 #include <stdlib.h>
-#include "../utils/transformations.cpp"
+#include "../utils/transformations.hpp"
 #include "../objects/point.hpp"
 #include "../objects/object.hpp"
 #include "../utils/color.hpp"
@@ -16,6 +16,7 @@
 #include "../objects/bspline.hpp"
 #include "../objects/curve.hpp"
 #include "../utils/operations.cpp"
+#include "../objects/surface.hpp"
 
 class UI 
 {
@@ -82,6 +83,7 @@ private:
 	GObject* _radio_button_liang_barsky;
 	GObject* _radio_button_perspective;
 	GObject* _radio_button_parallel;
+	GObject* _text_entry_movement;
 	// Add object dialog widgets
 	GObject* _button_add;
 	GObject* _button_cancel;
@@ -117,6 +119,9 @@ private:
 	GObject* _text_entry_rotation_point_z2;
 	GObject* _button_rotate1;
 	GObject* _text_entry_angle1;
+	GObject* _text_entry_surface;
+	GObject* _radio_button_surface_bezier;
+	GObject* _radio_button_surface_bspline;
 
 	// Non-widget attributes
 	World* _world;

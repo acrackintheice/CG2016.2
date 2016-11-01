@@ -12,7 +12,9 @@ Wireframe::Wireframe(vector<Coordinates *> points, vector<Edge> edges, string na
     _background_color = background_color;
 }
 
-vector<Drawing_Edge> Wireframe::clip(bool clip_flag) {
+void
+Wireframe::clip_and_draw(cairo_t *cr, Coordinates win_min, Coordinates win_max, Coordinates vp_min, Coordinates vp_max,
+                         bool clip_flag) {
     vector<Drawing_Edge> clip_edges;
     vector<int> edge_codes = {1, 2, 3, 4};
     Coordinates P1_LEFT = Coordinates(-1, -10000, 0);
@@ -39,9 +41,6 @@ vector<Drawing_Edge> Wireframe::clip(bool clip_flag) {
     for (vector<Drawing_Edge>::iterator i1 = clip_edges.begin(); i1 != clip_edges.end(); ++i1, x++) {
         int edge_code = edge_codes[x - 1];
         Drawing_Edge clip_edge = *i1;
-        if (fake_frame(out)) {
-            return sub_clip(out);
-        }
         in = out;
         out.clear();
         bool went_out = false;
@@ -73,9 +72,18 @@ vector<Drawing_Edge> Wireframe::clip(bool clip_flag) {
         }
     }
     if (fake_frame(out)) {
-        return sub_clip(out);
+        out = sub_clip(out);
     }
-    return out;
+    for (vector<Drawing_Edge>::iterator it_edges = out.begin(); it_edges != out.end(); it_edges++) {
+        Drawing_Edge e = *(it_edges);
+        Coordinates w_point1 = e.p1();
+        Coordinates w_point2 = e.p2();
+        Coordinates vp_point1 = Transformations::viewport(w_point1, win_min, win_max, vp_min, vp_max);
+        Coordinates vp_point2 = Transformations::viewport(w_point2, win_min, win_max, vp_min, vp_max);
+        cairo_move_to(cr, vp_point1.x(), vp_point1.y());
+        cairo_line_to(cr, vp_point2.x(), vp_point2.y());
+        cairo_stroke(cr);
+    }
 }
 
 bool Wireframe::inside(Coordinates point, int edge_code) {

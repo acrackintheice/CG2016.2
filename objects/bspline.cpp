@@ -10,7 +10,8 @@ BSpline::BSpline(std::vector<Coordinates *> points, std::string name, Color *col
     _background_color = new Color(1, 1, 1, 1);
 }
 
-vector<Drawing_Edge> BSpline::clip(bool clip_flag) {
+void BSpline::clip_and_draw(cairo_t *cr, Coordinates win_min, Coordinates win_max,
+                            Coordinates vp_min, Coordinates vp_max, bool clip_flag) {
     vector<Coordinates> drawing_points;
     vector<Drawing_Edge> edges;
     // 0 - Calculating the deltas.
@@ -31,35 +32,13 @@ vector<Drawing_Edge> BSpline::clip(bool clip_flag) {
         /* 2 - Calculating f0, delta(f0), delta²(f0) e delta³(f0) based on the first point of the bspline */
         Matriz4x1 dx = e.multiplicar4x1(Cx);
         Matriz4x1 dy = e.multiplicar4x1(Cy);
-        /* 3 - Calculating the points with desenharCurvaFwdDiff(...) from the slides */
-        std::vector<Coordinates> some_points = getFwdDiffPoints(1 / delta, dx, dy);
-        /* 4 - Inserting the new points into the points list */
-        drawing_points.insert(drawing_points.end(), some_points.begin(), some_points.end());
+        /* 3 - Drawing the points with desenharCurvaFwdDiff(...) from the slides */
+        drawFwdDiffPoints(1 / delta, dx, dy, cr, win_min, win_max, vp_min, vp_max);
     }
-    /*  Clipping  */
-    // If the first point of the curve is too far away, we dont draw anything
-    if (too_far_away(drawing_points[0]))
-        return edges;
-        // Else, we clip every line
-    else {
-        vector<Coordinates>::iterator it2 = drawing_points.begin();
-        for (int i = 0; i < drawing_points.size() - 1; ++i, it2++) {
-            Coordinates p1 = *(it2);
-            Coordinates p2 = *(it2 + 1);
-            Line l = Line(new Coordinates(p1.x(), p1.y(), 0), new Coordinates(p2.x(), p2.y(), 0), "",
-                          new Color(1, 1, 1, 1));
-            vector<Drawing_Edge> clipped = l.clip();
-            if (clipped.size() > 0) {
-                Coordinates p = clipped[0].p1();
-                Coordinates u = clipped[0].p2();
-                edges.push_back(Drawing_Edge(p, u));
-            }
-        }
-    }
-    return edges;
 }
 
-std::vector<Coordinates> BSpline::getFwdDiffPoints(double n, Matriz4x1 dx, Matriz4x1 dy) {
+void BSpline::drawFwdDiffPoints(double n, Matriz4x1 dx, Matriz4x1 dy, cairo_t *cr, Coordinates win_min,
+                                Coordinates win_max, Coordinates vp_min, Coordinates vp_max) {
     double x = dx.get(0);
     double deltaX = dx.get(1);
     double delta2X = dx.get(2);
@@ -70,7 +49,7 @@ std::vector<Coordinates> BSpline::getFwdDiffPoints(double n, Matriz4x1 dx, Matri
     double delta2Y = dy.get(2);
     double delta3Y = dy.get(3);
 
-    std::vector<Coordinates> some_points;
+    Coordinates last_point = Coordinates(x, y, 0);
     for (int i = 0; i < n; ++i) {
         x = x + deltaX;
         deltaX = deltaX + delta2X;
@@ -78,11 +57,9 @@ std::vector<Coordinates> BSpline::getFwdDiffPoints(double n, Matriz4x1 dx, Matri
         y = y + deltaY;
         deltaY = deltaY + delta2Y;
         delta2Y = delta2Y + delta3Y;
-        some_points.push_back(Coordinates(x, y, 0));
+        // Clipping and Drawing
+        Coordinates current_point = Coordinates(x, y, 0);
+        draw_edge(current_point, last_point, cr, win_min, win_max, vp_min, vp_max);
+        last_point = current_point;
     }
-    return some_points;
-}
-
-bool BSpline::too_far_away(Coordinates c) {
-    return c.x() && c.y() < -10 && c.x() && c.y() > 10;
 }

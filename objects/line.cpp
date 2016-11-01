@@ -12,6 +12,20 @@ Line::Line(Coordinates *p1, Coordinates *p2, string name, Color *color) {
     _background_color = new Color(1, 1, 1, 1);
 }
 
+// Only using Liang-Barsky from now on
+void Line::clip_and_draw(cairo_t *cr, Coordinates win_min, Coordinates win_max, Coordinates vp_min, Coordinates vp_max,
+                         bool clip_flag) {
+    vector<Drawing_Edge> edges = clip(clip_flag);
+    if (edges.size() > 0) {
+        Drawing_Edge e = edges[0];
+        Coordinates vp_p1 = Transformations::viewport(e.p1(), win_min, win_max, vp_min, vp_max);
+        Coordinates vp_p2 = Transformations::viewport(e.p2(), win_min, win_max, vp_min, vp_max);
+        cairo_move_to(cr, vp_p1.x(), vp_p1.y());
+        cairo_line_to(cr, vp_p2.x(), vp_p2.y());
+        cairo_stroke(cr);
+    }
+}
+
 vector<Drawing_Edge> Line::clip(bool clip_flag) {
     vector<Drawing_Edge> output;
     Coordinates p1 = Coordinates(_points[0]->x_scn(), _points[0]->y_scn(), 0);
