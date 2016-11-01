@@ -12,8 +12,8 @@
 
 class Wireframe : public Object {
 public:
-    Wireframe(std::vector<Coordinates *> points, std::vector<Edge> edges, std::string name, Color *color,
-              Color *background_color, bool filled);
+    Wireframe(std::vector<Coordinates *> points, std::vector<Edge> edges, std::string name = "", Color *color = new Color(1,1,1,1),
+              Color *background_color = new Color(1,1,1,1), bool filled = false);
 
     std::vector<Drawing_Edge> clip(bool clip_flag = true);
 

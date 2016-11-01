@@ -5,7 +5,6 @@ using namespace std;
 Curve::Curve(std::vector<Coordinates *> points, std::string name, Color *color) {
     _points = points;
     _name = name;
-    //_scn_points = _points;
     _color = color;
     _background_color = new Color(1, 1, 1, 1);
     _filled = false;
@@ -15,19 +14,13 @@ vector<Drawing_Edge> Curve::clip(bool clip_flag) {
     vector<Coordinates> drawing_points;
     vector<Drawing_Edge> edges;
     /* Finding the curve points using Blending Functions */
-    double step = 0.001;
+    double step = 0.01;
     /* Creating the Bezier matrix */
-    double l1MB[] = {-1, 3, -3, 1};
-    double l2MB[] = {3, -6, 3, 0};
-    double l3MB[] = {-3, 3, 0, 0};
-    double l4MB[] = {1, 0, 0, 0};
-    Matriz4x4 MB = Matriz4x4(l1MB, l2MB, l3MB, l4MB);
+    Matriz4x4 MB = Matrices::bezier();
     vector<Coordinates *>::iterator it = _points.begin();
-    cout << _points.size() - 1 << endl;
-    cout << (_points.size() - 1) % 3 << endl;
     // If the bezier curve has the correct number of points
     if (((_points.size() - 1) % 3) == 0) {
-        for (int i = 0; i < _points.size() - 1; i = i + 3) {
+        for (int i = 0; i < _points.size() - 1; i = i + 3, it = it + 3) {
             Matriz4x1 Gx = Matriz4x1((*it)->x_scn(), (*(it + 1))->x_scn(), (*(it + 2))->x_scn(), (*(it + 3))->x_scn());
             Matriz4x1 Gy = Matriz4x1((*it)->y_scn(), (*(it + 1))->y_scn(), (*(it + 2))->y_scn(), (*(it + 3))->y_scn());
             for (double t = 0; t <= 1; t = t + step) {
@@ -38,7 +31,6 @@ vector<Drawing_Edge> Curve::clip(bool clip_flag) {
                 double y = TMB.multiplicarPor4x1(Gy);
                 drawing_points.push_back(Coordinates(x, y, 0));
             }
-            it = it + 3;
         }
         /*  Clipping  */
         // If the first point of the curve is too far away, we dont draw anything

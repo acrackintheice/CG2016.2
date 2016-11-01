@@ -3,6 +3,7 @@
 
 #include "../core/coordinates.hpp"
 #include "math.h"
+#include "../core/edge.hpp"
 #include <string>
 #include <sstream>
 #include <vector>
@@ -15,6 +16,18 @@ using namespace std;
 class Operations {
 
 public:
+    static vector<Edge> edges_from_points(vector<Coordinates *> points) {
+        vector<Edge> edges;
+        vector<Coordinates *>::iterator it = points.begin();
+        for (int i = 0; i < points.size() - 1; i++) {
+            Coordinates *p1 = *it;
+            it++;
+            Coordinates *p2 = *it;
+            edges.push_back(Edge(p1, p2));
+        }
+        return edges;
+    }
+
     static double norma(Coordinates vector, bool use_scn = false) {
         if (use_scn)
             return sqrt(vector.x_scn() * vector.x_scn() + vector.y_scn() * vector.y_scn() +

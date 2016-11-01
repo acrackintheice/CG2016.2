@@ -418,7 +418,7 @@ void UI::add_object_from_dialog() {
     GtkNotebook *notebook = (GtkNotebook *) _notebook;
     const gchar *page_name = current_page_label(notebook);
     const gchar *name = gtk_entry_get_text((GtkEntry *) _text_entry_object_name);
-    GdkRGBA *color_rgba = new GdkRGBA(); /* had to create this beucause of gtk*/
+    GdkRGBA *color_rgba = new GdkRGBA(); /* had to create this because of gtk*/
     GdkRGBA *background_rgba = new GdkRGBA(); /* this too */
     gtk_color_chooser_get_rgba((GtkColorChooser *) _line_color_button, color_rgba);
     gtk_color_chooser_get_rgba((GtkColorChooser *) _background_color_button, background_rgba);

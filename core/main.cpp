@@ -13,20 +13,9 @@
 #include "../objects/curve.hpp"
 #include "../objects/bspline.hpp"
 #include "../utils/matrices.cpp"
+#include "../objects/surface.hpp"
 
 using namespace std;
-
-static vector<Edge> edges_from_points(vector<Coordinates *> points) {
-    vector<Edge> edges;
-    vector<Coordinates *>::iterator it = points.begin();
-    for (int i = 0; i < points.size() - 1; i++) {
-        Coordinates *p1 = *it;
-        it++;
-        Coordinates *p2 = *it;
-        edges.push_back(Edge(p1, p2));
-    }
-    return edges;
-}
 
 int main(int argc, char *argv[]) {
 
@@ -81,7 +70,7 @@ int main(int argc, char *argv[]) {
     wireframe_points.push_back(new Coordinates(200, 200, 0));
     wireframe_points.push_back(new Coordinates(200, 0, 0));
     wireframe_points.push_back(new Coordinates(100, -100, 0));
-    vector<Edge> wireframe_edges = edges_from_points(wireframe_points);
+    vector<Edge> wireframe_edges = Operations::edges_from_points(wireframe_points);
     Wireframe *w = new Wireframe(wireframe_points, wireframe_edges, "Wireframe", new Color(0, 0, 255, 1),
                                  new Color(1, 1, 1, 1), false);
     Line *l = new Line(new Coordinates(-600, -600, -2000), new Coordinates(600, 600, -2000), "Line", new Color(0, 0, 0, 1));
@@ -98,19 +87,32 @@ int main(int argc, char *argv[]) {
     curve_points.push_back(new Coordinates(-65, 30, 0));
 
     BSpline* c =  new BSpline(curve_points, "Curve", new Color(0,0,0,1));
-    BSpline* c2 =  new BSpline(curve_points, "Curve", new Color(0,0,0,1));
-    BSpline* c3 =  new BSpline(curve_points, "Curve", new Color(0,0,0,1));
-    BSpline* c4 =  new BSpline(curve_points, "Curve", new Color(0,0,0,1));
-    BSpline* c5 =  new BSpline(curve_points, "Curve", new Color(0,0,0,1));
+
+    vector<Coordinates *> s_points;
+    s_points.push_back(new Coordinates(-200, 200, 0)); // p11
+    s_points.push_back(new Coordinates(-100, 200, 400));
+    s_points.push_back(new Coordinates(100, 200, 400));
+    s_points.push_back(new Coordinates(200, 200, 0)); // p14
+    s_points.push_back(new Coordinates(-200, 100, 400));
+    s_points.push_back(new Coordinates(-100, 100, 400));
+    s_points.push_back(new Coordinates(100, 100, 400));
+    s_points.push_back(new Coordinates(200, 100, 400));
+    s_points.push_back(new Coordinates(-200, -100, 400));
+    s_points.push_back(new Coordinates(-100, -100, 400));
+    s_points.push_back(new Coordinates(100, -100, 400));
+    s_points.push_back(new Coordinates(200, -100, 400));
+    s_points.push_back(new Coordinates(-200, -200, 0));
+    s_points.push_back(new Coordinates(-100, -200, 400));
+    s_points.push_back(new Coordinates(100, -200, 400));
+    s_points.push_back(new Coordinates(200, -200, 0));
+
+    Surface* s = new Surface(s_points, "Surface", new Color(0,0,0,1), false);
 
 
-    world->add_object(pol);
-    world->add_object(w);
-    world->add_object(c);
-    world->add_object(c5);
-    world->add_object(c2);
-    world->add_object(c3);
-    world->add_object(c4);
+   // world->add_object(pol);
+   // world->add_object(w);
+   // world->add_object(c);
+    world->add_object(s);
 
     UI ui = UI(argc, argv, world);
     return 0;

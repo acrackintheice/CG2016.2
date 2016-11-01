@@ -3,6 +3,8 @@
 
 #include "math.h"
 #include "matriz4x4.hpp"
+#include <vector>
+#include "../core/coordinates.hpp"
 
 using namespace std;
 
@@ -109,6 +111,56 @@ public:
         double l2[] = {nx, ny, nz, 1};
         double l3[] = {0, 0, 0, 1};
         return Matriz4x4(l0, l1, l2, l3);
+    }
+
+    static Matriz4x4 bezier() {
+        double l0[] = {-1, 3, -3, 1};
+        double l1[] = {3, -6, 3, 0};
+        double l2[] = {-3, 3, 0, 0};
+        double l3[] = {1, 0, 0, 0};
+        return Matriz4x4(l0, l1, l2, l3);
+    };
+
+    static Matriz4x4 bspline() {
+        double l0[] = {-1.0 / 6.0, 3.0 / 6.0, -3.0 / 6.0, 1.0 / 6.0};
+        double l1[] = {3.0 / 6.0, -6.0 / 6.0, 3.0 / 6.0, 0};
+        double l2[] = {-3.0 / 6.0, 0, 3.0 / 6.0, 0};
+        double l3[] = {1.0 / 6.0, 4.0 / 6.0, 1.0 / 6.0, 0};
+        return Matriz4x4(l0, l1, l2, l3);
+    }
+
+    static Matriz4x4 deltas(double delta) {
+        double delta2 = delta * delta;
+        double delta3 = delta2 * delta;
+        double l0[] = {0, 0, 0, 1};
+        double l1[] = {delta3, delta2, delta, 0};
+        double l2[] = {6 * delta3, 2 * delta2, 0, 0};
+        double l3[] = {6 * delta3, 0, 0, 0};
+        return Matriz4x4(l0, l1, l2, l3);
+    }
+
+    static Matriz4x4 GBx(std::vector<Coordinates*> points) {
+            double l0[] = {points[0]->x_scn(), points[1]->x_scn(), points[2]->x_scn(), points[3]->x_scn()};
+            double l1[] = {points[4]->x_scn(), points[5]->x_scn(), points[6]->x_scn(), points[7]->x_scn()};
+            double l2[] = {points[8]->x_scn(), points[9]->x_scn(), points[10]->x_scn(), points[11]->x_scn()};
+            double l3[] = {points[12]->x_scn(), points[13]->x_scn(), points[14]->x_scn(), points[15]->x_scn()};
+            return Matriz4x4(l0, l1, l2, l3);
+    }
+
+    static Matriz4x4 GBy(std::vector<Coordinates*> points) {
+            double l0[] = {points[0]->y_scn(), points[1]->y_scn(), points[2]->y_scn(), points[3]->y_scn()};
+            double l1[] = {points[4]->y_scn(), points[5]->y_scn(), points[6]->y_scn(), points[7]->y_scn()};
+            double l2[] = {points[8]->y_scn(), points[9]->y_scn(), points[10]->y_scn(), points[11]->y_scn()};
+            double l3[] = {points[12]->y_scn(), points[13]->y_scn(), points[14]->y_scn(), points[15]->y_scn()};
+            return Matriz4x4(l0, l1, l2, l3);
+    }
+
+    static Matriz4x4 GBz(std::vector<Coordinates*> points) {
+            double l0[] = {points[0]->z_scn(), points[1]->z_scn(), points[2]->z_scn(), points[3]->z_scn()};
+            double l1[] = {points[4]->z_scn(), points[5]->z_scn(), points[6]->z_scn(), points[7]->z_scn()};
+            double l2[] = {points[8]->z_scn(), points[9]->z_scn(), points[10]->z_scn(), points[11]->z_scn()};
+            double l3[] = {points[12]->z_scn(), points[13]->z_scn(), points[14]->z_scn(), points[15]->z_scn()};
+            return Matriz4x4(l0, l1, l2, l3);
     }
 };
 

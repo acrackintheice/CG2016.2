@@ -4,7 +4,6 @@ using namespace std;
 
 BSpline::BSpline(std::vector<Coordinates *> points, std::string name, Color *color) {
     _points = points;
-    vector<Coordinates *>::iterator it;
     _name = name;
     _color = color;
     _filled = false;
@@ -15,21 +14,11 @@ vector<Drawing_Edge> BSpline::clip(bool clip_flag) {
     vector<Coordinates> drawing_points;
     vector<Drawing_Edge> edges;
     // 0 - Calculating the deltas.
-    double deltao = 0.01;
-    double deltao2 = deltao * deltao;
-    double deltao3 = deltao2 * deltao;
-    double l1e[] = {0, 0, 0, 1};
-    double l2e[] = {deltao3, deltao2, deltao, 0};
-    double l3e[] = {6 * deltao3, 2 * deltao2, 0, 0};
-    double l4e[] = {6 * deltao3, 0, 0, 0};
-    Matriz4x4 e = Matriz4x4(l1e, l2e, l3e, l4e);
+    double delta = 0.01;
+    Matriz4x4 e = Matrices::deltas(delta);
     /* 1 - Calculating C =  mbs * Gbs */
     /* Creating the B-Spline matrix in order to calculate the Cs */
-    double l1mbs[] = {-1.0 / 6.0, 3.0 / 6.0, -3.0 / 6.0, 1.0 / 6.0};
-    double l2mbs[] = {3.0 / 6.0, -6.0 / 6.0, 3.0 / 6.0, 0};
-    double l3mbs[] = {-3.0 / 6.0, 0, 3.0 / 6.0, 0};
-    double l4mbs[] = {1.0 / 6.0, 4.0 / 6.0, 1.0 / 6.0, 0};
-    Matriz4x4 mbs = Matriz4x4(l1mbs, l2mbs, l3mbs, l4mbs);
+    Matriz4x4 mbs = Matrices::bspline();
     /* Now for each curve */
     vector<Coordinates *>::iterator it = _points.begin();
     for (int i = 3; i < _points.size(); i++, it++) {
@@ -43,7 +32,7 @@ vector<Drawing_Edge> BSpline::clip(bool clip_flag) {
         Matriz4x1 dx = e.multiplicar4x1(Cx);
         Matriz4x1 dy = e.multiplicar4x1(Cy);
         /* 3 - Calculating the points with desenharCurvaFwdDiff(...) from the slides */
-        std::vector<Coordinates> some_points = getFwdDiffPoints(1 / deltao, dx, dy);
+        std::vector<Coordinates> some_points = getFwdDiffPoints(1 / delta, dx, dy);
         /* 4 - Inserting the new points into the points list */
         drawing_points.insert(drawing_points.end(), some_points.begin(), some_points.end());
     }
