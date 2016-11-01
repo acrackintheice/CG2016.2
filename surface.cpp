@@ -14,8 +14,8 @@ void Surface::clip_and_draw(cairo_t *cr, Coordinates win_min, Coordinates win_ma
                             Coordinates vp_min, Coordinates vp_max, bool clip_flag) {
     if (_bspline) {
     } else {
-        double s = 0.01;
-        double t = 0.01;
+        double s = 1.0/16;
+        double t = 1.0/16;
         // Creating the Bezier matrix
         Matriz4x4 M = Matrices::bezier();
         //  Mt is M transposed, for bezier its the same matrix
