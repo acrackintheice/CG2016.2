@@ -7,7 +7,7 @@
 #include <cairo.h>
 #include "coordinates.hpp"
 #include "matrix1x4.hpp"
-#include "matriz4x4.hpp"
+#include "matrix4x4.hpp"
 #include "matrix4x1.hpp"
 #include "color.hpp"
 #include "edge.hpp"
@@ -47,7 +47,7 @@ public:
 
     void draw_edge(Coordinates p1, Coordinates p2, cairo_t *cr, Coordinates win_min, Coordinates win_max, Coordinates vp_min, Coordinates vp_max);
 
-    virtual void transform(Matriz4x4 transformation, bool use_scn = false, bool change_scn = false);
+    virtual void transform(Matrix4x4 transformation, bool use_scn = false, bool change_scn = false);
 
     virtual ~Object();
 

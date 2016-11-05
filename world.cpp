@@ -78,7 +78,7 @@ void World::project(bool perspective) {
     double sx = 1.0 / _window->max().x_scn();
     double sy = 1.0 / _window->max().y_scn();
     // Creating the projection and normalization matrix
-    Matriz4x4 projection = (perspective) ? Matrices::perspective(u.x(), u.y(), u.z(), v.x(), v.y(), v.z(),
+    Matrix4x4 projection = (perspective) ? Matrices::perspective(u.x(), u.y(), u.z(), v.x(), v.y(), v.z(),
                                                                  n.x(), n.y(), n.z(), cx, cy, cz, sx, sy, d)
                                          : Matrices::parallel(u.x(), u.y(), u.z(), v.x(), v.y(), v.z(),
                                                               n.x(), n.y(), n.z(), cx, cy, cz, sx, sy);

@@ -1,8 +1,8 @@
-#include "matriz4x4.hpp"
+#include "matrix4x4.hpp"
 
 using namespace std;
 
-Matriz4x4::Matriz4x4(double l1[], double l2[], double l3[], double l4[])
+Matrix4x4::Matrix4x4(double l1[], double l2[], double l3[], double l4[])
 {
     for(int i = 0; i <= 3 ; i++){
         M1[0][i] = l1[i];
@@ -11,18 +11,18 @@ Matriz4x4::Matriz4x4(double l1[], double l2[], double l3[], double l4[])
         M1[3][i] = l4[i];
     }
 }
-double Matriz4x4::get(int linha,int coluna){
+double Matrix4x4::get(int linha,int coluna){
     return M1[linha][coluna];
 }
-Matriz4x1 Matriz4x4::multiplicar4x1(Matriz4x1 M2){
+Matrix4x1 Matrix4x4::multiply4x1(Matrix4x1 M2){
     double l1 = (M1[0][0] * M2.get(0)) + (M1[0][1] * M2.get(1)) + (M1[0][2] * M2.get(2)) + (M1[0][3] * M2.get(3));
     double l2 = (M1[1][0] * M2.get(0)) + (M1[1][1] * M2.get(1)) + (M1[1][2] * M2.get(2)) + (M1[1][3] * M2.get(3));
     double l3 = (M1[2][0] * M2.get(0)) + (M1[2][1] * M2.get(1)) + (M1[2][2] * M2.get(2)) + (M1[2][3] * M2.get(3));
     double l4 = (M1[3][0] * M2.get(0)) + (M1[3][1] * M2.get(1)) + (M1[3][2] * M2.get(2)) + (M1[3][3] * M2.get(3));
 
-    return Matriz4x1(l1,l2,l3,l4);
+    return Matrix4x1(l1,l2,l3,l4);
 }
-Matriz4x4 Matriz4x4::multiplicarPor4x4(Matriz4x4 M2){
+Matrix4x4 Matrix4x4::multiply4x4(Matrix4x4 M2){
     double l1[4];
     double l2[4];
     double l3[4];
@@ -48,5 +48,14 @@ Matriz4x4 Matriz4x4::multiplicarPor4x4(Matriz4x4 M2){
     l4[2] = (M1[3][0] * M2.get(0,2)) + (M1[3][1] * M2.get(1,2)) + (M1[3][2] * M2.get(2,2)) + (M1[3][3] * M2.get(3,2));
     l4[3] = (M1[3][0] * M2.get(0,3)) + (M1[3][1] * M2.get(1,3)) + (M1[3][2] * M2.get(2,3)) + (M1[3][3] * M2.get(3,3));
 
-    return Matriz4x4(l1,l2,l3,l4);
+    return Matrix4x4(l1,l2,l3,l4);
+}
+
+Matrix4x4 Matrix4x4::tranpose() {
+    double l1[] = {M1[0][0], M1[1][0], M1[2][0], M1[3][0]};
+    double l2[] = {M1[0][1], M1[1][1], M1[2][1], M1[3][1]};
+    double l3[] = {M1[0][2], M1[1][2], M1[2][2], M1[3][2]};
+    double l4[] = {M1[0][3], M1[1][3], M1[2][3], M1[3][3]};
+
+    return Matrix4x4(l1,l2,l3,l4);
 }

@@ -18,53 +18,6 @@ class Operations {
 
 public:
 
-    static vector<Drawing_Edge> liang_barsky(double x1, double y1, double x2, double y2) {
-        vector<Drawing_Edge> output;
-        vector<double> ps;
-        ps.push_back(-(x2 - x1));
-        ps.push_back(x2 - x1);
-        ps.push_back(-(y2 - y1));
-        ps.push_back(y2 - y1);
-        vector<double> qs;
-        qs.push_back(x1 + 1);
-        qs.push_back(1 - x1);
-        qs.push_back(y1 + 1);
-        qs.push_back(1 - y1);
-        vector<double> rs_less_than_zero, rs_more_than_zero;
-        vector<double>::iterator it_ps;
-        vector<double>::iterator it_qs;
-        for (it_ps = ps.begin(), it_qs = qs.begin(); it_ps != ps.end(); it_ps++, it_qs++) {
-            double p = *(it_ps);
-            double q = *(it_qs);
-            if (p == 0 & q < 0) {
-                return output;
-            } else if (p < 0) {
-                rs_less_than_zero.push_back(q / p);
-            } else if (p > 0) {
-                rs_more_than_zero.push_back(q / p);
-            }
-        }
-        double u1 = 0;
-        vector<double>::iterator it;
-        for (it = rs_less_than_zero.begin(); it != rs_less_than_zero.end(); it++) {
-            double r = *(it);
-            u1 = max(u1, r);
-        }
-        double u2 = 1;
-        for (it = rs_more_than_zero.begin(); it != rs_more_than_zero.end(); it++) {
-            double r = *(it);
-            u2 = min(u2, r);
-        }
-        if (u1 > u2) {
-            return output;
-        } else {
-            output.push_back(
-                    Drawing_Edge(Coordinates(x1 + u1 * (x2 - x1), y1 + u1 * (y2 - y1), 0),
-                                 Coordinates(x1 + u2 * (x2 - x1), y1 + u2 * (y2 - y1), 0)));
-            return output;
-        }
-    }
-
     static vector<Edge> edges_from_points(vector<Coordinates *> points) {
         vector<Edge> edges;
         vector<Coordinates *>::iterator it = points.begin();
@@ -151,6 +104,54 @@ public:
     static bool contains(vector<T> v, T x) {
         return (std::find(v.begin(), v.end(), x) != v.end());
     }
+
+    static vector<Drawing_Edge> liang_barsky(double x1, double y1, double x2, double y2) {
+        vector<Drawing_Edge> output;
+        vector<double> ps;
+        ps.push_back(-(x2 - x1));
+        ps.push_back(x2 - x1);
+        ps.push_back(-(y2 - y1));
+        ps.push_back(y2 - y1);
+        vector<double> qs;
+        qs.push_back(x1 + 1);
+        qs.push_back(1 - x1);
+        qs.push_back(y1 + 1);
+        qs.push_back(1 - y1);
+        vector<double> rs_less_than_zero, rs_more_than_zero;
+        vector<double>::iterator it_ps;
+        vector<double>::iterator it_qs;
+        for (it_ps = ps.begin(), it_qs = qs.begin(); it_ps != ps.end(); it_ps++, it_qs++) {
+            double p = *(it_ps);
+            double q = *(it_qs);
+            if (p == 0 & q < 0) {
+                return output;
+            } else if (p < 0) {
+                rs_less_than_zero.push_back(q / p);
+            } else if (p > 0) {
+                rs_more_than_zero.push_back(q / p);
+            }
+        }
+        double u1 = 0;
+        vector<double>::iterator it;
+        for (it = rs_less_than_zero.begin(); it != rs_less_than_zero.end(); it++) {
+            double r = *(it);
+            u1 = max(u1, r);
+        }
+        double u2 = 1;
+        for (it = rs_more_than_zero.begin(); it != rs_more_than_zero.end(); it++) {
+            double r = *(it);
+            u2 = min(u2, r);
+        }
+        if (u1 > u2) {
+            return output;
+        } else {
+            output.push_back(
+                    Drawing_Edge(Coordinates(x1 + u1 * (x2 - x1), y1 + u1 * (y2 - y1), 0),
+                                 Coordinates(x1 + u2 * (x2 - x1), y1 + u2 * (y2 - y1), 0)));
+            return output;
+        }
+    }
+
 };
 
 #endif 

@@ -13,7 +13,7 @@
 #include "line.hpp"
 #include "wireframe.hpp"
 #include "color.hpp"
-#include "bspline.hpp"
+#include "spline_curve.hpp"
 #include "curve.hpp"
 #include "operations.cpp"
 #include "surface.hpp"

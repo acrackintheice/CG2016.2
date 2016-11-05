@@ -11,9 +11,11 @@
 #include "math.h"
 #include "operations.cpp"
 #include "curve.hpp"
-#include "bspline.hpp"
+#include "spline_curve.hpp"
 #include "matrices.cpp"
 #include "surface.hpp"
+#include "bezier_surface.hpp"
+#include "spline_surface.hpp"
 
 using namespace std;
 
@@ -22,7 +24,7 @@ int main(int argc, char *argv[]) {
     Window *window = new Window(new Coordinates(-500, -500, 0), new Coordinates(-500, 500, 0),
                                 new Coordinates(500, 500, 0), new Coordinates(500, -500, 0),
                                 new Coordinates(0, 500, 0), new Coordinates(0, 0, 500),
-                                new Coordinates(0,0, -2000));
+                                new Coordinates(0, 0, -2000));
     World *world = new World(window);
 
     vector<Coordinates *> cube_points;
@@ -73,7 +75,8 @@ int main(int argc, char *argv[]) {
     vector<Edge> wireframe_edges = Operations::edges_from_points(wireframe_points);
     Wireframe *w = new Wireframe(wireframe_points, wireframe_edges, "Wireframe", new Color(0, 0, 255, 1),
                                  new Color(1, 1, 1, 1), false);
-    Line *l = new Line(new Coordinates(-600, -600, -2000), new Coordinates(600, 600, -2000), "Line", new Color(0, 0, 0, 1));
+    Line *l = new Line(new Coordinates(-600, -600, -2000), new Coordinates(600, 600, -2000), "Line",
+                       new Color(0, 0, 0, 1));
 
     vector<Coordinates *> curve_points;
     curve_points.push_back(new Coordinates(0, -70, 0));
@@ -88,7 +91,7 @@ int main(int argc, char *argv[]) {
 
     //(0, -70, 0)#(-65, -30, 0)#(-65, 30, 0)#(0, 70, 0)#(65, 30, 0)#(65, -30, 0)#(0, -70, 0)#(-65, -30, 0)#(-65, 30, 0)
 
-    BSpline* c =  new BSpline(curve_points, "Curve", new Color(0,0,0,1));
+    Spline_Curve *c = new Spline_Curve(curve_points, "Curve", new Color(0, 0, 0, 1));
 
     vector<Coordinates *> s_points;
     s_points.push_back(new Coordinates(-200, 200, 0)); // p11
@@ -108,16 +111,39 @@ int main(int argc, char *argv[]) {
     s_points.push_back(new Coordinates(100, -200, 400));
     s_points.push_back(new Coordinates(200, -200, 0)); // p44
 
+    vector<Coordinates *> s2_points;
+    s2_points.push_back(new Coordinates(-100, 300, 100));
+    s2_points.push_back(new Coordinates(000, 300, 100));
+    s2_points.push_back(new Coordinates(100, 300, 100));
+    s2_points.push_back(new Coordinates(200, 300, 100));
+
+    s2_points.push_back(new Coordinates(-100, 300, 200));
+    s2_points.push_back(new Coordinates(000, -200, 200));
+    s2_points.push_back(new Coordinates(100, -200, 200));
+    s2_points.push_back(new Coordinates(200, 300, 200));
+
+    s2_points.push_back(new Coordinates(-100, 300, 300));
+    s2_points.push_back(new Coordinates(000, -200, 300));
+    s2_points.push_back(new Coordinates(100, -200, 300));
+    s2_points.push_back(new Coordinates(200, 300, 300));
+
+    s2_points.push_back(new Coordinates(-100, 300, 400));
+    s2_points.push_back(new Coordinates(000, 300, 400));
+    s2_points.push_back(new Coordinates(100, 300, 400));
+    s2_points.push_back(new Coordinates(200, 300, 400));
+
     //(-200,200,0)#(-100,200,400)#(100,200,400)#(200,200,0)#(-200,100,400)#(-100,100,400)#(100,100,400)#(200,100,400)#(-200,-100,400)#(-100,-100,400)#(100,-100,400)#(200,-100,400)#(-200,-200,0)#(-100,-200,400)#(100,-200,400)#(200,-200,0)
-    Surface* s = new Surface(s_points, "Surface", new Color(0,0,0,1), false);
+    Surface *s = new Spline_Surface(s2_points, "Surface", new Color(0, 0, 0, 1));
 
-    pol->translate(200,200,0);
-    w->translate(200,200,0);
-    c->translate(200,200,0);
+    //s->scale(100,100,100);
 
-    world->add_object(pol);
-    world->add_object(w);
-    world->add_object(c);
+    pol->translate(200, 200, 0);
+    w->translate(200, 200, 0);
+    c->translate(200, 200, 0);
+
+    //world->add_object(pol);
+    //world->add_object(w);
+    //world->add_object(c);
     world->add_object(s);
 
     UI ui = UI(argc, argv, world);

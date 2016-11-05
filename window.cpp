@@ -39,15 +39,15 @@ Window::~Window() {
 The window's transform function is different from the Object's one because
 it also needs to transform the configuration points that don't define the window's geometry
 */
-void Window::transform(Matriz4x4 transformation, bool use_scn, bool change_scn) {
+void Window::transform(Matrix4x4 transformation, bool use_scn, bool change_scn) {
     vector<Coordinates *> all_points = _points;
     all_points.insert(all_points.end(), configuration_points.begin(), configuration_points.end());
     /* Transforming the points */
     for (vector<Coordinates *>::iterator it = all_points.begin(); it != all_points.end(); it++) {
         Coordinates *point = (*it);
-        Matriz4x1 transformed_point =
-                (use_scn) ? transformation.multiplicar4x1(Matriz4x1(point->x_scn(), point->y_scn(), point->z_scn(), 1))
-                          : transformation.multiplicar4x1(Matriz4x1(point->x(), point->y(), point->z(), 1));
+        Matrix4x1 transformed_point =
+                (use_scn) ? transformation.multiply4x1(Matrix4x1(point->x_scn(), point->y_scn(), point->z_scn(), 1))
+                          : transformation.multiply4x1(Matrix4x1(point->x(), point->y(), point->z(), 1));
         if (change_scn) {
             point->set_xyz_scn(transformed_point.get(0), transformed_point.get(1), transformed_point.get(2));
         } else {

@@ -58,12 +58,12 @@ Coordinates Object::geometric_center(bool use_z, bool use_scn) {
 }
 
 /* Transform every point of the object using a transformation matrix*/
-void Object::transform(Matriz4x4 transformation, bool use_scn, bool change_scn) {
+void Object::transform(Matrix4x4 transformation, bool use_scn, bool change_scn) {
     for (vector<Coordinates *>::iterator it = _points.begin(); it != _points.end(); it++) {
         Coordinates *point = (*it);
-        Matriz4x1 transformed_point =
-                (use_scn) ? transformation.multiplicar4x1(Matriz4x1(point->x_scn(), point->y_scn(), point->z_scn(), 1))
-                          : transformation.multiplicar4x1(Matriz4x1(point->x(), point->y(), point->z(), 1));
+        Matrix4x1 transformed_point =
+                (use_scn) ? transformation.multiply4x1(Matrix4x1(point->x_scn(), point->y_scn(), point->z_scn(), 1))
+                          : transformation.multiply4x1(Matrix4x1(point->x(), point->y(), point->z(), 1));
         double div = transformed_point.get(3);
         if (change_scn) {
             double div = transformed_point.get(3);
@@ -119,7 +119,7 @@ void Object::rotate(double angle, Coordinates p1, Coordinates p2) {
     double l = pow(u, 2) + pow(v, 2) + pow(w, 2);
     double j = cos(angle);
     double k = sin(angle);
-    Matriz4x4 rotation = Matrices::arbitrary_rotation(u, v, w, a, b, c, j, k, l);
+    Matrix4x4 rotation = Matrices::arbitrary_rotation(u, v, w, a, b, c, j, k, l);
     transform(rotation);
 }
 

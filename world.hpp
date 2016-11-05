@@ -9,7 +9,7 @@
 #include "coordinates.hpp"
 #include "math.h"
 #include "operations.cpp"
-#include "matriz4x4.hpp"
+#include "matrix4x4.hpp"
 
 class World {
 public:

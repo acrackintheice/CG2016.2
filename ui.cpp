@@ -1,4 +1,7 @@
 #include "ui.hpp"
+#include "bezier_curve.hpp"
+#include "bezier_surface.hpp"
+#include "spline_surface.hpp"
 
 using namespace std;
 
@@ -474,9 +477,9 @@ void UI::add_object_from_dialog() {
             string points(gtk_entry_get_text((GtkEntry *) _text_entry_curve));
             vector<Coordinates *> curve_points = string_to_points(points);
             if (gtk_toggle_button_get_active((GtkToggleButton *) _radio_button_bezier)) {
-                obj = new Curve(curve_points, name, line_color);
+                obj = new Bezier_Curve(curve_points, name, line_color);
             } else {
-                obj = new BSpline(curve_points, name, line_color);
+                obj = new Spline_Curve(curve_points, name, line_color);
             }
             _world->add_object(obj);
             add_name_to_list(name);
@@ -491,9 +494,9 @@ void UI::add_object_from_dialog() {
             string points(gtk_entry_get_text((GtkEntry *) _text_entry_surface));
             vector<Coordinates *> curve_points = string_to_points(points);
             if (gtk_toggle_button_get_active((GtkToggleButton *) _radio_button_surface_bezier)) {
-                obj = new Surface(curve_points, name, line_color, false);
+                obj = new Bezier_Surface(curve_points, name, line_color);
             } else {
-                obj = new Surface(curve_points, name, line_color);
+                obj = new Spline_Surface(curve_points, name, line_color);
             }
             _world->add_object(obj);
             add_name_to_list(name);

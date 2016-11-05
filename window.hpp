@@ -31,7 +31,7 @@ public:
 
     Coordinates cop();
 
-    void transform(Matriz4x4 transformation, bool use_scn = false, bool change_scn = false);
+    void transform(Matrix4x4 transformation, bool use_scn = false, bool change_scn = false);
 
 private:
     Coordinates *_vup;
