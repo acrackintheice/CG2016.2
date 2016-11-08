@@ -48,10 +48,6 @@ static void add_object_from_dialog_callback(GtkWidget *widget, gpointer data) {
     static_cast<UI *>(data)->add_object_from_dialog();
 }
 
-static void add_point_to_polygon_callback(GtkWidget *widget, gpointer data) {
-    static_cast<UI *>(data)->add_point_to_polygon();
-}
-
 static void remove_object_callback(GtkWidget *widget, gpointer data) {
     static_cast<UI *>(data)->remove_object();
 }
@@ -166,28 +162,14 @@ UI::UI(int argc, char *argv[], World *world) : _world(world) {
     _button_cancel = gtk_builder_get_object(_builder, "button_cancel");
     _notebook = gtk_builder_get_object(_builder, "notebook");
     _text_entry_object_name = gtk_builder_get_object(_builder, "text_entry_object_name");
-    _text_entry_point_x = gtk_builder_get_object(_builder, "text_entry_point_x");
-    _text_entry_point_y = gtk_builder_get_object(_builder, "text_entry_point_y");
-    _text_entry_line_x1 = gtk_builder_get_object(_builder, "text_entry_line_x1");
-    _text_entry_line_y1 = gtk_builder_get_object(_builder, "text_entry_line_y1");
-    _text_entry_line_x2 = gtk_builder_get_object(_builder, "text_entry_line_x2");
-    _text_entry_line_y2 = gtk_builder_get_object(_builder, "text_entry_line_y2");
-    _text_entry_polygon_x = gtk_builder_get_object(_builder, "text_entry_polygon_x");
-    _text_entry_polygon_y = gtk_builder_get_object(_builder, "text_entry_polygon_y");
-    _textview_number_of_points = gtk_builder_get_object(_builder, "textview_number_of_points");
-    _button_add_point_to_polygon = gtk_builder_get_object(_builder, "button_add_point_to_polygon");
-    _radio_button_polygon = gtk_builder_get_object(_builder, "radio_button_polygon");
-    _radio_button_wireframe = gtk_builder_get_object(_builder, "radio_button_wireframe");
-    _radio_button_filled = gtk_builder_get_object(_builder, "radio_button_filled");
-    _radio_button_bspline = gtk_builder_get_object(_builder, "radio_button_bspline");
     _radio_button_bezier = gtk_builder_get_object(_builder, "radio_button_bezier");
     _text_entry_curve = gtk_builder_get_object(_builder, "text_entry_curve");
     _text_entry_wireframe_points = gtk_builder_get_object(_builder, "text_entry_wireframe_points");
     _text_entry_wireframe_edges = gtk_builder_get_object(_builder, "text_entry_wireframe_edges");
-    _radio_button_surface_bspline = gtk_builder_get_object(_builder, "radio_button_surface_bspline");
     _radio_button_surface_bezier = gtk_builder_get_object(_builder, "radio_button_surface_bezier");
     _text_entry_surface = gtk_builder_get_object(_builder, "text_entry_surface");
     _text_entry_movement = gtk_builder_get_object(_builder, "text_entry_movement");
+    _radio_button_surface_blending = gtk_builder_get_object(_builder, "radio_button_surface_blending");
     // Signals
     g_signal_connect (_main_window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     g_signal_connect (_main_window, "check-resize", G_CALLBACK(resize_callback), this);
@@ -209,7 +191,6 @@ UI::UI(int argc, char *argv[], World *world) : _world(world) {
     /* Add object dialog widget signals */
     g_signal_connect (_button_add, "clicked", G_CALLBACK(add_object_from_dialog_callback), this);
     g_signal_connect (_button_cancel, "clicked", G_CALLBACK(hide_add_object_dialog_callback), this);
-    g_signal_connect (_button_add_point_to_polygon, "clicked", G_CALLBACK(add_point_to_polygon_callback), this);
     /* Adding the test objects to the list */
     vector<Object *> objects = _world->objects();
     vector<Object *>::iterator it;
@@ -362,14 +343,6 @@ void UI::hide_add_object_dialog() {
     gtk_widget_hide(GTK_WIDGET(_dialog_add_object));
 }
 
-void UI::add_point_to_polygon() {
-    gdouble x = g_ascii_strtod(gtk_entry_get_text((GtkEntry *) _text_entry_polygon_x), NULL);
-    gdouble y = g_ascii_strtod(gtk_entry_get_text((GtkEntry *) _text_entry_polygon_y), NULL);
-    _polygon_points.push_back(new Coordinates(x, y, 0));
-    gchar *size_text = (char *) to_string(_polygon_points.size()).c_str();
-    set_text_of_textview(GTK_WIDGET(_textview_number_of_points), size_text);
-}
-
 void UI::set_text_of_textview(GtkWidget *text_view, gchar *text) {
     GtkTextBuffer *buffer = gtk_text_view_get_buffer((GtkTextView *) text_view);
     gtk_text_buffer_set_text(buffer, text, strlen(text));
@@ -402,63 +375,7 @@ void UI::add_object_from_dialog() {
     Color *line_color = new Color(color_rgba->red, color_rgba->green, color_rgba->blue, color_rgba->alpha);
     delete color_rgba; /* Deleting these things we had to create*/
     delete background_rgba;  /* deleting this too*/
-    if (strcmp(page_name, "Point") == 0) {
-        gdouble x = g_ascii_strtod(gtk_entry_get_text((GtkEntry *) _text_entry_point_x), NULL);
-        gdouble y = g_ascii_strtod(gtk_entry_get_text((GtkEntry *) _text_entry_point_y), NULL);
-        if (input_is_valid()) {
-            std::vector<Coordinates *> points;
-            Coordinates *point = new Coordinates(x, y, 0);
-            points.push_back(point);
-            vector<Edge> edges;
-            edges.push_back(Edge(point, point));
-            Wireframe *p = new Wireframe(points, edges, name, line_color, new Color(1, 1, 1, 1), false);
-            _world->add_object(p);
-            add_name_to_list(name);
-            draw();
-            gtk_widget_hide(GTK_WIDGET(_dialog_add_object));
-        } else {
-            // TODO - Showing a message if the input is invalid
-        }
-    } else if (strcmp(page_name, "Line") == 0) {
-        gdouble x1 = g_ascii_strtod(gtk_entry_get_text((GtkEntry *) _text_entry_line_x1), NULL);
-        gdouble y1 = g_ascii_strtod(gtk_entry_get_text((GtkEntry *) _text_entry_line_y1), NULL);
-        gdouble x2 = g_ascii_strtod(gtk_entry_get_text((GtkEntry *) _text_entry_line_x2), NULL);
-        gdouble y2 = g_ascii_strtod(gtk_entry_get_text((GtkEntry *) _text_entry_line_y2), NULL);
-        if (input_is_valid()) {
-            vector<Coordinates *> points;
-            points.push_back(new Coordinates(x1, y1, 0));
-            points.push_back(new Coordinates(x2, y2, 0));
-            vector<Edge> edges = edges_from_points(points);
-            Wireframe *r = new Wireframe(points, edges, name, line_color, new Color(1, 1, 1, 1), false);
-            _world->add_object(r);
-            add_name_to_list(name);
-            draw();
-            gtk_widget_hide(GTK_WIDGET(_dialog_add_object));
-        } else {
-            //TODO - Showing a message if the input is invalid
-        }
-    } else if (strcmp(page_name, "Polygon") == 0) {
-        if (input_is_valid()) {
-            Object *obj;
-            vector<Edge> edges = edges_from_points(_polygon_points);
-            if (gtk_toggle_button_get_active((GtkToggleButton *) _radio_button_wireframe)) {
-                obj = new Wireframe(_polygon_points, edges, name, line_color, new Color(1, 1, 1, 1), false);
-            } else if (gtk_toggle_button_get_active((GtkToggleButton *) _radio_button_polygon)) {
-                edges.push_back(Edge(_polygon_points.back(), _polygon_points.front()));
-                obj = new Wireframe(_polygon_points, edges, name, line_color, new Color(1, 1, 1, 1), false);
-            } else {
-                edges.push_back(Edge(_polygon_points.back(), _polygon_points.front()));
-                obj = new Wireframe(_polygon_points, edges, name, line_color, background_color, true);
-            }
-            _world->add_object(obj);
-            add_name_to_list(name);
-            reset_polygon_points();
-            draw();
-            gtk_widget_hide(GTK_WIDGET(_dialog_add_object));
-        } else {
-            //TODO - Showing a message if the input is invalid
-        }
-    } else if (strcmp(page_name, "Wireframe 3d") == 0) {
+    if (strcmp(page_name, "Wireframe 3d") == 0) {
         if (input_is_valid()) {
             Object *obj;
             string points(gtk_entry_get_text((GtkEntry *) _text_entry_wireframe_points));
@@ -493,10 +410,11 @@ void UI::add_object_from_dialog() {
             Object *obj;
             string points(gtk_entry_get_text((GtkEntry *) _text_entry_surface));
             vector<Coordinates *> curve_points = string_to_points(points);
+            bool blending = (bool)gtk_toggle_button_get_active((GtkToggleButton *) _radio_button_surface_blending);
             if (gtk_toggle_button_get_active((GtkToggleButton *) _radio_button_surface_bezier)) {
-                obj = new Bezier_Surface(curve_points, name, line_color);
+                obj = new Bezier_Surface(curve_points, name, line_color, blending);
             } else {
-                obj = new Spline_Surface(curve_points, name, line_color);
+                obj = new Spline_Surface(curve_points, name, line_color, blending);
             }
             _world->add_object(obj);
             add_name_to_list(name);
@@ -506,20 +424,6 @@ void UI::add_object_from_dialog() {
             //TODO - Showing a message if the input is invalid
         }
     }
-}
-
-vector<Edge> UI::edges_from_points(vector<Coordinates *> points) {
-    vector<Edge> edges;
-    if (points.size() > 1) {
-        vector<Coordinates *>::iterator it = points.begin();
-        for (int i = 0; i < points.size() - 1; i++) {
-            Coordinates *p1 = *it;
-            it++;
-            Coordinates *p2 = *it;
-            edges.push_back(Edge(p1, p2));
-        }
-    }
-    return edges;
 }
 
 vector<Edge> UI::string_to_edges(vector<Coordinates *> points, string x) {
@@ -558,11 +462,6 @@ vector<Coordinates *> UI::string_to_points(string s) {
         points.push_back(c);
     }
     return points;
-}
-
-void UI::reset_polygon_points() {
-    _polygon_points.clear();
-    set_text_of_textview(GTK_WIDGET(_textview_number_of_points), (char *) "0");
 }
 
 bool UI::input_is_valid() {

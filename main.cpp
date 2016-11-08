@@ -93,6 +93,7 @@ int main(int argc, char *argv[]) {
 
     Spline_Curve *c = new Spline_Curve(curve_points, "Curve", new Color(0, 0, 0, 1));
 
+    //(-200,200,0)#(-100,200,400)#(100,200,400)#(200,200,0)#(-200,100,400)#(-100,100,400)#(100,100,400)#(200,100,400)#(-200,-100,400)#(-100,-100,400)#(100,-100,400)#(200,-100,400)#(-200,-200,0)#(-100,-200,400)#(100,-200,400)#(200,-200,0)
     vector<Coordinates *> s_points;
     s_points.push_back(new Coordinates(-200, 200, 0)); // p11
     s_points.push_back(new Coordinates(-100, 200, 400));
@@ -111,6 +112,7 @@ int main(int argc, char *argv[]) {
     s_points.push_back(new Coordinates(100, -200, 400));
     s_points.push_back(new Coordinates(200, -200, 0)); // p44
 
+    //(-100, 300, 100)#(000, 300, 100)#(100, 300, 100)#(200, 300, 100)#(-100,300,200)#(000,-200,200)#(100,-200,200)#(200,300,200)#(-100, 300, 300)#(000, -200, 300)#(100, -200, 300)#(200, 300, 300)#(-100, 300, 400)#(000, 300, 400)#(100, 300, 400)#(200, 300, 400)
     vector<Coordinates *> s2_points;
     s2_points.push_back(new Coordinates(-100, 300, 100));
     s2_points.push_back(new Coordinates(000, 300, 100));
@@ -132,10 +134,7 @@ int main(int argc, char *argv[]) {
     s2_points.push_back(new Coordinates(100, 300, 400));
     s2_points.push_back(new Coordinates(200, 300, 400));
 
-    //(-200,200,0)#(-100,200,400)#(100,200,400)#(200,200,0)#(-200,100,400)#(-100,100,400)#(100,100,400)#(200,100,400)#(-200,-100,400)#(-100,-100,400)#(100,-100,400)#(200,-100,400)#(-200,-200,0)#(-100,-200,400)#(100,-200,400)#(200,-200,0)
-    Surface *s = new Spline_Surface(s2_points, "Surface", new Color(0, 0, 0, 1));
-
-    //s->scale(100,100,100);
+    Surface *s = new Bezier_Surface(s2_points, "Surface", new Color(0, 0, 0, 1), true);
 
     pol->translate(200, 200, 0);
     w->translate(200, 200, 0);
