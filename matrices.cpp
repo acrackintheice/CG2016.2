@@ -148,13 +148,13 @@ public:
 
     static Matrix4x4 forward_diff_cx(std::vector<Coordinates *> points, Matrix4x4 M) {
         Matrix4x4 Gx = Matrices::gx(points);
-        return M.multiply4x4(Gx).multiply4x4(M);
+        return M.multiply4x4(Gx).multiply4x4(M.tranpose());
 
     }
 
     static Matrix4x4 forward_diff_cy(std::vector<Coordinates *> points, Matrix4x4 M) {
         Matrix4x4 Gy = Matrices::gy(points);
-        return M.multiply4x4(Gy).multiply4x4(M);
+        return M.multiply4x4(Gy).multiply4x4(M.tranpose());
 
     }
 
