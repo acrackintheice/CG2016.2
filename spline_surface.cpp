@@ -9,8 +9,8 @@ void Spline_Surface::clip_and_draw(cairo_t *cr, Coordinates win_min, Coordinates
     double ns = 100;
     double nt = 100;
     // Creating the coefficient matrices
-    Matrix4x4 Cx = Matrices::forward_diff_cx(_points, Matrices::bezier());
-    Matrix4x4 Cy = Matrices::forward_diff_cy(_points, Matrices::bezier());
+    Matrix4x4 Cx = Matrices::forward_diff_cx(_points, Matrices::bspline());
+    Matrix4x4 Cy = Matrices::forward_diff_cy(_points, Matrices::bspline());
     // Creating the delta matrices
     Matrix4x4 Es = Matrices::forward_diff_es(1.0 / (ns));
     Matrix4x4 Et = Matrices::forward_diff_et(1.0 / (nt));
