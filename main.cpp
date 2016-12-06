@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
 
     //world->add_object(pol);
     //world->add_object(w);
-    world->add_object(c);
+    //world->add_object(c);
     world->add_object(s);
 
     UI ui = UI(argc, argv, world);
