@@ -37,9 +37,6 @@ int main(int argc, char *argv[]) {
     Coordinates *G = new Coordinates(-200, 200, 200);
     Coordinates *H = new Coordinates(200, 200, 200);
 
-    // (-200,-200,-200)#(200,-200,-200)#(-200,200,-200)#(200,200,-200)#(-200,-200,200)#(200,-200,200)#(-200,200,200)#(200,200,200)
-    // (0,1)#(0,2)#(0,4)#(1,3)#(1,5)#(2,3)#(2,6)#(3,7)#(4,6)#(4,5)#(5,7)#(6,7)
-
     cube_points.push_back(A);
     cube_points.push_back(B);
     cube_points.push_back(C);
@@ -89,11 +86,9 @@ int main(int argc, char *argv[]) {
     curve_points.push_back(new Coordinates(-65, -30, 0));
     curve_points.push_back(new Coordinates(-65, 30, 0));
 
-    //(0, -70, 0)#(-65, -30, 0)#(-65, 30, 0)#(0, 70, 0)#(65, 30, 0)#(65, -30, 0)#(0, -70, 0)#(-65, -30, 0)#(-65, 30, 0)
 
     Spline_Curve *c = new Spline_Curve(curve_points, "Curve", new Color(0, 0, 0, 1));
 
-    //(-200,200,0)#(-100,200,400)#(100,200,400)#(200,200,0)#(-200,100,400)#(-100,100,400)#(100,100,400)#(200,100,400)#(-200,-100,400)#(-100,-100,400)#(100,-100,400)#(200,-100,400)#(-200,-200,0)#(-100,-200,400)#(100,-200,400)#(200,-200,0)
     vector<Coordinates *> s_points;
     s_points.push_back(new Coordinates(-200, 200, 0)); // p11
     s_points.push_back(new Coordinates(-100, 200, 400));
@@ -112,7 +107,6 @@ int main(int argc, char *argv[]) {
     s_points.push_back(new Coordinates(100, -200, 400));
     s_points.push_back(new Coordinates(200, -200, 0)); // p44
 
-    //(-100, 300, 100)#(000, 300, 100)#(100, 300, 100)#(200, 300, 100)#(-100,300,200)#(000,-200,200)#(100,-200,200)#(200,300,200)#(-100, 300, 300)#(000, -200, 300)#(100, -200, 300)#(200, 300, 300)#(-100, 300, 400)#(000, 300, 400)#(100, 300, 400)#(200, 300, 400)
     vector<Coordinates *> s2_points;
     s2_points.push_back(new Coordinates(-100, 300, 100));
     s2_points.push_back(new Coordinates(000, 300, 100));
@@ -142,7 +136,7 @@ int main(int argc, char *argv[]) {
 
     //world->add_object(pol);
     //world->add_object(w);
-    //world->add_object(c);
+    world->add_object(c);
     world->add_object(s);
 
     UI ui = UI(argc, argv, world);

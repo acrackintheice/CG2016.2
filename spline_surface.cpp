@@ -53,10 +53,10 @@ void Spline_Surface::blending_function(cairo_t *cr, Coordinates win_min, Coordin
                                        Coordinates vp_min, Coordinates vp_max) {
     double s = 1.0 / 16;
     double t = 1.0 / 16;
-    // Creating the Bezier matrix
+    // Creating the BSpline matrix
     Matrix4x4 M = Matrices::bspline();
-    //  Mt is M transposed, for bezier its the same matrix
-    Matrix4x4 Mt = M;
+    //  Mt is M transposed
+    Matrix4x4 Mt = M.tranpose();
     // Checking if the points list has the correct size
     if (((_points.size() - 1) % 15) == 0) {
         // Finding the curves for every "patch" of the surface
@@ -108,6 +108,5 @@ void Spline_Surface::blending_function(cairo_t *cr, Coordinates win_min, Coordin
                 }
             }
         }
-        //for (vector<Coordinates *>::iterator it = _points.begin(); it < _points.end() - 1; it = it++) {
     }
 }
